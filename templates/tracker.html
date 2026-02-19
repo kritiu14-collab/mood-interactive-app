@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Mood Tracker</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            text-align: center;
+            padding-top: 50px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        .emoji-btn {
+            font-size: 60px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            margin: 20px;
+            transition: 0.3s;
+            display: inline-block;
+            padding: 10px;
+            border-radius: 10px;
+        }
+        .emoji-btn:hover {
+            transform: scale(1.2); /* Makes emoji bigger on hover */
+            background: rgba(255, 255, 255, 0.2); /* Subtle hover effect */
+        }
+        .mood-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .mood-label {
+            font-size: 16px;
+            margin-top: 10px;
+            color: #ddd;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>How are you feeling?</h1>
+    <p>Select your current mood to personalize the dashboard.</p>
+
+    <div class="mood-grid">
+        <div>
+            <a href="index.html?mood=happy" class="emoji-btn">😊</a>
+            <div class="mood-label">Happy</div>
+        </div>
+        <div>
+            <a href="index.html?mood=sad" class="emoji-btn">😞</a>
+            <div class="mood-label">Sad</div>
+        </div>
+        <div>
+            <a href="index.html?mood=stress" class="emoji-btn">😫</a>
+            <div class="mood-label">Stressed</div>
+        </div>
+        <div>
+            <a href="index.html?mood=neutral" class="emoji-btn">😐</a>
+            <div class="mood-label">Neutral</div>
+        </div>
+        <div>
+            <a href="index.html?mood=gross" class="emoji-btn">🤢</a>
+            <div class="mood-label">Gross</div>
+        </div>
+        <div>
+            <a href="index.html?mood=calm" class="emoji-btn">😌</a>
+            <div class="mood-label">Calm</div>
+        </div>
+        <div>
+            <a href="index.html?mood=angry" class="emoji-btn">😡</a>
+            <div class="mood-label">Angry</div>
+        </div>
+        <div>
+            <a href="index.html?mood=anxious" class="emoji-btn">😰</a>
+            <div class="mood-label">Anxious</div>
+        </div>
+        <div>
+            <a href="index.html?mood=tired" class="emoji-btn">😴</a>
+            <div class="mood-label">Tired</div>
+        </div>
+    </div>
+
+    <br><br>
+    <button onclick="logout()" style="margin-top: 20px; padding: 10px; cursor: pointer;">
+    Logout (Switch User)
+</button>
+
+<script>
+    function logout() {
+        // This "clears" the identification badge from the browser
+        localStorage.removeItem('loggedInUser');
+        // This sends you back to the Login/Signup page
+        window.location.href = '/';
+    }
+</script>
+
+</body>
+</html>

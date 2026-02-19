@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login and Signup</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"> <!-- For icons -->
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            width: 350px;
+            max-width: 90%;
+            position: relative;
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #4a4a4a;
+        }
+        form, .forgot-section {
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        form.active, .forgot-section.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .input-group {
+            position: relative;
+            margin-bottom: 15px;
+        }
+        input {
+            width: 100%;
+            padding: 12px 40px 12px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        input:focus {
+            border-color: #667eea;
+            outline: none;
+            box-shadow: 0 0 5px rgba(102, 126, 234, 0.5);
+        }
+        .input-group i {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #aaa;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+        }
+        .toggle {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .toggle a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: bold;
+            margin: 0 10px;
+            transition: color 0.3s;
+        }
+        .toggle a:hover {
+            color: #764ba2;
+        }
+        .error {
+            color: #e74c3c;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        .success {
+            color: #27ae60;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        .forgot {
+            text-align: center;
+            margin-top: 10px;
+        }
+        .forgot a {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .forgot a:hover {
+            text-decoration: underline;
+        }
+        .back-link {
+            text-align: center;
+            margin-top: 10px;
+        }
+        .back-link a {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .back-link a:hover {
+            text-decoration: underline;
+        }
+         
+    </style>
+</head>
+<body>
+  <div class="container">
+    <div class="toggle">
+        <a href="#" onclick="showForm('login')">Login</a> | <a href="#" onclick="showForm('signup')">Signup</a>
+    </div>
+
+    <form id="loginForm">
+        <h2><i class="fas fa-sign-in-alt"></i> Login</h2>
+        <div class="input-group">
+            <input type="text" id="loginUsername" placeholder="Username" required>
+            <i class="fas fa-user"></i>
+        </div>
+        <div class="input-group">
+            <input type="password" id="loginPassword" placeholder="Password" required>
+            <i class="fas fa-lock"></i>
+        </div>
+        <div id="loginError" class="error"></div>
+        <button type="submit">Login</button>
+        <div class="forgot">
+            <a href="#" onclick="showForgotPassword()">Forgot Password?</a>
+        </div>
+    </form>
+
+    <form id="signupForm">
+        <h2><i class="fas fa-user-plus"></i> Signup</h2>
+        <div class="input-group">
+            <input type="text" id="signupUsername" placeholder="Username" required>
+            <i class="fas fa-user"></i>
+        </div>
+        <div class="input-group">
+            <input type="email" id="signupEmail" placeholder="Email" required>
+            <i class="fas fa-envelope"></i>
+        </div>
+        <div class="input-group">
+            <input type="password" id="signupPassword" placeholder="Password" required>
+            <i class="fas fa-lock"></i>
+        </div>
+        <div class="input-group">
+            <input type="password" id="signupConfirmPassword" placeholder="Confirm Password" required>
+            <i class="fas fa-lock"></i>
+        </div>
+        <div id="signupError" class="error"></div>
+        <div id="signupSuccess" class="success"></div>
+        <button type="submit">Signup</button>
+    </form>
+
+    <div id="forgotSection" class="forgot-section">
+        <h2><i class="fas fa-key"></i> Reset Password</h2>
+        <div class="input-group">
+            <input type="text" id="forgotUsername" placeholder="Username" required>
+            <i class="fas fa-user"></i>
+        </div>
+        <div id="forgotError" class="error"></div>
+        <div id="forgotSuccess" class="success"></div>
+        <button type="button" onclick="resetPassword()">Reset Password</button>
+        <div class="back-link">
+            <a href="#" onclick="showForm('login')">Back to Login</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 1. PERSISTENT LOGIN CHECK (Runs on page load)
+    window.onload = function() {
+        if (localStorage.getItem('loggedInUser')) {
+            window.location.href = '/tracker.html';
+        }
+    };
+
+    function showForm(formType) {
+        document.getElementById('loginForm').classList.remove('active');
+        document.getElementById('signupForm').classList.remove('active');
+        document.getElementById('forgotSection').classList.remove('active');
+        document.getElementById(formType + 'Form').classList.add('active');
+        // Clear status messages
+        document.querySelectorAll('.error, .success').forEach(el => el.textContent = '');
+    }
+
+    function showForgotPassword() {
+        document.getElementById('loginForm').classList.remove('active');
+        document.getElementById('signupForm').classList.remove('active');
+        document.getElementById('forgotSection').classList.add('active');
+    }
+
+    showForm('login');
+
+    // 2. SIGNUP LOGIC WITH VALIDATIONS
+    document.getElementById('signupForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const username = document.getElementById('signupUsername').value.trim();
+        const email = document.getElementById('signupEmail').value.trim();
+        const password = document.getElementById('signupPassword').value;
+        const confirmPassword = document.getElementById('signupConfirmPassword').value;
+        const errorDiv = document.getElementById('signupError');
+
+        // VALIDATION: Password length
+        if (password.length < 8) {
+            errorDiv.textContent = 'Password must be at least 8 characters.';
+            return;
+        }
+
+        // VALIDATION: Matching passwords
+        if (password !== confirmPassword) {
+            errorDiv.textContent = 'Passwords do not match.';
+            return;
+        }
+
+        const response = await fetch('/signup', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, email, password })
+        });
+
+        const result = await response.json();
+        if (response.ok) {
+            document.getElementById('signupSuccess').textContent = 'Account created! Switching to Login...';
+            setTimeout(() => showForm('login'), 2000);
+        } else {
+            errorDiv.textContent = result.error;
+        }
+    });
+
+    // 3. LOGIN LOGIC
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const username = document.getElementById('loginUsername').value.trim();
+        const password = document.getElementById('loginPassword').value;
+
+        const response = await fetch('/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+        });
+
+        if (response.ok) {
+            // SESSION SAVED: User stays logged in
+            localStorage.setItem('loggedInUser', username);
+            window.location.href = '/tracker.html';
+        } else {
+            const result = await response.json();
+            document.getElementById('loginError').textContent = result.error;
+        }
+    });
+
+    function resetPassword() {
+        document.getElementById('forgotSuccess').textContent = 'Feature coming soon! Contact Admin.';
+    }
+</script>  
+</body>
+</html>
