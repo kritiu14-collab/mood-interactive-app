@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Solace | Your Insights</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #fffcf2; color: #333; padding: 40px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        
+        /* Insight Box */
+        .insight-card {
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 20px rgba(118, 75, 162, 0.2);
+        }
+
+        /* Timeline Style */
+        .timeline { position: relative; padding: 20px 0; }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 50px; width: 2px; height: 100%;
+            background: #ddd;
+        }
+        .log-item {
+            position: relative;
+            margin-bottom: 20px;
+            padding-left: 80px;
+            display: flex;
+            align-items: center;
+        }
+        .mood-icon {
+            position: absolute;
+            left: 35px; width: 30px; height: 30px;
+            background: white; border: 2px solid #764ba2;
+            border-radius: 50%; text-align: center; line-height: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome Back, {{ username }}</h1>
+
+        <div class="insight-card">
+            <h2><i class="fas fa-magic"></i> Weekly Vibe: {{ top_mood.capitalize() }}</h2>
+            <p>You've been feeling <strong>{{ top_mood }}</strong> quite a bit lately. 
+               {% if top_mood == 'happy' %}
+               Keep riding this wave! Try sharing this energy with a friend today.
+               {% elif top_mood == 'sad' or top_mood == 'stressed' %}
+               It looks like a heavy week. Remember to take 5 minutes just for deep breathing.
+               {% else %}
+               You are finding your balance. Consistency is key!
+               {% endif %}
+            </p>
+        </div>
+
+        <h3>Your Timeline</h3>
+        <div class="timeline">
+            {% for mood, time in logs %}
+            <div class="log-item">
+                <div class="mood-icon">
+                    {% if mood == 'happy' %}😊{% elif mood == 'sad' %}😞{% else %}✨{% endif %}
+                </div>
+                <div>
+                    <strong>{{ mood.capitalize() }}</strong> <br>
+                    <small style="color: #888;">{{ time }}</small>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <a href="/tracker" style="text-decoration: none; color: #764ba2; font-weight: bold;">← Back to Tracker</a>
+    </div>
+</body>
+</html>

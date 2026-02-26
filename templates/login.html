@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login and Signup</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"> <!-- For icons -->
+    <title>Solace | Login & Signup</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -89,51 +89,21 @@
             font-weight: bold;
             margin: 0 10px;
             transition: color 0.3s;
+            cursor: pointer;
         }
         .toggle a:hover {
             color: #764ba2;
         }
-        .error {
-            color: #e74c3c;
-            font-size: 14px;
-            margin-top: 5px;
-        }
-        .success {
-            color: #27ae60;
-            font-size: 14px;
-            margin-top: 5px;
-        }
-        .forgot {
-            text-align: center;
-            margin-top: 10px;
-        }
-        .forgot a {
-            color: #667eea;
-            text-decoration: none;
-            font-size: 14px;
-        }
-        .forgot a:hover {
-            text-decoration: underline;
-        }
-        .back-link {
-            text-align: center;
-            margin-top: 10px;
-        }
-        .back-link a {
-            color: #667eea;
-            text-decoration: none;
-            font-size: 14px;
-        }
-        .back-link a:hover {
-            text-decoration: underline;
-        }
-         
+        .error { color: #e74c3c; font-size: 14px; margin-top: 5px; text-align: center; }
+        .success { color: #27ae60; font-size: 14px; margin-top: 5px; text-align: center; }
+        .forgot, .back-link { text-align: center; margin-top: 10px; }
+        .forgot a, .back-link a { color: #667eea; text-decoration: none; font-size: 14px; }
     </style>
 </head>
 <body>
-  <div class="container">
+<div class="container">
     <div class="toggle">
-        <a href="#" onclick="showForm('login')">Login</a> | <a href="#" onclick="showForm('signup')">Signup</a>
+        <a onclick="showForm('login')">Login</a> | <a onclick="showForm('signup')">Signup</a>
     </div>
 
     <form id="loginForm">
@@ -149,7 +119,7 @@
         <div id="loginError" class="error"></div>
         <button type="submit">Login</button>
         <div class="forgot">
-            <a href="#" onclick="showForgotPassword()">Forgot Password?</a>
+            <a onclick="showForgotPassword()">Forgot Password?</a>
         </div>
     </form>
 
@@ -177,7 +147,7 @@
     </form>
 
     <div id="forgotSection" class="forgot-section">
-        <h2><i class="fas fa-key"></i> Reset Password</h2>
+        <h2><i class="fas fa-key"></i> Reset</h2>
         <div class="input-group">
             <input type="text" id="forgotUsername" placeholder="Username" required>
             <i class="fas fa-user"></i>
@@ -186,25 +156,19 @@
         <div id="forgotSuccess" class="success"></div>
         <button type="button" onclick="resetPassword()">Reset Password</button>
         <div class="back-link">
-            <a href="#" onclick="showForm('login')">Back to Login</a>
+            <a onclick="showForm('login')">Back to Login</a>
         </div>
     </div>
 </div>
 
-<script>
-    // 1. PERSISTENT LOGIN CHECK (Runs on page load)
-    window.onload = function() {
-        if (localStorage.getItem('loggedInUser')) {
-            window.location.href = '/tracker.html';
-        }
-    };
+<script> 
+  
 
     function showForm(formType) {
         document.getElementById('loginForm').classList.remove('active');
         document.getElementById('signupForm').classList.remove('active');
         document.getElementById('forgotSection').classList.remove('active');
         document.getElementById(formType + 'Form').classList.add('active');
-        // Clear status messages
         document.querySelectorAll('.error, .success').forEach(el => el.textContent = '');
     }
 
@@ -214,26 +178,23 @@
         document.getElementById('forgotSection').classList.add('active');
     }
 
+    // Default view
     showForm('login');
 
-    // 2. SIGNUP LOGIC WITH VALIDATIONS
+    // 2. SIGNUP FETCH
     document.getElementById('signupForm').addEventListener('submit', async function(e) {
         e.preventDefault();
         const username = document.getElementById('signupUsername').value.trim();
         const email = document.getElementById('signupEmail').value.trim();
         const password = document.getElementById('signupPassword').value;
         const confirmPassword = document.getElementById('signupConfirmPassword').value;
-        const errorDiv = document.getElementById('signupError');
 
-        // VALIDATION: Password length
         if (password.length < 8) {
-            errorDiv.textContent = 'Password must be at least 8 characters.';
+            document.getElementById('signupError').textContent = 'Min 8 characters required.';
             return;
         }
-
-        // VALIDATION: Matching passwords
         if (password !== confirmPassword) {
-            errorDiv.textContent = 'Passwords do not match.';
+            document.getElementById('signupError').textContent = 'Passwords do not match.';
             return;
         }
 
@@ -245,14 +206,14 @@
 
         const result = await response.json();
         if (response.ok) {
-            document.getElementById('signupSuccess').textContent = 'Account created! Switching to Login...';
+            document.getElementById('signupSuccess').textContent = 'Account created! Loading login...';
             setTimeout(() => showForm('login'), 2000);
         } else {
-            errorDiv.textContent = result.error;
+            document.getElementById('signupError').textContent = result.error;
         }
     });
 
-    // 3. LOGIN LOGIC
+    // 3. LOGIN FETCH
     document.getElementById('loginForm').addEventListener('submit', async function(e) {
         e.preventDefault();
         const username = document.getElementById('loginUsername').value.trim();
@@ -265,9 +226,8 @@
         });
 
         if (response.ok) {
-            // SESSION SAVED: User stays logged in
             localStorage.setItem('loggedInUser', username);
-            window.location.href = '/tracker.html';
+            window.location.href = '/tracker'; // Redirects to Flask route
         } else {
             const result = await response.json();
             document.getElementById('loginError').textContent = result.error;
@@ -275,8 +235,8 @@
     });
 
     function resetPassword() {
-        document.getElementById('forgotSuccess').textContent = 'Feature coming soon! Contact Admin.';
+        document.getElementById('forgotSuccess').textContent = 'Contact admin for reset.';
     }
-</script>  
+</script>
 </body>
 </html>

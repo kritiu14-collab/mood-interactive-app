@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solace | Just Breathe 🌿</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        /* Anxiety-Reduction Palette: Soft Lavenders & Mints */
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f8f7fa; /* Pale Neutral Purple */
+            color: #5a5266;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Hero Section - Matching index.html but with Soft Blur */
+        #heroSection {
+            background: linear-gradient(rgba(243, 240, 247, 0.6), rgba(243, 240, 247, 0.7)), url("static/background.jpeg");
+            background-size: cover;
+            background-position: center;
+            height: 45vh; 
+            color: #4a4453;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            border-bottom: 4px solid #dcd3eb;
+        }
+
+        /* --- THE SEPARATE CALM FEED BOX --- */
+        .content-feed-container {
+            margin-top: -60px;
+            margin-bottom: 50px;
+        }
+
+        .main-feed-box {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 40px;
+            border: 2px solid #dcd3eb;
+            padding: 45px;
+            box-shadow: 0 15px 35px rgba(155, 137, 179, 0.1);
+            position: relative;
+            backdrop-filter: blur(10px);
+        }
+
+        .feed-label {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #dcd3eb;
+            padding: 5px 25px;
+            border-radius: 0 0 20px 20px;
+            font-weight: bold;
+            font-size: 0.8rem;
+            color: #5a5266;
+            letter-spacing: 1px;
+        }
+
+        /* Feature Boxes - Cloud-like Softness */
+        .feature-card {
+            background: white;
+            border-radius: 30px; 
+            border: 1px solid #e9e4f0;
+            padding: 25px;
+            transition: 0.4s ease;
+            height: 100%;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(150, 130, 180, 0.1);
+        }
+
+        .icon-box {
+            font-size: 2rem;
+            color: #9b89b3;
+            margin-bottom: 15px;
+        }
+
+        /* AI Chatbot Area */
+        .ai-chat-section {
+            background: white;
+            border-radius: 35px;
+            padding: 30px;
+            border: 2px dashed #dcd3eb;
+            margin-top: 40px;
+        }
+
+        footer {
+            background-color: #2d2a33;
+            color: #dcd3eb;
+            padding: 40px 0;
+            margin-top: auto;
+        }
+
+        .btn-breathe {
+            background-color: #9b89b3;
+            color: white;
+            border-radius: 50px;
+            font-weight: 500;
+            border: none;
+            padding: 10px 25px;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="#" style="color: #9b89b3;">✨ SOLACE</a>
+            <div class="ms-auto">
+                <span class="badge rounded-pill bg-light text-muted border px-3">Peace Mode</span>
+            </div>
+        </div>
+    </nav>
+
+    <section id="heroSection">
+        <div class="container">
+            <h1 class="display-5 fw-bold">One breath at a time.</h1>
+            <p class="lead">“You are safe, you are here, and you are doing enough.”</p>
+        </div>
+    </section>
+
+    <div class="container content-feed-container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="main-feed-box text-center">
+                    <div class="feed-label">GENTLE REMINDER</div>
+                    <div class="py-3">
+                        <p id="calmQuote" class="fs-4 italic" style="color: #5a5266; font-family: 'Georgia', serif;">
+                            "You don't have to see the whole staircase, just take the first step."
+                        </p>
+                        <button class="btn btn-outline-secondary btn-sm rounded-pill mt-2" onclick="newCalm()">
+                            Another Thought <i class="fas fa-leaf ms-1"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mb-5">
+        <div class="row g-4">
+            
+            <div class="col-md-4">
+                <div class="feature-card text-center">
+                    <div class="icon-box"><i class="fas fa-spa"></i></div>
+                    <h5 class="fw-bold">Quiet Audio</h5>
+                    <p class="small text-muted">Binaural beats to help quiet the mind.</p>
+                    <button class="btn btn-breathe btn-sm w-100">Play Calm</button>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="feature-card text-center">
+                    <div class="icon-box"><i class="fas fa-feather"></i></div>
+                    <h5 class="fw-bold">Small Steps</h5>
+                    <p class="small text-muted">Focus on just one thing right now.</p>
+                    <div class="p-2 bg-light rounded-pill small">Current: Drink Water</div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="feature-card text-center">
+                    <div class="icon-box"><i class="fas fa-wave-square"></i></div>
+                    <h5 class="fw-bold">Peace Tracker</h5>
+                    <p class="small text-muted">Viewing your weekly balance.</p>
+                    <button class="btn btn-outline-secondary btn-sm rounded-pill w-100">View Logs</button>
+                </div>
+            </div>
+
+            <div class="col-12">
+                <div class="ai-chat-section shadow-sm">
+                    <div class="row align-items-center">
+                        <div class="col-md-2 text-center">
+                            <i class="fas fa-hand-holding-heart fa-4x" style="color: #9b89b3;"></i>
+                        </div>
+                        <div class="col-md-7">
+                            <h4 class="fw-bold">Solace Gentle Guide</h4>
+                            <p class="text-muted mb-0">"Are you worrying about a 'What If'? Let's break that assumption down into facts together."</p>
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn btn-breathe w-100">Begin Conversation</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container text-center">
+            <p class="small mb-0 fst-italic">"Healing is not linear. Take your time."</p>
+            <p class="small mt-2">&copy; 2025 Solace Project - Kriti Upadhyay (BCA)</p>
+        </div>
+    </footer>
+
+    <script>
+        function newCalm() {
+            const quotes = [
+                "Your only job right now is to breathe.",
+                "It's okay to take a break. Productivity is not your value.",
+                "Slow down. The world will wait for you.",
+                "Feel the ground beneath your feet. You are safe."
+            ];
+            document.getElementById('calmQuote').innerText = `"${quotes[Math.floor(Math.random()*quotes.length)]}"`;
+        }
+    </script>
+</body>
+</html>

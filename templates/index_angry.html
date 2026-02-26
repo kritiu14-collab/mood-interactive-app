@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solace | Calm & Grounded 🌿</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        /* Sage & Sand Palette: Nature's Neutralizer */
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f1f3f0; /* Very soft sage tint */
+            color: #4a5d4e; /* Deep leaf green text */
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #heroSection {
+            /* Soft focus nature background overlay */
+            background: linear-gradient(rgba(241, 243, 240, 0.6), rgba(241, 243, 240, 0.7)), url("static/background.jpeg");
+            background-size: cover;
+            background-position: center;
+            height: 45vh; 
+            color: #2d3a30;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            border-bottom: 4px solid #b2c2b9;
+        }
+
+        /* Box Shapes: Softly rounded (not as round as happy, but not sharp) */
+        .feature-card {
+            background: #ffffff;
+            border: 1px solid #d8e0da;
+            border-radius: 15px; 
+            padding: 30px;
+            height: 100%;
+            transition: all 0.4s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+        }
+
+        .feature-card:hover {
+            background: #fafbfb;
+            border-color: #8da394;
+            transform: translateY(-5px);
+        }
+
+        .icon-box {
+            font-size: 2.2rem;
+            color: #8da394; /* Muted Sage */
+            margin-bottom: 15px;
+        }
+
+        /* AI Chatbot Area - Focused on "De-stressing" */
+        .ai-chat-section {
+            background: #e4e9e5;
+            border-radius: 20px;
+            padding: 35px;
+            border: 1px solid #c8d1ca;
+            margin-top: 40px;
+        }
+
+        /* Footer */
+        footer {
+            background-color: #3d4941;
+            color: #d8e0da;
+            padding: 40px 0;
+            margin-top: auto;
+        }
+
+        .btn-sage {
+            background-color: #8da394;
+            color: white;
+            border-radius: 10px;
+            font-weight: 500;
+            border: none;
+            padding: 10px 25px;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="#" style="color: #8da394;">🌿 SOLACE</a>
+            <div class="ms-auto">
+                <span class="text-muted small italic me-3">Taking a moment to breathe...</span>
+                <i class="fas fa-seedling text-success"></i>
+            </div>
+        </div>
+    </nav>
+
+    <section id="heroSection">
+        <div class="container">
+            <h1 class="display-5 fw-bold">Pause. Breathe. Reset.</h1>
+            <p class="lead">“For every minute you are angry, you lose sixty seconds of peace.”</p>
+        </div>
+    </section>
+
+    <div class="container my-5">
+        <div class="row g-4 text-center">
+            
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="icon-box"><i class="fas fa-leaf"></i></div>
+                    <h5 class="fw-bold">Quiet Feed</h5>
+                    <p class="small">“The greatest remedy for anger is delay.”</p>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="icon-box"><i class="fas fa-stream"></i></div>
+                    <h5 class="fw-bold">Music Therapy</h5>
+                    <p class="small">Suggested: <i>Soft Forest Rain</i></p>
+                    <button class="btn btn-sage btn-sm w-100 mt-2">Listen Now</button>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="icon-box"><i class="fas fa-spa"></i></div>
+                    <h5 class="fw-bold">Cool Down Tasks</h5>
+                    <ul class="list-unstyled small">
+                        <li>🌿 4-7-8 Breathing</li>
+                        <li>🌿 Walk for 5 minutes</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="col-12">
+                <div class="ai-chat-section text-start">
+                    <div class="row align-items-center">
+                        <div class="col-md-1 text-center d-none d-md-block">
+                            <i class="fas fa-comment-dots fa-3x" style="color: #8da394;"></i>
+                        </div>
+                        <div class="col-md-8">
+                            <h5 class="fw-bold">Solace De-stress AI</h5>
+                            <p class="mb-0">Tell me what’s frustrating you. We’ll look at the facts together and cool things down.</p>
+                        </div>
+                        <div class="col-md-3 mt-3 mt-md-0">
+                            <div class="input-group">
+                                <input type="text" class="form-control" placeholder="Vent here...">
+                                <button class="btn btn-sage">Submit</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container text-center">
+            <p class="small mb-0">Solace | Grounding Mode &copy; 2025</p>
+        </div>
+    </footer>
+
+</body>
+</html>

@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solace | Night Mode 🌙</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        /* THE FIX: Use Light Silver text on Deep Navy Background */
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #0B0E14; /* Much darker for better contrast */
+            color: #E0E0E0; /* Light silver text - HIGH VISIBILITY */
+            min-height: 100vh;
+        }
+
+        #heroSection {
+            background: linear-gradient(rgba(11, 14, 20, 0.8), rgba(11, 14, 20, 0.9)), url("static/background.jpeg");
+            background-size: cover;
+            height: 40vh; 
+            color: #FFFFFF; /* Bright white for the main heading */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            border-bottom: 2px solid #1C222D;
+        }
+
+        /* --- SEPARATE CONTENT FEED BOX --- */
+        .main-feed-box {
+            background: #1C222D; /* Lighter navy for the box */
+            border-radius: 30px;
+            border: 1px solid #2D3545;
+            padding: 40px;
+            margin-top: -50px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+            color: #E0E0E0; /* Ensures text inside is visible */
+        }
+
+        .feed-label {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #FF7E67; /* Coral accent - VISIBLE Label */
+            padding: 5px 25px;
+            border-radius: 0 0 15px 15px;
+            font-weight: bold;
+            color: #0B0E14; /* Dark text on light label */
+        }
+
+        /* Feature Cards */
+        .feature-card {
+            background: #1C222D;
+            border: 1px solid #2D3545;
+            border-radius: 25px;
+            padding: 25px;
+            color: #B0B3B8; /* Muted silver for secondary text */
+            transition: 0.3s;
+        }
+
+        .feature-card h5 {
+            color: #FFFFFF; /* Bold white for titles */
+        }
+
+        .icon-box {
+            font-size: 2.2rem;
+            color: #FF7E67; /* Coral color icons stand out great on dark */
+            margin-bottom: 15px;
+        }
+
+        /* AI Section */
+        .ai-chat-section {
+            background: #161B22;
+            border: 1px solid #30363D;
+            border-radius: 30px;
+            padding: 35px;
+            margin-top: 40px;
+        }
+
+        .text-muted {
+            color: #8B949E !important; /* Fixed muted text for dark mode */
+        }
+
+        .btn-tired {
+            background-color: #FF7E67;
+            color: #0B0E14;
+            font-weight: bold;
+            border-radius: 50px;
+            border: none;
+            padding: 10px 30px;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-dark bg-dark border-bottom border-secondary">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="#">🌙 SOLACE</a>
+            <span class="badge bg-danger text-dark">Tired Mode</span>
+        </div>
+    </nav>
+
+    <section id="heroSection">
+        <div class="container">
+            <h1 class="display-5 fw-bold">Rest your eyes.</h1>
+            <p class="lead">"It is okay to do nothing for a while."</p>
+        </div>
+    </section>
+
+    <div class="container mb-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="main-feed-box text-center position-relative">
+                    <div class="feed-label">SOFT THOUGHT</div>
+                    <div class="py-3">
+                        <h2 id="tiredQuote" style="font-family: 'Georgia', serif; font-style: italic; color: #FFFFFF;">
+                            "Your only responsibility right now is to breathe and rest."
+                        </h2>
+                        <button class="btn btn-link text-info mt-2" onclick="newQuote()">Next Reminder</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4 mt-2">
+            <div class="col-md-4">
+                <div class="feature-card text-center">
+                    <div class="icon-box"><i class="fas fa-moon"></i></div>
+                    <h5>Sleep Sounds</h5>
+                    <p class="small">Gentle brown noise for deep sleep.</p>
+                    <button class="btn btn-tired btn-sm w-100">Play Now</button>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card text-center">
+                    <div class="icon-box"><i class="fas fa-power-off"></i></div>
+                    <h5>Offline Mode</h5>
+                    <p class="small">Pause notifications for 8 hours.</p>
+                    <button class="btn btn-tired btn-sm w-100">Activate</button>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card text-center">
+                    <div class="icon-box"><i class="fas fa-battery-empty"></i></div>
+                    <h5>Energy Log</h5>
+                    <p class="small">Note your exhaustion levels.</p>
+                    <button class="btn btn-tired btn-sm w-100">Log</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function newQuote() {
+            const quotes = ["Sleep is the best meditation.", "End the day with a grateful heart.", "You've done your best today.", "Rest, for tomorrow needs you."];
+            document.getElementById('tiredQuote').innerText = `"${quotes[Math.floor(Math.random()*quotes.length)]}"`;
+        }
+    </script>
+</body>
+</html>
