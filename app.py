@@ -1,24 +1,29 @@
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for
 import sqlite3
 import bcrypt
+import smtplib
+from email.message import EmailMessage
 from datetime import datetime
 
 app = Flask(__name__)
-app.secret_key = 'super_secret_key_for_college_project' # Required for sessions
+app.secret_key = 'super_secret_key_for_college_project' 
 
-# Initialize Database with two tables
+# Initialize Database with updated schema
 def init_db():
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
+    
     # Table 1: Users
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             username TEXT UNIQUE NOT NULL,
             email TEXT NOT NULL,
-            password TEXT NOT NULL
+            password TEXT NOT NULL,
+            role TEXT DEFAULT 'user'
         )
     ''')
+    
     # Table 2: Mood Logs
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS mood_logs (
@@ -28,10 +33,41 @@ def init_db():
             timestamp DATETIME
         )
     ''')
+    
+    # Table 3: To-Do List (Updated with task_time)
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS tasks (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT,
+            task_text TEXT,
+            task_time TEXT,
+            status TEXT DEFAULT 'Pending'
+        )
+    ''')
     conn.commit()
     conn.close()
 
 init_db()
+
+# --- EMAIL REMINDER FUNCTION ---
+def send_solace_reminder(target_email, task_name, task_time):
+    msg = EmailMessage()
+    # Updated content to include the time
+    msg.set_content(f"Hello from Solace!\n\nThis is a friendly reminder for your task: '{task_name}' scheduled for {task_time}.\n\nStay focused, you've got this!")
+    msg['Subject'] = '✨ Solace Task Reminder'
+    msg['From'] = "solacemoodinteractive@gmail.com"
+    msg['To'] = target_email
+
+    try:
+        server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
+        # Using the App Password you provided
+        server.login("solacemoodinteractive@gmail.com", "hinx ccwp ewer baty") 
+        server.send_message(msg)
+        server.quit()
+        return True
+    except Exception as e:
+        print(f"Email Error: {e}")
+        return False
 
 # --- PAGE ROUTES ---
 
@@ -51,8 +87,6 @@ def set_mood(mood_type):
         return redirect(url_for('index'))
     
     username = session['user']
-    
-    # Save the mood to the database
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
     cursor.execute('INSERT INTO mood_logs (username, mood, timestamp) VALUES (?, ?, ?)', 
@@ -60,8 +94,75 @@ def set_mood(mood_type):
     conn.commit()
     conn.close()
     
-    # IMPORTANT: Pass username here so the dashboard can greet the user
     return render_template(f'index_{mood_type}.html', username=username)
+
+# --- TO-DO LIST ROUTES (UPDATED) ---
+
+@app.route('/todo')
+def todo_page():
+    if 'user' not in session:
+        return redirect(url_for('index'))
+    
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    # Fetching task_text and task_time
+    cursor.execute("SELECT id, task_text, task_time FROM tasks WHERE username = ?", (session['user'],))
+    user_tasks = cursor.fetchall()
+    conn.close()
+    return render_template('todo.html', tasks=user_tasks, username=session['user'])
+
+@app.route('/add_task', methods=['POST'])
+def add_task():
+    if 'user' not in session:
+        return redirect(url_for('index'))
+    
+    task_text = request.form.get('task')
+    task_time = request.form.get('time') # Capturing the time from the UI
+    send_email = request.form.get('send_email') 
+    
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO tasks (username, task_text, task_time) VALUES (?, ?, ?)", 
+                   (session['user'], task_text, task_time))
+    conn.commit()
+
+    if send_email:
+        cursor.execute("SELECT email FROM users WHERE username = ?", (session['user'],))
+        user_data = cursor.fetchone()
+        if user_data:
+            # Passing time to the email function
+            send_solace_reminder(user_data[0], task_text, task_time)
+
+    conn.close()
+    return redirect(url_for('todo_page'))
+
+@app.route('/delete_task/<int:task_id>')
+def delete_task(task_id):
+    if 'user' not in session:
+        return redirect(url_for('index'))
+    
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM tasks WHERE id = ? AND username = ?", (task_id, session['user']))
+    conn.commit()
+    conn.close()
+    return redirect(url_for('todo_page'))
+
+# --- ADMIN ROUTE ---
+
+@app.route('/admin')
+def admin_page():
+    if 'user' not in session:
+        return redirect(url_for('index'))
+    
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    cursor.execute('SELECT id, username, email, role FROM users')
+    all_users = cursor.fetchall()
+    conn.close()
+    return render_template('admin.html', users=all_users)
+
+# --- HISTORY & AI ROUTES ---
 
 @app.route('/history')
 def history():
@@ -71,23 +172,16 @@ def history():
     username = session['user']
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
-    
-    # Fetch mood logs for the logged-in user
     cursor.execute('SELECT mood, timestamp FROM mood_logs WHERE username = ? ORDER BY timestamp DESC', (username,))
     user_logs = cursor.fetchall()
     
-    # --- INNOVATION: Calculate Top Mood for Insights ---
     mood_counts = {}
     for mood, time in user_logs:
         mood_counts[mood] = mood_counts.get(mood, 0) + 1
     
-    # Get the most frequent mood string, or "None" if empty
     top_mood = max(mood_counts, key=mood_counts.get) if mood_counts else "New User"
-    
     conn.close()
     return render_template('history.html', logs=user_logs, username=username, top_mood=top_mood)
-
-# --- API ROUTES ---
 
 @app.route('/login', methods=['POST'])
 def login():
@@ -106,23 +200,20 @@ def login():
 
 @app.route('/logout')
 def logout():
-    session.clear() # Better than session.pop for a full logout
+    session.clear() 
     return redirect(url_for('index'))
 
-# 1. Route to open the AI page
 @app.route('/ai-solace')
 def ai_page():
     if 'user' not in session:
-        return redirect(url_for('index')) # Redirect to login if not logged in
+        return redirect(url_for('index')) 
     return render_template('ai_chat.html', username=session['user'])
 
-# 2. Route to process the AI messages
 @app.route('/get_ai_response', methods=['POST'])
 def get_ai_response():
     data = request.get_json()
     user_msg = data.get('message', '').lower()
 
-    # --- Psychology-Based Logic ---
     if "always" in user_msg or "never" in user_msg:
         reply = "<b>Cognitive Check:</b> 'Always' and 'Never' are often over-generalizations. Let's look at the facts: When was the last time this <i>wasn't</i> true?"
     elif "fail" in user_msg or "stupid" in user_msg:
