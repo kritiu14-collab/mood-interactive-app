@@ -160,10 +160,7 @@
         </div>
     </div>
 </div>
-
 <script> 
-  
-
     function showForm(formType) {
         document.getElementById('loginForm').classList.remove('active');
         document.getElementById('signupForm').classList.remove('active');
@@ -178,10 +175,10 @@
         document.getElementById('forgotSection').classList.add('active');
     }
 
-    // Default view
+    // Initialize
     showForm('login');
 
-    // 2. SIGNUP FETCH
+    // SIGNUP HANDLER
     document.getElementById('signupForm').addEventListener('submit', async function(e) {
         e.preventDefault();
         const username = document.getElementById('signupUsername').value.trim();
@@ -213,7 +210,7 @@
         }
     });
 
-    // 3. LOGIN FETCH
+    // LOGIN HANDLER
     document.getElementById('loginForm').addEventListener('submit', async function(e) {
         e.preventDefault();
         const username = document.getElementById('loginUsername').value.trim();
@@ -226,11 +223,11 @@
         });
 
         if (response.ok) {
-            localStorage.setItem('loggedInUser', username);
-            window.location.href = '/tracker'; // Redirects to Flask route
+            // Success: Redirect to the tracker
+            window.location.href = '/tracker';
         } else {
             const result = await response.json();
-            document.getElementById('loginError').textContent = result.error;
+            document.getElementById('loginError').textContent = result.error || 'Login failed.';
         }
     });
 

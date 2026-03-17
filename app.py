@@ -1,229 +1,221 @@
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for
 import sqlite3
-import bcrypt
 import smtplib
 from email.message import EmailMessage
 from datetime import datetime
+from apscheduler.schedulers.background import BackgroundScheduler
 
 app = Flask(__name__)
 app.secret_key = 'super_secret_key_for_college_project' 
 
-# Initialize Database with updated schema
+# --- DATABASE INITIALIZATION ---
 def init_db():
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
     
-    # Table 1: Users
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            username TEXT UNIQUE NOT NULL,
-            email TEXT NOT NULL,
-            password TEXT NOT NULL,
-            role TEXT DEFAULT 'user'
-        )
-    ''')
+    # Users table
+    cursor.execute('''CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT UNIQUE NOT NULL,
+        email TEXT NOT NULL,
+        password TEXT NOT NULL,
+        role TEXT DEFAULT 'user'
+    )''')
     
-    # Table 2: Mood Logs
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS mood_logs (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            username TEXT,
-            mood TEXT,
-            timestamp DATETIME
-        )
-    ''')
+    # Mood logs
+    cursor.execute('''CREATE TABLE IF NOT EXISTS mood_logs (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT, mood TEXT, timestamp DATETIME
+    )''')
     
-    # Table 3: To-Do List (Updated with task_time)
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS tasks (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            username TEXT,
-            task_text TEXT,
-            task_time TEXT,
-            status TEXT DEFAULT 'Pending'
-        )
-    ''')
+    # Journals
+    cursor.execute('''CREATE TABLE IF NOT EXISTS journals (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT NOT NULL, date TEXT NOT NULL, title TEXT,
+        mood TEXT, morning TEXT, evening TEXT, night TEXT
+    )''')
+
+    # FINALIZED Tasks Table (Matches the new UI)
+    cursor.execute('''CREATE TABLE IF NOT EXISTS tasks (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT NOT NULL,
+        title TEXT NOT NULL,
+        description TEXT,
+        task_date TEXT,
+        task_time TEXT,
+        task_type TEXT, 
+        priority TEXT, 
+        reminder_enabled INTEGER DEFAULT 0,
+        reminder_time TEXT,
+        status INTEGER DEFAULT 0,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )''')
+    
     conn.commit()
     conn.close()
 
 init_db()
 
-# --- EMAIL REMINDER FUNCTION ---
-def send_solace_reminder(target_email, task_name, task_time):
+# --- EMAIL REMINDER LOGIC ---
+def check_reminders():
+    with app.app_context():
+        now_date = datetime.now().strftime('%Y-%m-%d')
+        now_time = datetime.now().strftime('%H:%M')
+        
+        conn = sqlite3.connect('database.db')
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        
+        # Join with users to get the email address
+        cursor.execute("""
+            SELECT t.*, u.email FROM tasks t 
+            JOIN users u ON t.username = u.username 
+            WHERE t.reminder_enabled = 1 AND t.status = 0 
+            AND t.task_date = ? AND t.reminder_time = ?
+        """, (now_date, now_time))
+        
+        reminders = cursor.fetchall()
+        for r in reminders:
+            send_solace_reminder(r['email'], r['title'], r['reminder_time'], r['task_date'])
+        
+        conn.close()
+
+def send_solace_reminder(target_email, task_name, task_time, task_date):
     msg = EmailMessage()
-    # Updated content to include the time
-    msg.set_content(f"Hello from Solace!\n\nThis is a friendly reminder for your task: '{task_name}' scheduled for {task_time}.\n\nStay focused, you've got this!")
+    msg.set_content(f"Hello from Solace!\n\nReminder for your task: '{task_name}'\nScheduled for: {task_date} at {task_time}.\n\nStay productive!")
     msg['Subject'] = '✨ Solace Task Reminder'
     msg['From'] = "solacemoodinteractive@gmail.com"
     msg['To'] = target_email
-
     try:
         server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
-        # Using the App Password you provided
         server.login("solacemoodinteractive@gmail.com", "hinx ccwp ewer baty") 
         server.send_message(msg)
         server.quit()
-        return True
     except Exception as e:
         print(f"Email Error: {e}")
-        return False
 
-# --- PAGE ROUTES ---
+# Background Scheduler
+scheduler = BackgroundScheduler()
+scheduler.add_job(func=check_reminders, trigger="interval", seconds=60)
+scheduler.start()
+
+# --- ROUTES ---
 
 @app.route('/')
 def index():
     return render_template('login.html')
 
-@app.route('/tracker')
-def tracker_page():
-    if 'user' in session:
-        return render_template('tracker.html', username=session['user'])
-    return redirect(url_for('index'))
-
-@app.route('/mood/<mood_type>')
-def set_mood(mood_type):
-    if 'user' not in session:
-        return redirect(url_for('index'))
-    
-    username = session['user']
-    conn = sqlite3.connect('database.db')
-    cursor = conn.cursor()
-    cursor.execute('INSERT INTO mood_logs (username, mood, timestamp) VALUES (?, ?, ?)', 
-                   (username, mood_type, datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
-    conn.commit()
-    conn.close()
-    
-    return render_template(f'index_{mood_type}.html', username=username)
-
-# --- TO-DO LIST ROUTES (UPDATED) ---
-
 @app.route('/todo')
 def todo_page():
     if 'user' not in session:
         return redirect(url_for('index'))
-    
+    return render_template('todo.html')
+
+@app.route('/get_tasks')
+def get_tasks():
+    if 'user' not in session: return jsonify([])
     conn = sqlite3.connect('database.db')
+    conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
-    # Fetching task_text and task_time
-    cursor.execute("SELECT id, task_text, task_time FROM tasks WHERE username = ?", (session['user'],))
-    user_tasks = cursor.fetchall()
+    # Fetch all tasks for the user
+    cursor.execute("SELECT * FROM tasks WHERE username = ? ORDER BY status ASC, task_date ASC", (session['user'],))
+    tasks = [dict(row) for row in cursor.fetchall()]
     conn.close()
-    return render_template('todo.html', tasks=user_tasks, username=session['user'])
+    return jsonify(tasks)
 
 @app.route('/add_task', methods=['POST'])
 def add_task():
-    if 'user' not in session:
-        return redirect(url_for('index'))
+    if 'user' not in session: return jsonify({"error": "Unauthorized"}), 401
     
-    task_text = request.form.get('task')
-    task_time = request.form.get('time') # Capturing the time from the UI
-    send_email = request.form.get('send_email') 
-    
+    if request.is_json:
+        data = request.json
+        title = data.get('title')
+        description = data.get('description', '')
+        task_date = data.get('task_date')
+        task_time = data.get('reminder_time') # Using reminder time as task time
+        task_type = data.get('task_type', 'Daily')
+        priority = data.get('priority', 'Medium')
+        reminder_enabled = 1 if data.get('reminder_enabled') else 0
+        reminder_time = data.get('reminder_time')
+    else:
+        title = request.form.get('task')
+        description = ""
+        task_date = request.form.get('date')
+        task_time = request.form.get('time')
+        task_type = request.form.get('task_type', 'Daily')
+        priority = "Medium"
+        reminder_enabled = 1 if request.form.get('reminder_enabled') else 0
+        reminder_time = request.form.get('reminder_time')
+
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
-    cursor.execute("INSERT INTO tasks (username, task_text, task_time) VALUES (?, ?, ?)", 
-                   (session['user'], task_text, task_time))
+    cursor.execute("""
+        INSERT INTO tasks (username, title, description, task_date, task_time, task_type, priority, reminder_enabled, reminder_time, status) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0)
+    """, (session['user'], title, description, task_date, task_time, task_type, priority, reminder_enabled, reminder_time))
     conn.commit()
-
-    if send_email:
-        cursor.execute("SELECT email FROM users WHERE username = ?", (session['user'],))
-        user_data = cursor.fetchone()
-        if user_data:
-            # Passing time to the email function
-            send_solace_reminder(user_data[0], task_text, task_time)
-
     conn.close()
-    return redirect(url_for('todo_page'))
-
-@app.route('/delete_task/<int:task_id>')
-def delete_task(task_id):
-    if 'user' not in session:
-        return redirect(url_for('index'))
     
+    return jsonify({"message": "Task added"}), 201
+
+@app.route('/toggle_task/<int:task_id>', methods=['PUT', 'GET'])
+def toggle_task(task_id):
+    if 'user' not in session: return jsonify({"error": "Unauthorized"}), 401
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    # Flips status between 0 and 1
+    cursor.execute("UPDATE tasks SET status = 1 - status WHERE id = ? AND username = ?", (task_id, session['user']))
+    conn.commit()
+    conn.close()
+    return jsonify({"message": "Status updated"})
+
+@app.route('/delete_task/<int:task_id>', methods=['DELETE', 'GET'])
+def delete_task(task_id):
+    if 'user' not in session: return jsonify({"error": "Unauthorized"}), 401
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
     cursor.execute("DELETE FROM tasks WHERE id = ? AND username = ?", (task_id, session['user']))
     conn.commit()
     conn.close()
-    return redirect(url_for('todo_page'))
+    return jsonify({"message": "Deleted"})
 
-# --- ADMIN ROUTE ---
-
-@app.route('/admin')
-def admin_page():
-    if 'user' not in session:
-        return redirect(url_for('index'))
-    
-    conn = sqlite3.connect('database.db')
-    cursor = conn.cursor()
-    cursor.execute('SELECT id, username, email, role FROM users')
-    all_users = cursor.fetchall()
-    conn.close()
-    return render_template('admin.html', users=all_users)
-
-# --- HISTORY & AI ROUTES ---
-
-@app.route('/history')
-def history():
-    if 'user' not in session:
-        return redirect(url_for('index'))
-    
-    username = session['user']
-    conn = sqlite3.connect('database.db')
-    cursor = conn.cursor()
-    cursor.execute('SELECT mood, timestamp FROM mood_logs WHERE username = ? ORDER BY timestamp DESC', (username,))
-    user_logs = cursor.fetchall()
-    
-    mood_counts = {}
-    for mood, time in user_logs:
-        mood_counts[mood] = mood_counts.get(mood, 0) + 1
-    
-    top_mood = max(mood_counts, key=mood_counts.get) if mood_counts else "New User"
-    conn.close()
-    return render_template('history.html', logs=user_logs, username=username, top_mood=top_mood)
+# --- AUTH ROUTES ---
 
 @app.route('/login', methods=['POST'])
 def login():
     data = request.json
+    username = data.get('username')
+    password = data.get('password')
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
-    cursor.execute('SELECT password FROM users WHERE username = ?', (data['username'],))
+    cursor.execute('SELECT * FROM users WHERE username = ? AND password = ?', (username, password))
     user = cursor.fetchone()
     conn.close()
-
-    if user and bcrypt.checkpw(data['password'].encode('utf-8'), user[0]):
-        session['user'] = data['username']
+    if user:
+        session['user'] = username
         return jsonify({"message": "Login successful"}), 200
-    
     return jsonify({"error": "Invalid username or password"}), 401
+
+@app.route('/signup', methods=['POST'])
+def signup():
+    data = request.json
+    username = data.get('username')
+    email = data.get('email')
+    password = data.get('password')
+    try:
+        conn = sqlite3.connect('database.db')
+        cursor = conn.cursor()
+        cursor.execute('INSERT INTO users (username, email, password) VALUES (?, ?, ?)', (username, email, password))
+        conn.commit()
+        conn.close()
+        return jsonify({"message": "User created"}), 201
+    except sqlite3.IntegrityError:
+        return jsonify({"error": "Username already exists"}), 400
 
 @app.route('/logout')
 def logout():
     session.clear() 
     return redirect(url_for('index'))
-
-@app.route('/ai-solace')
-def ai_page():
-    if 'user' not in session:
-        return redirect(url_for('index')) 
-    return render_template('ai_chat.html', username=session['user'])
-
-@app.route('/get_ai_response', methods=['POST'])
-def get_ai_response():
-    data = request.get_json()
-    user_msg = data.get('message', '').lower()
-
-    if "always" in user_msg or "never" in user_msg:
-        reply = "<b>Cognitive Check:</b> 'Always' and 'Never' are often over-generalizations. Let's look at the facts: When was the last time this <i>wasn't</i> true?"
-    elif "fail" in user_msg or "stupid" in user_msg:
-        reply = "<b>Identity vs. Action:</b> You might have failed at a task, but that doesn't make you a 'failure.' What's one thing you learned from this experience?"
-    elif "no one" in user_msg or "everyone" in user_msg:
-        reply = "<b>Reframing Assumption:</b> You're using 'Universal Quantifiers.' It's unlikely that everyone feels that way. Can you name one person who might have a different perspective?"
-    else:
-        reply = "That's a valid thing to feel. However, let's challenge the narrative your overthinking is creating. If you were viewing this from a year in the future, how important would this moment be?"
-
-    return jsonify({"reply": reply})
 
 if __name__ == '__main__':
     app.run(debug=True)
