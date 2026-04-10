@@ -9,16 +9,14 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <style>
-        /* Base Layout Consistency */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #fffdf0; /* Warm background */
+            background-color: #fffdf0; 
             min-height: 100vh;
             display: flex;
             flex-direction: column;
         }
 
-        /* Hero Section */
         #heroSection {
             background: linear-gradient(rgba(255, 215, 0, 0.2), rgba(255, 215, 0, 0.2)), url("static/background.jpeg");
             background-size: cover;
@@ -33,7 +31,6 @@
             border-radius: 0 0 80px 80px;
         }
 
-        /* Feature Boxes */
         .feature-card {
             border: 2px solid #ffecb3;
             background: white;
@@ -50,25 +47,9 @@
             border-color: #ffd700;
         }
 
-        /* Interactive Mood Journey Card */
         .mood-journey-clickable {
             cursor: pointer;
-            position: relative;
-            overflow: hidden;
         }
-        
-        .mood-journey-clickable:hover::after {
-            content: "Click to View Insights →";
-            position: absolute;
-            bottom: 10px;
-            right: 20px;
-            font-size: 0.8rem;
-            color: #764ba2;
-            font-weight: bold;
-            animation: fadeIn 0.5s;
-        }
-
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
         .icon-box {
             font-size: 2.5rem;
@@ -76,7 +57,6 @@
             margin-bottom: 15px;
         }
 
-        /* AI Chatbot Area */
         .ai-chat-section {
             background: #fff9e6;
             border-radius: 35px;
@@ -85,7 +65,6 @@
             margin-top: 40px;
         }
 
-        /* Footer */
         footer {
             background-color: #212529;
             color: white;
@@ -100,6 +79,8 @@
             font-weight: bold;
             color: #4a3c00;
         }
+        
+        a { text-decoration: none; color: inherit; }
     </style>
 </head>
 <body>
@@ -125,33 +106,61 @@
     <div class="container my-5">
         <div class="row g-4">
             
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <div class="feature-card text-center">
                     <div class="icon-box"><i class="fas fa-quote-left"></i></div>
                     <h5 class="fw-bold">Daily Solace Feed</h5>
-                    <p class="small text-muted italic">"Your positive action combined with positive thinking results in success."</p>
+                    <p class="small text-muted">"Your positive action combined with positive thinking results in success."</p>
                     <button class="btn btn-outline-warning btn-sm rounded-pill mt-2">Next Quote</button>
                 </div>
             </div>
 
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <div class="feature-card text-center">
                     <div class="icon-box"><i class="fas fa-music"></i></div>
                     <h5 class="fw-bold">Upbeat Beats</h5>
-                    <p class="small">Detected Mood: <b>Positive</b><br>Track: <i>Walking on Sunshine</i></p>
+                    <p class="small">Detected Mood: <b>Positive</b></p>
                     <button class="btn btn-happy btn-sm w-100 mt-2">Open Spotify</button>
                 </div>
             </div>
 
-            <div class="col-md-4">
-                <div class="feature-card">
-                    <div class="icon-box text-center"><i class="fas fa-list-check"></i></div>
-                    <h5 class="fw-bold text-center">Your Goals</h5>
-                    <ul class="list-unstyled small ps-3">
-                        <li><i class="fas fa-check-circle text-success me-2"></i> Project Presentation ✅</li>
-                        <li><i class="fas fa-circle-notch text-warning me-2"></i> Evening Exercise</li>
-                    </ul>
-                </div>
+            <div class="col-md-3">
+                <a href="{{ url_for('todo_page') }}">
+                    <div class="feature-card mood-journey-clickable">
+                        <div class="icon-box text-center"><i class="fas fa-list-check"></i></div>
+                        <h5 class="fw-bold text-center">Your Goals ✨</h5>
+                        <ul class="list-unstyled small ps-2">
+                            {% if tasks %}
+                                {% for task in tasks[:2] %}
+                                <li class="mb-2 text-truncate">
+                                    <i class="fas fa-circle-notch text-warning me-2"></i> 
+                                    {{ task[1] }} <span class="text-muted" style="font-size: 0.7rem;">({{ task[2] }})</span>
+                                </li>
+                                {% endfor %}
+                                {% if tasks|length > 2 %}
+                                <li class="text-center text-primary mt-2" style="font-size: 0.75rem;">+ {{ tasks|length - 2 }} more...</li>
+                                {% endif %}
+                            {% else %}
+                                <li class="text-muted text-center">No goals set yet.</li>
+                            {% endif %}
+                        </ul>
+                        <div class="text-center mt-3">
+                            <span class="btn btn-outline-warning btn-sm rounded-pill w-100">Open To-Do</span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-md-3">
+                <a href="/journal"> <div class="feature-card mood-journey-clickable text-center">
+                        <div class="icon-box"><i class="fas fa-book-open"></i></div>
+                        <h5 class="fw-bold">Gratitude Journal</h5>
+                        <p class="small text-muted">Capture this happy moment forever.</p>
+                        <div class="text-center mt-3">
+                            <span class="btn btn-happy btn-sm w-100 mt-2">Start Writing</span>
+                        </div>
+                    </div>
+                </a>
             </div>
 
             <div class="col-md-12">
@@ -160,40 +169,17 @@
                         <div class="col-md-3 text-center">
                             <div class="icon-box"><i class="fas fa-chart-line"></i></div>
                             <h5 class="fw-bold">Mood Journey</h5>
-                            <p class="small text-muted">Last 7 Days (Click for detail)</p>
+                            <p class="small text-muted">Click for detail</p>
                         </div>
                         <div class="col-md-9">
-                            <div class="d-flex justify-content-between align-items-end" style="height: 100px;">
-                                <div class="bg-warning rounded-pill" style="width: 10%; height: 80%;"></div>
-                                <div class="bg-warning rounded-pill" style="width: 10%; height: 60%;"></div>
-                                <div class="bg-warning rounded-pill" style="width: 10%; height: 90%;"></div>
-                                <div class="bg-warning rounded-pill" style="width: 10%; height: 40%;"></div>
-                                <div class="bg-warning rounded-pill" style="width: 10%; height: 70%;"></div>
-                                <div class="bg-warning rounded-pill" style="width: 10%; height: 85%;"></div>
-                                <div class="bg-warning rounded-pill" style="width: 10%; height: 95%;"></div>
-                            </div>
-                            <div class="d-flex justify-content-between small text-muted mt-2">
-                                <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-12">
-                <div class="ai-chat-section">
-                    <div class="row align-items-center">
-                        <div class="col-md-2 text-center">
-                            <i class="fas fa-robot fa-4x text-warning"></i>
-                        </div>
-                        <div class="col-md-7">
-                            <h4 class="fw-bold">Solace AI Bot</h4>
-                            <p class="text-muted">"You feel great today, but are you holding onto any small 'what-if' worries? Tell me, and I'll help you break those assumptions."</p>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="input-group">
-                                <input type="text" class="form-control rounded-pill-start" placeholder="I'm worried about...">
-                                <button class="btn btn-happy px-4">Chat</button>
+                            <div class="d-flex justify-content-between align-items-end" style="height: 80px;">
+                                <div class="bg-warning rounded-pill" style="width: 8%; height: 80%;"></div>
+                                <div class="bg-warning rounded-pill" style="width: 8%; height: 60%;"></div>
+                                <div class="bg-warning rounded-pill" style="width: 8%; height: 90%;"></div>
+                                <div class="bg-warning rounded-pill" style="width: 8%; height: 40%;"></div>
+                                <div class="bg-warning rounded-pill" style="width: 8%; height: 70%;"></div>
+                                <div class="bg-warning rounded-pill" style="width: 8%; height: 85%;"></div>
+                                <div class="bg-warning rounded-pill" style="width: 8%; height: 95%;"></div>
                             </div>
                         </div>
                     </div>
@@ -205,12 +191,7 @@
 
     <footer>
         <div class="container text-center">
-            <p class="fst-italic">"The sun himself is weak when he first rises, and gathers strength and courage as the day gets on."</p>
-            <div class="my-3">
-                <a href="#" class="text-white mx-2"><i class="fab fa-instagram"></i></a>
-                <a href="#" class="text-white mx-2"><i class="fab fa-twitter"></i></a>
-            </div>
-            <p class="small mb-0 text-secondary">&copy; 2026 Solace Project - Kriti Upadhyay (BCA Session 2023-26)</p>
+            <p class="small mb-0 text-secondary">&copy; Solace- The Mood Interactive Web App</p>
         </div>
     </footer>
 

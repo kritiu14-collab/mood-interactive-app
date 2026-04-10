@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Solace Journal</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+
+<style>
+:root{
+--bg:#fdf6f6;
+--card:#ffffffd9;
+--primary:#d4a5a5;
+--secondary:#a5cad4;
+--text:#5a5a5a;
+--radius:18px;
+--shadow:0 8px 25px rgba(0,0,0,0.05);
+}
+
+[data-theme="dark"]{
+--bg:#0f1021;
+--card:rgba(30,32,60,0.9);
+--primary:#c8a6ff;
+--secondary:#6ecbff;
+--text:#f5f6ff;
+--shadow:0 10px 35px rgba(0,0,0,0.6);
+}
+
+/* Galaxy background */
+[data-theme="dark"] body{
+background:
+radial-gradient(circle at 20% 20%, #2c2e5b 0%, transparent 40%),
+radial-gradient(circle at 80% 30%, #1a1b3f 0%, transparent 40%),
+radial-gradient(circle at 50% 80%, #1f1f4a 0%, transparent 40%),
+#0f1021;
+}
+
+body{
+font-family:'Quicksand',sans-serif;
+background:var(--bg);
+color:var(--text);
+padding:20px;
+transition:0.3s;
+}
+
+.container{
+max-width:900px;
+margin:auto;
+}
+
+header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:30px;
+}
+
+h1{
+font-family:'Playfair Display',serif;
+color:var(--primary);
+}
+
+#todayDate{
+font-size:14px;
+opacity:0.7;
+}
+
+/* Cards */
+.card{
+background:var(--card);
+padding:25px;
+border-radius:var(--radius);
+box-shadow:var(--shadow);
+margin-bottom:25px;
+}
+
+[data-theme="dark"] .card{
+background:rgba(25,27,55,0.95);
+border:1px solid rgba(255,255,255,0.05);
+}
+
+/* Inputs */
+input,textarea{
+width:100%;
+padding:10px;
+border-radius:10px;
+border:1px solid #eee;
+margin-top:6px;
+font-family:inherit;
+}
+
+[data-theme="dark"] input,
+[data-theme="dark"] textarea{
+background:#1c1e3c;
+color:#ffffff;
+border:1px solid rgba(255,255,255,0.1);
+}
+
+textarea{
+height:100px;
+resize:none;
+}
+
+.mood-selector{
+display:flex;
+gap:10px;
+flex-wrap:wrap;
+margin-top:10px;
+}
+
+.mood-btn{
+padding:6px 14px;
+border-radius:20px;
+border:1px solid var(--primary);
+background:transparent;
+cursor:pointer;
+}
+
+.mood-btn.active{
+background:var(--primary);
+color:white;
+}
+
+.btn{
+padding:8px 16px;
+border:none;
+border-radius:20px;
+cursor:pointer;
+margin-top:10px;
+}
+
+.btn-save{background:var(--secondary);color:white;}
+.btn-clear{background:#eee;}
+
+/* Entry cards */
+.entry{
+padding:15px;
+border-radius:var(--radius);
+margin-bottom:15px;
+box-shadow:var(--shadow);
+background:var(--card);
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+
+[data-theme="dark"] .entry{
+background:#1c1e3c;
+box-shadow:0 8px 25px rgba(0,0,0,0.6);
+}
+
+.entry.happy{border-left:5px solid #ffe066;}
+.entry.sad{border-left:5px solid #74b9ff;}
+.entry.calm{border-left:5px solid #55efc4;}
+.entry.anxious{border-left:5px solid #fab1a0;}
+
+.prompt{
+font-style:italic;
+margin-bottom:10px;
+opacity:0.8;
+}
+
+.word-count{
+font-size:12px;
+opacity:0.6;
+}
+
+/* Modal */
+.modal{
+display:none;
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.5);
+backdrop-filter:blur(4px);
+overflow:auto;
+}
+
+.modal-content{
+background:var(--bg);
+max-width:700px;
+margin:60px auto;
+padding:30px;
+border-radius:20px;
+box-shadow:0 10px 40px rgba(0,0,0,0.2);
+}
+
+.close-modal{
+float:right;
+cursor:pointer;
+font-size:24px;
+}
+
+.modal-section{
+margin-top:20px;
+}
+
+.modal-section h4{
+color:var(--primary);
+margin-bottom:5px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+<header>
+<div>
+<h1>Solace</h1>
+<div id="todayDate"></div>
+</div>
+<button onclick="toggleTheme()" class="btn">Theme</button>
+</header>
+
+<div class="card">
+<div class="prompt" id="prompt"></div>
+
+<label>Date</label>
+<input type="date" id="j-date">
+
+<label>Mood</label>
+<div class="mood-selector">
+<button class="mood-btn active" onclick="setMood('calm')">Calm</button>
+<button class="mood-btn" onclick="setMood('happy')">Happy</button>
+<button class="mood-btn" onclick="setMood('sad')">Sad</button>
+<button class="mood-btn" onclick="setMood('anxious')">Anxious</button>
+</div>
+
+<label>Title</label>
+<input id="j-title">
+
+<label>Morning Thoughts</label>
+<textarea id="j-morning"></textarea>
+<div class="word-count" id="wc1">0 words</div>
+
+<label>Evening Thoughts</label>
+<textarea id="j-evening"></textarea>
+<div class="word-count" id="wc2">0 words</div>
+
+<label>Night Thoughts</label>
+<textarea id="j-night"></textarea>
+<div class="word-count" id="wc3">0 words</div>
+
+<button class="btn btn-save" onclick="saveEntry()">Save Journal</button>
+<button class="btn btn-clear" onclick="clearForm()">Clear</button>
+</div>
+
+<div class="card">
+<input placeholder="Search entries..." id="search" oninput="renderEntries()">
+<div id="history"></div>
+</div>
+</div>
+
+<div id="journalModal" class="modal">
+<div class="modal-content">
+<span class="close-modal" onclick="closeModal()">×</span>
+<h2 id="modal-date"></h2>
+<h3 id="modal-title"></h3>
+<p id="modal-mood"></p>
+<div class="modal-section">
+<h4>🌅 Morning</h4>
+<p id="modal-morning"></p>
+</div>
+<div class="modal-section">
+<h4>☀ Evening</h4>
+<p id="modal-evening"></p>
+</div>
+<div class="modal-section">
+<h4>🌙 Night</h4>
+<p id="modal-night"></p>
+</div>
+</div>
+</div>
+
+<script>
+let journals=[];
+let mood="calm";
+let editId=null;
+
+const prompts=[
+"What made you smile today?",
+"What is worrying you today?",
+"What are you grateful for?",
+"What did today teach you?",
+"What emotions did you feel today?"
+];
+
+document.getElementById("prompt").innerText=prompts[Math.floor(Math.random()*prompts.length)];
+document.getElementById("todayDate").innerText=new Date().toDateString();
+document.getElementById("j-date").valueAsDate=new Date();
+document.getElementById("j-date").max=new Date().toISOString().split("T")[0];
+
+function setMood(m){
+mood=m;
+document.querySelectorAll(".mood-btn").forEach(btn=>{
+btn.classList.remove("active");
+if(btn.innerText.toLowerCase()==m)btn.classList.add("active");
+});
+}
+
+// BACKEND SAVE FUNCTION
+async function saveEntry() {
+    const entry = {
+        date: document.getElementById("j-date").value,
+        title: document.getElementById("j-title").value,
+        mood: mood,
+        morning: document.getElementById("j-morning").value,
+        evening: document.getElementById("j-evening").value,
+        night: document.getElementById("j-night").value
+    };
+
+    const response = await fetch('/save_journal', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(entry)
+    });
+
+    if (response.ok) {
+        clearForm();
+        loadJournalsFromDB(); 
+    } else {
+        alert("Failed to save entry. Make sure you are logged in!");
+    }
+}
+
+// BACKEND LOAD FUNCTION
+async function loadJournalsFromDB() {
+    const response = await fetch('/get_journals');
+    journals = await response.json();
+    renderEntries();
+}
+
+function renderEntries(){
+const term=document.getElementById("search").value.toLowerCase();
+const list=document.getElementById("history");
+list.innerHTML="";
+
+journals
+.filter(j=>j.date.includes(term)||(j.title && j.title.toLowerCase().includes(term)))
+.forEach(j=>{
+const div=document.createElement("div");
+div.className="entry "+j.mood;
+const preview=(j.morning||j.evening||j.night||"").substring(0,50);
+
+div.innerHTML=`
+<div>
+<b>${j.date}</b><br>
+${j.title||"Untitled"}<br>
+<small>${preview}...</small>
+</div>
+<div>
+<button onclick="viewFull(${j.id})">Read</button>
+<button onclick="deleteEntry(${j.id})">Delete</button>
+</div>
+`;
+list.appendChild(div);
+});
+}
+
+function viewFull(id){
+const j=journals.find(x=>x.id===id);
+document.getElementById("modal-date").innerText=j.date;
+document.getElementById("modal-title").innerText=j.title||"Untitled Entry";
+document.getElementById("modal-mood").innerText="Mood: "+j.mood;
+document.getElementById("modal-morning").innerText=j.morning||"No entry.";
+document.getElementById("modal-evening").innerText=j.evening||"No entry.";
+document.getElementById("modal-night").innerText=j.night||"No entry.";
+document.getElementById("journalModal").style.display="block";
+}
+
+function closeModal(){
+document.getElementById("journalModal").style.display="none";
+}
+
+// Updated delete function for backend
+async function deleteEntry(id){
+if(confirm("Delete this entry?")){
+    const response = await fetch(`/delete_journal/${id}`);
+    if(response.ok) {
+        loadJournalsFromDB();
+    }
+}
+}
+
+function clearForm(){
+document.getElementById("j-title").value="";
+document.getElementById("j-morning").value="";
+document.getElementById("j-evening").value="";
+document.getElementById("j-night").value="";
+document.getElementById("j-date").valueAsDate=new Date();
+editId=null;
+}
+
+function toggleTheme(){
+const body=document.body;
+body.dataset.theme=body.dataset.theme==="dark"?"light":"dark";
+}
+
+function wordCounter(textarea,id){
+textarea.addEventListener("input",()=>{
+const words=textarea.value.trim().split(/\s+/).filter(Boolean).length;
+document.getElementById(id).innerText=words+" words";
+});
+}
+
+wordCounter(document.getElementById("j-morning"),"wc1");
+wordCounter(document.getElementById("j-evening"),"wc2");
+wordCounter(document.getElementById("j-night"),"wc3");
+
+// INITIAL LOAD FROM DB
+loadJournalsFromDB();
+
+</script>
+</body>
+</html>

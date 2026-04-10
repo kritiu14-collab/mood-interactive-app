@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solace | Your Pastel Sanctuary</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --pastel-purple: #DCD6F7;
+            --pastel-blue: #A6B1E1;
+            --pastel-yellow: #F4EEFF;
+            --text-main: #424874;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            min-height: 100vh;
+            font-family: 'Quicksand', sans-serif;
+            color: var(--text-main);
+            /* DYNAMIC PASTEL AURORA BACKGROUND */
+            background: linear-gradient(125deg, #F4EEFF, #DCD6F7, #A6B1E1, #DCD6F7);
+            background-size: 400% 400%;
+            animation: auroraPastel 15s ease infinite;
+        }
+
+        @keyframes auroraPastel {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Glassmorphism Navbar */
+        .navbar {
+            backdrop-filter: blur(20px);
+            background: rgba(255, 255, 255, 0.2);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 1.2rem 0;
+        }
+        .navbar-brand { font-weight: 800; font-size: 1.8rem; color: var(--text-main) !important; }
+
+        /* Floating Hero Section */
+        .hero {
+            padding: 160px 0 80px;
+            text-align: center;
+        }
+        .hero h1 {
+            font-size: 5rem;
+            font-weight: 800;
+            letter-spacing: -2px;
+            color: var(--text-main);
+            margin-bottom: 20px;
+        }
+        .hero p {
+            font-size: 1.3rem;
+            opacity: 0.8;
+            max-width: 650px;
+            margin: 0 auto 40px;
+        }
+
+        /* The "Cloud" Cards - Soft Interaction */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            padding-bottom: 120px;
+        }
+        .cloud-card {
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(25px);
+            border: 2px solid rgba(255, 255, 255, 0.6);
+            border-radius: 40px;
+            padding: 40px;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.03);
+        }
+        .cloud-card:hover {
+            transform: translateY(-15px);
+            background: rgba(255, 255, 255, 0.7);
+            border-color: #A6B1E1;
+            box-shadow: 0 25px 50px rgba(166, 177, 225, 0.2);
+        }
+        .icon-circle {
+            width: 70px; height: 70px;
+            background: white;
+            border-radius: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            color: #A6B1E1;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+        }
+
+        /* Elegant Minimalist Footer */
+        footer {
+            background: rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+            padding: 80px 0 40px;
+            border-top: 1px solid rgba(255, 255, 255, 0.4);
+        }
+        .footer-link {
+            color: var(--text-main);
+            text-decoration: none;
+            display: block;
+            margin-bottom: 12px;
+            opacity: 0.7;
+            transition: 0.3s;
+        }
+        .footer-link:hover { opacity: 1; padding-left: 5px; color: #A6B1E1; }
+
+        /* Modern Action Button */
+        .btn-pastel {
+            background: var(--text-main);
+            color: white;
+            font-weight: 700;
+            padding: 16px 40px;
+            border-radius: 100px;
+            border: none;
+            transition: 0.4s;
+            box-shadow: 0 10px 20px rgba(66, 72, 116, 0.15);
+        }
+        .btn-pastel:hover {
+            transform: scale(1.08);
+            background: #A6B1E1;
+            box-shadow: 0 15px 30px rgba(166, 177, 225, 0.3);
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="#">solace.</a>
+            <div class="ms-auto">
+                <button class="btn btn-link text-decoration-none fw-bold me-4" style="color: var(--text-main);" onclick="requireLogin()">Login</button>
+                <button class="btn btn-pastel" onclick="requireLogin()">Join Space</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <header class="hero">
+            <h1>Softness for <br> your soul.</h1>
+            <p>A mood-interactive sanctuary where your feelings find a home. Track your growth and chat with our gentle AI.</p>
+            <button class="btn btn-pastel btn-lg" onclick="requireLogin()">Begin Journey</button>
+        </header>
+
+        <div class="card-grid">
+            <div class="cloud-card" onclick="requireLogin()">
+                <div class="icon-circle"><i class="fas fa-sparkles"></i></div>
+                <h4 class="fw-bold">Solace AI</h4>
+                <p>Gentle AI guidance to help you reframe and release overthinking.</p>
+            </div>
+            <div class="cloud-card" onclick="requireLogin()">
+                <div class="icon-circle"><i class="fas fa-heart"></i></div>
+                <h4 class="fw-bold">Mood Tracker</h4>
+                <p>Visualize your emotional pulse with soft, interactive data logs.</p>
+            </div>
+            <div class="cloud-card" onclick="requireLogin()">
+                <div class="icon-circle"><i class="fas fa-feather-pointed"></i></div>
+                <h4 class="fw-bold">Zen Journal</h4>
+                <p>A safe, clutter-free space to dump your thoughts and find clarity.</p>
+            </div>
+            <div class="cloud-card" onclick="requireLogin()">
+                <div class="icon-circle"><i class="fas fa-envelope-open-text"></i></div>
+                <h4 class="fw-bold">Gentle Nudges</h4>
+                <p>Set your intentions and receive kind email reminders for your tasks.</p>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <h5 class="fw-bold mb-3" style="color: var(--text-main);">solace.</h5>
+                    <p class="w-75 opacity-75">Designing a calmer digital future for students. Your mental wellness project, reimagined with kindness.</p>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <h6 class="fw-bold mb-3">Explore</h6>
+                    <a href="#" class="footer-link">AI Support</a>
+                    <a href="#" class="footer-link">Mood Log</a>
+                    <a href="#" class="footer-link">Music Player</a>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <h6 class="fw-bold mb-3">About</h6>
+                    <p class="small opacity-60">BCA Final Year Project<br>2026 Interactive Web App</p>
+                </div>
+            </div>
+            <div class="pt-5 text-center small opacity-40">
+                © 2026 Solace Sanctuary. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        function requireLogin() {
+            alert("A tiny step first! Please Login or Sign Up to access this feature.");
+            window.location.href = "/auth";
+        }
+    </script>
+</body>
+</html>
