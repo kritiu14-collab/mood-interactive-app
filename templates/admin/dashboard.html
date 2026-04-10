@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head><title>Admin Dashboard</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+</head>
+<body>
+    <nav style="background:#333; color:white; padding:10px;">
+        <a href="{{ url_for('admin.dashboard') }}" style="color:white;">Dashboard</a> |
+        <a href="{{ url_for('admin.tasks') }}">Tasks</a> |
+        <a href="{{ url_for('admin.users') }}">Users</a>
+    </nav>
+    
+    <div style="padding:20px;">
+        <h1>Solace Admin Dashboard</h1>
+        
+        <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:20px;">
+            <div class="card">
+                <h3>Total Users</h3>
+                <h2>{{ total_users }}</h2>
+            </div>
+            <div class="card">
+                <h3>Total Tasks</h3>
+                <h2>{{ total_tasks }}</h2>
+            </div>
+            <div class="card">
+                <h3>Pending</h3>
+                <h2>{{ pending_tasks }}</h2>
+            </div>
+            <div class="card">
+                <h3>Done</h3>
+                <h2>{{ done_tasks }}</h2>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

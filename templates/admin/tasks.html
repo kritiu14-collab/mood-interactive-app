@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head><title>Tasks</title></head>
+<body>
+    <nav><!-- same nav as above --></nav>
+    
+    <div style="padding:20px;">
+        <h1>Tasks</h1>
+        <a href="{{ url_for('admin.new_task') }}">+ New Task</a>
+        
+        <table border="1" style="width:100%; margin-top:20px;">
+            <tr><th>ID</th><th>Title</th><th>Status</th><th>Actions</th></tr>
+            {% for task in tasks %}
+            <tr>
+                <td>{{ task.id }}</td>
+                <td>{{ task.title }}</td>
+                <td>{{ task.status }}</td>
+                <td>
+                    <form method="POST" action="{{ url_for('admin.delete_task', task_id=task.id) }}" style="display:inline;">
+                        <button type="submit">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+</body>
+</html>
