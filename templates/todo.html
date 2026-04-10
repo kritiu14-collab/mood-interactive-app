@@ -2,122 +2,260 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Weekly To Do List</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solace | Mood Interactive To-Do</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
     <style>
         :root {
-            --dark-brown: #5C4033;
-            --beige-bg: #F5F5DC;
-            --paper: #FFFDF5;
-            --accent: #D2B48C;
+            /* Lighter Aesthetic Pastel Palette */
+            --primary-gradient: linear-gradient(-45deg, #FFDEE9, #B5FFFC, #E0C3FC, #fdfcfb);
+            --accent-color: #a18cd1;
+            --glass-bg: rgba(255, 255, 255, 0.4);
+            --glass-border: rgba(255, 255, 255, 0.5);
+            --text-dark: #57606f;
         }
-        body { background-color: var(--beige-bg); color: var(--dark-brown); font-family: 'Georgia', serif; padding: 40px; }
-        .planner-card { background: var(--paper); border: 1px solid var(--accent); padding: 30px; box-shadow: 10px 10px 0px var(--accent); }
-        h1 { text-align: center; text-transform: uppercase; letter-spacing: 3px; margin-bottom: 30px; }
-        .section-title { border-bottom: 2px solid var(--dark-brown); font-weight: bold; margin-bottom: 15px; padding-bottom: 5px; text-transform: uppercase; font-size: 0.9rem; }
-        .form-control, .form-select { border: none; border-bottom: 1px solid var(--accent); background: transparent; border-radius: 0; margin-bottom: 15px; }
-        .btn-save { background: var(--dark-brown); color: white; border-radius: 0; width: 100%; font-weight: bold; padding: 10px; transition: 0.3s; }
-        .btn-save:hover { background: #3d2b22; }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--primary-gradient);
+            background-size: 400% 400%;
+            animation: gradientBG 12s ease infinite;
+            background-attachment: fixed;
+            min-height: 100vh;
+            color: var(--text-dark);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .main-container {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 25px;
+            width: 100%;
+            max-width: 1200px;
+            margin-top: 20px;
+        }
+
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 25px;
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            padding: 25px;
+        }
+
+        h1, h2, h3 { color: #6a5acd; font-weight: 600; margin-bottom: 20px; }
+
+        .task-form input, .task-form textarea, .task-form select {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #eee;
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.7);
+            font-family: inherit;
+            outline: none;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 15px;
+            background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%);
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            box-shadow: 0 4px 15px rgba(161, 140, 209, 0.3);
+        }
+
+        .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(161, 140, 209, 0.5); }
+
+        /* Task Item Styling */
+        .task-card {
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.85);
+            padding: 15px;
+            border-radius: 18px;
+            margin-bottom: 12px;
+            transition: 0.3s;
+            animation: fadeIn 0.4s ease forwards;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .task-card:hover { background: white; transform: translateX(5px); }
+
+        .task-content { flex-grow: 1; margin: 0 15px; }
         
-        .task-item { display: flex; align-items: center; border-bottom: 1px dashed var(--accent); padding: 10px 0; }
-        .task-item input[type="checkbox"] { margin-right: 15px; accent-color: var(--dark-brown); width: 18px; height: 18px; cursor: pointer; }
-        
-        /* Styles for completed tasks */
-        .completed-text { text-decoration: line-through; color: #a0a0a0; font-style: italic; }
-        .history-box { opacity: 0.8; font-size: 0.85rem; }
-        
-        .delete-link { color: #d9534f; text-decoration: none; font-size: 0.8rem; margin-left: 10px; opacity: 0.6; }
-        .delete-link:hover { opacity: 1; text-decoration: underline; }
+        .completed span { text-decoration: line-through; color: #aaa; }
+
+        .delete-btn { color: #ff7675; cursor: pointer; transition: 0.2s; }
+        .delete-btn:hover { color: #d63031; transform: scale(1.1); }
+
+        input[type="checkbox"] { accent-color: #a18cd1; width: 18px; height: 18px; cursor: pointer; }
+
+        @media (max-width: 900px) { .main-container { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
 
-<h1>Weekly To Do List</h1>
+<h1 style="margin-bottom: 10px;">✨ Solace Tasks</h1>
 
-<div class="planner-card container">
-    <div class="row">
-        <div class="col-md-4 border-end">
-            <div class="section-title">Add New Task</div>
-            <form action="/add_task" method="POST">
-                <input type="text" name="task" class="form-control" placeholder="What needs to be done?" required>
-                <input type="date" name="date" class="form-control" required value="{{ date_now }}">
-                
-                <div class="row g-2">
-                    <div class="col-7">
-                        <input type="text" name="time" class="form-control" placeholder="12:00" required>
-                    </div>
-                    <div class="col-5">
-                        <select name="ampm" class="form-select">
-                            <option value="AM">AM</option>
-                            <option value="PM">PM</option>
-                        </select>
-                    </div>
-                </div>
-
-                <select name="category" class="form-select">
-                    <option value="Daily">Daily List</option>
-                    <option value="Priority">High Priority</option>
-                    <option value="Weekly">Weekly List</option>
-                </select>
-
-                <div class="form-check mb-3">
-                    <input class="form-check-input" type="checkbox" name="send_email" id="emailCheck">
-                    <label class="form-check-label" for="emailCheck">Email Reminder 📧</label>
-                </div>
-                <button type="submit" class="btn btn-save">SAVE TO LIST</button>
-            </form>
-        </div>
-
-        <div class="col-md-8 ps-4">
-            <div class="section-title">Schedule for: {{ date_now }}</div>
+<div class="main-container">
+    <aside class="glass-card">
+        <h2><i class="fas fa-plus-circle"></i> New Task</h2>
+        <form id="taskForm" class="task-form">
+            <input type="text" id="title" placeholder="Task title..." required>
+            <textarea id="description" placeholder="Notes (optional)" rows="2"></textarea>
             
-            <div class="mb-4">
-                <small style="color: #d9534f;"><strong>★ HIGH PRIORITY</strong></small>
-                {% for task in today if task['category'] == 'Priority' %}
-                <div class="task-item">
-                    <input type="checkbox" onchange="window.location.href='/toggle_task/{{ task['id'] }}'" {% if task['status'] == 1 %}checked{% endif %}>
-                    <span class="flex-grow-1 {% if task['status'] == 1 %}completed-text{% endif %}">
-                        <strong>{{ task['task_text'] }}</strong>
-                    </span>
-                    <small class="text-muted">{{ task['task_time'] }}</small>
-                    <a href="/delete_task/{{ task['id'] }}" class="delete-link">Delete</a>
-                </div>
-                {% endfor %}
+            <div style="display: flex; gap: 10px;">
+                <input type="date" id="task_date" required>
+                <input type="time" id="task_time" required>
             </div>
 
-            <div class="mb-4">
-                <small><strong>📋 DAILY LIST</strong></small>
-                {% for task in today if task['category'] == 'Daily' or task['category'] == 'Weekly' %}
-                <div class="task-item">
-                    <input type="checkbox" onchange="window.location.href='/toggle_task/{{ task['id'] }}'" {% if task['status'] == 1 %}checked{% endif %}>
-                    <span class="flex-grow-1 {% if task['status'] == 1 %}completed-text{% endif %}">{{ task['task_text'] }}</span>
-                    <small class="text-muted">{{ task['task_time'] }}</small>
-                    <a href="/delete_task/{{ task['id'] }}" class="delete-link">Delete</a>
-                </div>
-                {% endfor %}
-            </div>
+            <select id="task_type">
+                <option value="daily">Daily Task</option>
+                <option value="weekly">Weekly Task</option>
+            </select>
 
-            <div class="section-title" style="margin-top: 40px; color: #8b7355;">Previous Task History</div>
-            <div class="history-box">
-                {% if not history %}
-                    <p class="text-muted mt-2">No previous records found.</p>
-                {% endif %}
-                {% for task in history %}
-                <div class="task-item">
-                    <input type="checkbox" checked disabled>
-                    <span class="flex-grow-1 text-decoration-line-through text-muted">{{ task['task_text'] }}</span>
-                    <small class="text-muted">{{ task['task_date'] }} ({{ task['task_time'] }})</small>
-                    <a href="/delete_task/{{ task['id'] }}" class="delete-link">Delete</a>
-                </div>
-                {% endfor %}
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+                <input type="checkbox" id="reminder_enabled" style="width: auto; margin: 0;">
+                <label for="reminder_enabled" style="font-size: 0.9rem;">Email Reminder</label>
             </div>
-        </div>
-    </div>
+            
+            <input type="time" id="reminder_time">
+
+            <button type="submit" class="btn-submit" id="submitBtn">Add to List</button>
+        </form>
+    </aside>
+
+    <main class="task-list-container">
+        <section class="glass-card" style="margin-bottom: 20px;">
+            <h3><i class="fas fa-sun"></i> Daily Tasks</h3>
+            <div id="daily-tasks">
+                </div>
+        </section>
+
+        <section class="glass-card">
+            <h3><i class="fas fa-calendar-alt"></i> Weekly Tasks</h3>
+            <div id="weekly-tasks">
+                </div>
+        </section>
+    </main>
 </div>
 
-<div class="text-center mt-4">
-    <a href="/tracker" style="color: var(--dark-brown); text-decoration: none; font-weight: bold;">← Back to Sanctuary</a>
-</div>
+<script>
+    // Load tasks on page load
+    document.addEventListener('DOMContentLoaded', loadTasks);
+
+    // 1. Function to Fetch Tasks from Database
+    async function loadTasks() {
+        try {
+            const response = await fetch('/todo_data');
+            const tasks = await response.json();
+            
+            const dailyDiv = document.getElementById('daily-tasks');
+            const weeklyDiv = document.getElementById('weekly-tasks');
+            
+            dailyDiv.innerHTML = '';
+            weeklyDiv.innerHTML = '';
+
+            if (tasks.length === 0) {
+                dailyDiv.innerHTML = '<p style="color:#999; font-size:0.9rem;">No tasks yet. Add one!</p>';
+            }
+
+            tasks.forEach(task => {
+                const isCompleted = task.status === 1;
+                const taskHTML = `
+                    <div class="task-card ${isCompleted ? 'completed' : ''}">
+                        <input type="checkbox" ${isCompleted ? 'checked' : ''} 
+                               onchange="toggleTask(${task.id})">
+                        <div class="task-content">
+                            <span>${task.title}</span>
+                            <br><small><i class="far fa-clock"></i> ${task.task_time} | ${task.task_date}</small>
+                        </div>
+                        <i class="fas fa-trash-alt delete-btn" onclick="deleteTask(${task.id})"></i>
+                    </div>
+                `;
+                
+                if (task.task_type === 'daily') {
+                    dailyDiv.insertAdjacentHTML('beforeend', taskHTML);
+                } else {
+                    weeklyDiv.insertAdjacentHTML('beforeend', taskHTML);
+                }
+            });
+        } catch (err) {
+            console.error("Error loading tasks:", err);
+        }
+    }
+
+    // 2. Handle Form Submission
+    document.getElementById('taskForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('submitBtn');
+        btn.innerHTML = "Saving...";
+        btn.disabled = true;
+
+        const taskData = {
+            title: document.getElementById('title').value,
+            description: document.getElementById('description').value,
+            date: document.getElementById('task_date').value,
+            time: document.getElementById('task_time').value,
+            type: document.getElementById('task_type').value,
+            reminder_enabled: document.getElementById('reminder_enabled').checked,
+            reminder_time: document.getElementById('reminder_time').value
+        };
+
+        try {
+            const response = await fetch('/add_task', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(taskData)
+            });
+
+            if (response.ok) {
+                document.getElementById('taskForm').reset();
+                loadTasks(); // Instantly refresh the list on the right
+            }
+        } catch (err) {
+            alert("Connection error. Is the server running?");
+        } finally {
+            btn.innerHTML = "Add to List";
+            btn.disabled = false;
+        }
+    });
+
+    // 3. Toggle Completion
+    async function toggleTask(id) {
+        await fetch(`/toggle_task/${id}`, { method: 'PUT' });
+        loadTasks();
+    }
+
+    // 4. Delete Task
+    async function deleteTask(id) {
+        if(confirm('Delete this task?')) {
+            await fetch(`/delete_task/${id}`, { method: 'DELETE' });
+            loadTasks();
+        }
+    }
+</script>
 
 </body>
 </html>

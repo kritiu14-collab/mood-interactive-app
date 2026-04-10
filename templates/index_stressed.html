@@ -15,6 +15,8 @@
             background-color: #f0f4f8; /* Very cold, clean blue-grey */
             color: #2d3436;
             min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
 
         #heroSection {
@@ -51,7 +53,6 @@
             text-transform: uppercase;
         }
 
-        /* Feature Cards - Organized and Structured */
         .feature-card {
             background: white;
             border: 1px solid #dfe6e9;
@@ -72,7 +73,6 @@
             margin-bottom: 15px;
         }
 
-        /* AI Chatbot Area - Framed as "Prioritization Assistant" */
         .ai-chat-section {
             background: #dfe6e9;
             border-radius: 20px;
@@ -88,11 +88,20 @@
             border-radius: 8px;
             padding: 10px 25px;
             border: none;
+            text-decoration: none;
+            display: inline-block;
         }
 
         .btn-stress:hover {
             background-color: #0773c5;
             color: white;
+        }
+
+        footer {
+            background-color: #2d3436;
+            color: #dfe6e9;
+            padding: 40px 0;
+            margin-top: auto;
         }
     </style>
 </head>
@@ -100,8 +109,20 @@
 
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
-            <a class="navbar-brand fw-bold" href="#">🧊 SOLACE</a>
-            <span class="badge bg-primary">Stress Management Mode</span>
+            <a class="navbar-brand fw-bold" href="{{ url_for('dashboard') }}">🧊 SOLACE</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item"><a class="nav-link px-3" href="{{ url_for('todo_page') }}">Task Matrix</a></li>
+                    <li class="nav-item"><a class="nav-link px-3" href="{{ url_for('journal_page') }}">Log Thoughts</a></li>
+                    <li class="nav-item"><a class="nav-link px-3 text-danger" href="{{ url_for('logout') }}">Logout</a></li>
+                    <li class="nav-item ms-2">
+                        <span class="badge bg-primary">Stress Management Mode</span>
+                    </li>
+                </ul>
+            </div>
         </div>
     </nav>
 
@@ -138,23 +159,23 @@
                     <div class="icon-box"><i class="fas fa-list-ol"></i></div>
                     <h5>Priority Matrix</h5>
                     <p class="small text-muted">Categorize tasks by urgency to reduce mental clutter.</p>
-                    <button class="btn btn-stress btn-sm w-100">Organize</button>
+                    <a href="{{ url_for('todo_page') }}" class="btn btn-stress btn-sm w-100">Organize</a>
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="feature-card">
+                <div class="feature-card text-center">
                     <div class="icon-box"><i class="fas fa-clock"></i></div>
-                    <h5>Pomodoro Timer</h5>
+                    <h5>Focus Timer</h5>
                     <p class="small text-muted">Work for 25 mins, breathe for 5. Let's start.</p>
-                    <button class="btn btn-stress btn-sm w-100">Start Timer</button>
+                    <button class="btn btn-stress btn-sm w-100">Start Pomodoro</button>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="feature-card">
                     <div class="icon-box"><i class="fas fa-brain"></i></div>
-                    <h5>Assumption Check</h5>
+                    <h5>Mood Tracker</h5>
                     <p class="small text-muted">Is this stress based on a fact or a 'what-if'?</p>
-                    <button class="btn btn-stress btn-sm w-100">Check Logic</button>
+                    <a href="{{ url_for('tracker') }}" class="btn btn-stress btn-sm w-100">Analyze Logs</a>
                 </div>
             </div>
         </div>
@@ -169,12 +190,22 @@
                     <p class="mb-0">"Type out everything you're worried about. I will help you rank them and create a 3-step action plan."</p>
                 </div>
                 <div class="col-md-3">
-                    <button class="btn btn-dark w-100 py-2">Start Planning</button>
+                    <a href="{{ url_for('ai_chat_page') }}" class="btn btn-dark w-100 py-2">
+                        Start Planning
+                    </a>
                 </div>
             </div>
         </div>
     </div>
 
+    <footer>
+        <div class="container text-center">
+            <p class="small mb-0">"Productivity is not your worth."</p>
+            <p class="small mt-2">&copy; 2026 Solace Project - Kriti Upadhyay (BCA)</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         function newQuote() {
             const quotes = [

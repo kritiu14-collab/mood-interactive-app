@@ -1,164 +1,238 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Solace | Night Mode 🌙</title>
+import uuid
+import sqlite3
+import requests
+import bcrypt
+import os  # Added for environment variables
+from flask import Flask, render_template, request, jsonify, session, redirect, url_for, flash
+from datetime import datetime
+from dotenv import load_dotenv
+
+# Load Environment Variables
+load_dotenv()
+
+app = Flask(__name__)
+app.secret_key = os.getenv('SECRET_KEY', 'super_secret_key_for_college_project')
+
+# --- CONFIGURATION ---
+# Now pulling from .env so GitHub won't block your push
+API_KEY = os.getenv("GEMINI_API_KEY")
+
+# --- DATABASE INITIALIZATION ---
+def init_db():
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
     
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    # Users Table (Unified with admin flag)
+    cursor.execute('''CREATE TABLE IF NOT EXISTS users (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT, 
+                        username TEXT UNIQUE, 
+                        email TEXT, 
+                        password TEXT, 
+                        is_admin INTEGER DEFAULT 0)''')
     
-    <style>
-        /* THE FIX: Use Light Silver text on Deep Navy Background */
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            background-color: #99afda; /* Much darker for better contrast */
-            color: #E0E0E0; /* Light silver text - HIGH VISIBILITY */
-            min-height: 100vh;
-        }
+    # Mood Logs Table
+    cursor.execute('''CREATE TABLE IF NOT EXISTS mood_logs (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT, 
+                        username TEXT, 
+                        mood TEXT, 
+                        timestamp DATETIME)''')
+    
+    # Journals Table
+    cursor.execute('''CREATE TABLE IF NOT EXISTS journals (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT, 
+                        username TEXT, 
+                        date TEXT, 
+                        title TEXT, 
+                        mood TEXT, 
+                        morning TEXT, 
+                        evening TEXT, 
+                        night TEXT)''')
+    
+    # Tasks Table (Unified for User To-Do and Admin Tasks)
+    cursor.execute('''CREATE TABLE IF NOT EXISTS tasks (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT, 
+                        username TEXT, 
+                        title TEXT, 
+                        status TEXT DEFAULT 'pending', 
+                        created_at DATETIME DEFAULT CURRENT_TIMESTAMP)''')
+    
+    # Chat History Table
+    cursor.execute('''CREATE TABLE IF NOT EXISTS chat_history (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT, 
+                        session_id TEXT, 
+                        username TEXT, 
+                        user_message TEXT, 
+                        ai_response TEXT, 
+                        timestamp DATETIME DEFAULT CURRENT_TIMESTAMP)''')
+    
+    # Create default admin user if not exists
+    cursor.execute("SELECT * FROM users WHERE username='admin'")
+    if not cursor.fetchone():
+        hashed = bcrypt.hashpw(b'admin123', bcrypt.gensalt()).decode('utf-8')
+        cursor.execute("INSERT INTO users (username, email, password, is_admin) VALUES (?, ?, ?, ?)",
+                      ('admin', 'admin@solace.com', hashed, 1))
+    
+    conn.commit()
+    conn.close()
 
-        #heroSection {
-            background: linear-gradient(rgba(24, 32, 46, 0.8), rgba(28, 36, 53, 0.9)), url("static/background.jpeg");
-            background-size: cover;
-            height: 40vh; 
-            color: #FFFFFF; /* Bright white for the main heading */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            border-bottom: 2px solid #1C222D;
-        }
+init_db()
 
-        /* --- SEPARATE CONTENT FEED BOX --- */
-        .main-feed-box {
-            background: #1C222D; /* Lighter navy for the box */
-            border-radius: 30px;
-            border: 1px solid #2D3545;
-            padding: 40px;
-            margin-top: -50px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
-            color: #E0E0E0; /* Ensures text inside is visible */
-        }
+# --- HELPERS ---
+def is_admin(username):
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    cursor.execute("SELECT is_admin FROM users WHERE username=?", (username,))
+    result = cursor.fetchone()
+    conn.close()
+    return result and result[0] == 1
 
-        .feed-label {
-            position: absolute;
-            top: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #FF7E67; /* Coral accent - VISIBLE Label */
-            padding: 5px 25px;
-            border-radius: 0 0 15px 15px;
-            font-weight: bold;
-            color: #0B0E14; /* Dark text on light label */
-        }
+# --- CORE ROUTES ---
+@app.route('/')
+def index():
+    return render_template('login.html')
 
-        /* Feature Cards */
-        .feature-card {
-            background: #1C222D;
-            border: 1px solid #2D3545;
-            border-radius: 25px;
-            padding: 25px;
-            color: #B0B3B8; /* Muted silver for secondary text */
-            transition: 0.3s;
-        }
+@app.route('/signup', methods=['POST'])
+def signup():
+    data = request.json
+    u_name = data.get('username')
+    email = data.get('email')
+    p_word = data.get('password')
+    
+    hashed_pw = bcrypt.hashpw(p_word.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+    
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    try:
+        cursor.execute('INSERT INTO users (username, email, password) VALUES (?, ?, ?)', 
+                       (u_name, email, hashed_pw))
+        conn.commit()
+        return jsonify({"message": "User created successfully"}), 201
+    except sqlite3.IntegrityError:
+        return jsonify({"error": "Username already exists"}), 400
+    finally:
+        conn.close()
 
-        .feature-card h5 {
-            color: #FFFFFF; /* Bold white for titles */
-        }
+@app.route('/login', methods=['POST'])
+def login():
+    data = request.json
+    u_name = data.get('username')
+    p_word = data.get('password')
+    
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    cursor.execute('SELECT password, is_admin FROM users WHERE username = ?', (u_name,))
+    user = cursor.fetchone()
+    conn.close()
+    
+    if user and bcrypt.checkpw(p_word.encode('utf-8'), user[0].encode('utf-8')):
+        session['user'] = u_name
+        if user[1] == 1:
+            return jsonify({"redirect": url_for('admin_dashboard')}), 200
+        return jsonify({"redirect": url_for('tracker')}), 200
+    
+    return jsonify({"error": "Invalid credentials"}), 401
 
-        .icon-box {
-            font-size: 2.2rem;
-            color: #FF7E67; /* Coral color icons stand out great on dark */
-            margin-bottom: 15px;
-        }
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect(url_for('index'))
 
-        /* AI Section */
-        .ai-chat-section {
-            background: #161B22;
-            border: 1px solid #30363D;
-            border-radius: 30px;
-            padding: 35px;
-            margin-top: 40px;
-        }
+@app.route('/tracker_page')
+def tracker():
+    if 'user' not in session: return redirect(url_for('index'))
+    return render_template('tracker.html', username=session['user'])
 
-        .text-muted {
-            color: #8B949E !important; /* Fixed muted text for dark mode */
-        }
+@app.route('/mood/<mood_type>')
+def set_mood(mood_type):
+    if 'user' not in session: return redirect(url_for('index'))
+    
+    username = session['user']
+    session['current_mood'] = mood_type
+    
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    cursor.execute('INSERT INTO mood_logs (username, mood, timestamp) VALUES (?, ?, ?)', 
+                   (username, mood_type, datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
+    conn.commit()
+    conn.close()
+    
+    return redirect(url_for('dashboard'))
 
-        .btn-tired {
-            background-color: #FF7E67;
-            color: #0B0E14;
-            font-weight: bold;
-            border-radius: 50px;
-            border: none;
-            padding: 10px 30px;
-        }
-    </style>
-</head>
-<body>
+@app.route('/dashboard')
+def dashboard():
+    if 'user' not in session: return redirect(url_for('index'))
+    mood = session.get('current_mood')
+    if mood:
+        return render_template(f'index_{mood}.html', username=session['user'])
+    return redirect(url_for('tracker'))
 
-    <nav class="navbar navbar-dark bg-dark border-bottom border-secondary">
-        <div class="container">
-            <a class="navbar-brand fw-bold" href="#">🌙 SOLACE</a>
-            <span class="badge bg-danger text-dark">Tired Mode</span>
-        </div>
-    </nav>
+# --- AI CHATBOT LOGIC (GEMINI) ---
+@app.route('/ai_chat')
+def ai_chat_page():
+    if 'user' not in session: return redirect(url_for('index'))
+    
+    conn = sqlite3.connect('database.db')
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+    
+    cursor.execute('''SELECT session_id, user_message, MAX(timestamp) 
+                      FROM chat_history WHERE username = ? 
+                      GROUP BY session_id ORDER BY MAX(timestamp) DESC''', (session['user'],))
+    history_heads = cursor.fetchall()
 
-    <section id="heroSection">
-        <div class="container">
-            <h1 class="display-5 fw-bold">Rest your eyes.</h1>
-            <p class="lead">"It is okay to do nothing for a while."</p>
-        </div>
-    </section>
+    active_messages = []
+    if 'active_chat_id' in session:
+        cursor.execute("SELECT * FROM chat_history WHERE session_id = ? ORDER BY timestamp ASC", (session['active_chat_id'],))
+        active_messages = cursor.fetchall()
+        
+    conn.close()
+    return render_template('ai_chat.html', chat_history=history_heads, active_messages=active_messages)
 
-    <div class="container mb-5">
-        <div class="row justify-content-center">
-            <div class="col-lg-10">
-                <div class="main-feed-box text-center position-relative">
-                    <div class="feed-label">SOFT THOUGHT</div>
-                    <div class="py-3">
-                        <h2 id="tiredQuote" style="font-family: 'Georgia', serif; font-style: italic; color: #FFFFFF;">
-                            "Your only responsibility right now is to breathe and rest."
-                        </h2>
-                        <button class="btn btn-link text-info mt-2" onclick="newQuote()">Next Reminder</button>
-                    </div>
-                </div>
-            </div>
-        </div>
+@app.route('/get_ai_response', methods=['POST'])
+def get_ai_response():
+    data = request.json
+    user_msg = data.get('message', '')
+    mood = session.get('current_mood', 'neutral')
+    username = session.get('user')
+    
+    if 'active_chat_id' not in session:
+        session['active_chat_id'] = str(uuid.uuid4())
+    
+    current_sid = session['active_chat_id']
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={API_KEY}"
+    
+    payload = {"contents": [{"parts": [{"text": f"System: You are Solace AI, a supportive companion for a user feeling {mood}. User: {user_msg}"}]}]}
 
-        <div class="row g-4 mt-2">
-            <div class="col-md-4">
-                <div class="feature-card text-center">
-                    <div class="icon-box"><i class="fas fa-moon"></i></div>
-                    <h5>Sleep Sounds</h5>
-                    <p class="small">Gentle brown noise for deep sleep.</p>
-                    <button class="btn btn-tired btn-sm w-100">Play Now</button>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="feature-card text-center">
-                    <div class="icon-box"><i class="fas fa-power-off"></i></div>
-                    <h5>Offline Mode</h5>
-                    <p class="small">Pause notifications for 8 hours.</p>
-                    <button class="btn btn-tired btn-sm w-100">Activate</button>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="feature-card text-center">
-                    <div class="icon-box"><i class="fas fa-battery-empty"></i></div>
-                    <h5>Energy Log</h5>
-                    <p class="small">Note your exhaustion levels.</p>
-                    <button class="btn btn-tired btn-sm w-100">Log</button>
-                </div>
-            </div>
-        </div>
-    </div>
+    try:
+        response = requests.post(url, json=payload, timeout=30)
+        res_data = response.json()
+        ai_reply = res_data['candidates'][0]['content']['parts'][0]['text']
+        
+        conn = sqlite3.connect('database.db')
+        cursor = conn.cursor()
+        cursor.execute("INSERT INTO chat_history (session_id, username, user_message, ai_response) VALUES (?, ?, ?, ?)", 
+                       (current_sid, username, user_msg, ai_reply))
+        conn.commit()
+        conn.close()
+        return jsonify({"reply": ai_reply})
+    except:
+        return jsonify({"reply": "Solace is resting. Please try again soon."})
 
-    <script>
-        function newQuote() {
-            const quotes = ["Sleep is the best meditation.", "End the day with a grateful heart.", "You've done your best today.", "Rest, for tomorrow needs you."];
-            document.getElementById('tiredQuote').innerText = `"${quotes[Math.floor(Math.random()*quotes.length)]}"`;
-        }
-    </script>
-</body>
-</html>
+# --- ADMIN ROUTES ---
+@app.route('/admin')
+def admin_dashboard():
+    if 'user' not in session or not is_admin(session['user']):
+        flash('Admin access required!')
+        return redirect(url_for('index'))
+    
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    total_users = cursor.execute('SELECT COUNT(*) FROM users').fetchone()[0]
+    total_moods = cursor.execute('SELECT COUNT(*) FROM mood_logs').fetchone()[0]
+    recent_moods = cursor.execute('SELECT username, mood, timestamp FROM mood_logs ORDER BY timestamp DESC LIMIT 5').fetchall()
+    conn.close()
+    
+    return render_template('admin/dashboard.html', total_users=total_users, total_moods=total_moods, recent_moods=recent_moods)
+
+if __name__ == '__main__':
+    app.run(debug=True)

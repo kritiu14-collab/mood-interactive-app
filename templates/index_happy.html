@@ -9,19 +9,28 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <style>
+        /* Animated Gradient Background */
+        @keyframes gradientAnimation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #fffdf0; 
+            /* Bright Yellow & Orange animated theme */
+            background: linear-gradient(-45deg, #fffdf0, #fff9e6, #ffecb3, #fff1cc);
+            background-size: 400% 400%;
+            animation: gradientAnimation 15s ease infinite;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
         }
 
         #heroSection {
-            background: linear-gradient(rgba(255, 215, 0, 0.2), rgba(255, 215, 0, 0.2)), url("static/background.jpeg");
-            background-size: cover;
-            background-position: center;
-            height: 45vh; 
+            /* Removed Image, kept the theme colors */
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.4), rgba(255, 165, 0, 0.2));
+            height: 35vh; 
             color: #4a3c00;
             display: flex;
             align-items: center;
@@ -29,6 +38,7 @@
             text-align: center;
             border-bottom: 6px solid #ffd700;
             border-radius: 0 0 80px 80px;
+            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.1);
         }
 
         .feature-card {
@@ -47,7 +57,9 @@
             border-color: #ffd700;
         }
 
-        .mood-journey-clickable {
+        .ai-chat-card {
+            background: linear-gradient(135deg, #ffffff 0%, #fff9e6 100%);
+            border: 3px dashed #ffd700;
             cursor: pointer;
         }
 
@@ -55,14 +67,6 @@
             font-size: 2.5rem;
             color: #ffd700;
             margin-bottom: 15px;
-        }
-
-        .ai-chat-section {
-            background: #fff9e6;
-            border-radius: 35px;
-            padding: 30px;
-            border: 2px dashed #ffd700;
-            margin-top: 40px;
         }
 
         footer {
@@ -87,9 +91,9 @@
 
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
         <div class="container">
-            <a class="navbar-brand fw-bold" href="/tracker">☀️ SOLACE</a>
+            <a class="navbar-brand fw-bold" href="/tracker_page">☀️ SOLACE</a>
             <div class="ms-auto d-flex align-items-center">
-                <a href="/tracker" class="btn btn-outline-light btn-sm me-3 rounded-pill">← Change Mood</a>
+                <a href="/tracker_page" class="btn btn-outline-light btn-sm me-3 rounded-pill">← Change Mood</a>
                 <span class="badge bg-warning text-dark me-3">Mood: Radiant</span>
                 <i class="fas fa-user-circle fa-2x text-white"></i>
             </div>
@@ -98,7 +102,7 @@
 
     <section id="heroSection">
         <div class="container">
-            <h1 class="display-4 fw-bold">Wonderful to see you smiling, {{ username if username else 'Friend' }}!</h1>
+            <h1 class="display-4 fw-bold">Wonderful to see you smiling, {{ session['user'] if session['user'] else 'Friend' }}!</h1>
             <p class="lead">"A beautiful day begins with a beautiful mindset."</p>
         </div>
     </section>
@@ -106,6 +110,25 @@
     <div class="container my-5">
         <div class="row g-4">
             
+            <div class="col-md-12">
+                <a href="/ai_chat">
+                    <div class="feature-card ai-chat-card text-center p-4">
+                        <div class="row align-items-center">
+                            <div class="col-md-2">
+                                <div class="icon-box mb-0"><i class="fas fa-robot text-warning"></i></div>
+                            </div>
+                            <div class="col-md-8 text-start">
+                                <h4 class="fw-bold mb-1">Chat with Solace AI</h4>
+                                <p class="mb-0 text-muted">Feeling great? Let's chat about how to make this day even better!</p>
+                            </div>
+                            <div class="col-md-2">
+                                <span class="btn btn-happy rounded-pill px-4">Chat Now <i class="fas fa-arrow-right ms-2"></i></span>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
             <div class="col-md-3">
                 <div class="feature-card text-center">
                     <div class="icon-box"><i class="fas fa-quote-left"></i></div>
@@ -125,25 +148,11 @@
             </div>
 
             <div class="col-md-3">
-                <a href="{{ url_for('todo_page') }}">
-                    <div class="feature-card mood-journey-clickable">
+                <a href="/todo" style="text-decoration: none; color: inherit;">
+                    <div class="feature-card">
                         <div class="icon-box text-center"><i class="fas fa-list-check"></i></div>
                         <h5 class="fw-bold text-center">Your Goals ✨</h5>
-                        <ul class="list-unstyled small ps-2">
-                            {% if tasks %}
-                                {% for task in tasks[:2] %}
-                                <li class="mb-2 text-truncate">
-                                    <i class="fas fa-circle-notch text-warning me-2"></i> 
-                                    {{ task[1] }} <span class="text-muted" style="font-size: 0.7rem;">({{ task[2] }})</span>
-                                </li>
-                                {% endfor %}
-                                {% if tasks|length > 2 %}
-                                <li class="text-center text-primary mt-2" style="font-size: 0.75rem;">+ {{ tasks|length - 2 }} more...</li>
-                                {% endif %}
-                            {% else %}
-                                <li class="text-muted text-center">No goals set yet.</li>
-                            {% endif %}
-                        </ul>
+                        <p class="small text-muted text-center">Check your tasks for today.</p>
                         <div class="text-center mt-3">
                             <span class="btn btn-outline-warning btn-sm rounded-pill w-100">Open To-Do</span>
                         </div>
@@ -152,7 +161,8 @@
             </div>
 
             <div class="col-md-3">
-                <a href="/journal"> <div class="feature-card mood-journey-clickable text-center">
+                <a href="/journal"> 
+                    <div class="feature-card text-center">
                         <div class="icon-box"><i class="fas fa-book-open"></i></div>
                         <h5 class="fw-bold">Gratitude Journal</h5>
                         <p class="small text-muted">Capture this happy moment forever.</p>
@@ -164,12 +174,12 @@
             </div>
 
             <div class="col-md-12">
-                <div class="feature-card mood-journey-clickable" onclick="location.href='/history';">
+                <div class="feature-card" onclick="location.href='/history';" style="cursor: pointer;">
                     <div class="row align-items-center">
                         <div class="col-md-3 text-center">
                             <div class="icon-box"><i class="fas fa-chart-line"></i></div>
                             <h5 class="fw-bold">Mood Journey</h5>
-                            <p class="small text-muted">Click for detail</p>
+                            <p class="small text-muted">Your happiness over time</p>
                         </div>
                         <div class="col-md-9">
                             <div class="d-flex justify-content-between align-items-end" style="height: 80px;">

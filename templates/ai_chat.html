@@ -3,57 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Solace AI | Mental Clarity</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <title>Solace AI | Galaxy Mode 🌌</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
+
     <style>
         :root {
-            --sidebar-bg: #f9f9fb;
-            --chat-bg: #ffffff;
-            --text-main: #1f1f1f;
-            --accent-gradient: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
-            --ai-bubble-bg: #f7faff;
+            --deep-space: #0a0a12;
+            --gemini-purple: #9b72cb;
+            --gemini-blue: #4285f4;
+            --glass-white: rgba(255, 255, 255, 0.1);
+            --text-main: #ffffff;
         }
 
         body { 
-            background: var(--chat-bg);
+            background: radial-gradient(circle at bottom right, #1a1a2e, #0a0a12, #05050a);
+            background-attachment: fixed;
             color: var(--text-main);
-            font-family: 'Inter', sans-serif;
+            font-family: 'Plus Jakarta Sans', sans-serif;
             height: 100vh;
             margin: 0;
             display: flex;
             overflow: hidden;
         }
 
-        /* --- SIDEBAR (ChatGPT/Gemini Style) --- */
         .sidebar {
             width: 280px;
-            background: var(--sidebar-bg);
-            height: 100vh;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(25px);
+            padding: 25px;
+            border-right: 1px solid rgba(255, 255, 255, 0.15);
             display: flex;
             flex-direction: column;
-            padding: 20px;
-            border-right: 1px solid #eef0f2;
-            transition: all 0.3s ease;
         }
 
-        .new-chat-btn {
-            border: 1px solid #e0e0e0;
-            background: white;
-            border-radius: 12px;
-            padding: 12px;
-            width: 100%;
-            font-weight: 600;
-            text-align: left;
-            margin-bottom: 30px;
-            transition: 0.2s;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-        }
-        .new-chat-btn:hover { background: #f1f1f1; transform: translateY(-1px); }
-
-        /* --- MAIN CONTENT --- */
         .main-content {
             flex-grow: 1;
             display: flex;
@@ -64,228 +49,237 @@
         .chat-scroll {
             flex-grow: 1;
             overflow-y: auto;
-            padding: 60px 18% 180px 18%; /* Centered "Reading" width */
+            padding: 80px 15% 180px 15%;
             scroll-behavior: smooth;
         }
 
-        /* --- MESSAGE ROWS --- */
-        .message-row {
-            display: flex;
-            margin-bottom: 40px;
-            animation: slideUp 0.5s ease forwards;
+        /* Recent Chats Section */
+        .recent-chats-container {
+            margin-top: 20px;
+            flex-grow: 1;
+            overflow-y: auto;
         }
-
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 8px;
-            margin-right: 20px;
+        
+        .recent-chat-item {
+            padding: 12px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            margin-bottom: 10px;
+            font-size: 0.9rem;
             display: flex;
             align-items: center;
-            justify-content: center;
+            justify-content: space-between;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: 0.3s;
+        }
+        
+        .recent-chat-item:hover {
+            background: rgba(155, 114, 203, 0.15);
+            border-color: var(--gemini-purple);
+        }
+
+        .chat-link {
+            text-decoration: none;
+            color: #e0e0e0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            flex-grow: 1;
+        }
+
+        .delete-btn {
+            color: #ff4d4d;
+            opacity: 0.6;
+            transition: 0.3s;
+            padding-left: 10px;
+        }
+
+        .delete-btn:hover { opacity: 1; transform: scale(1.1); }
+
+        .message-row { display: flex; margin-bottom: 30px; align-items: flex-start; }
+        
+        .avatar {
+            width: 35px; height: 35px; border-radius: 50%;
+            margin-right: 15px; display: flex; align-items: center; justify-content: center;
             flex-shrink: 0;
-            font-size: 1.2rem;
         }
-
-        .user-avatar { background: #eef0f2; color: #555; }
+        
         .ai-avatar { 
-            background: var(--accent-gradient); 
-            box-shadow: 0 4px 10px rgba(118, 75, 162, 0.2);
+            background: linear-gradient(45deg, #4285f4, #9b72cb, #d96570);
+            box-shadow: 0 0 10px rgba(155, 114, 203, 0.3);
         }
 
-        .content {
-            line-height: 1.7;
-            font-size: 1.05rem;
-            color: #374151;
-            width: 100%;
+        .content { font-size: 1.05rem; line-height: 1.6; max-width: 80%; }
+        .ai-text { color: #ffffff; white-space: pre-wrap; }
+        .user-text { 
+            color: #ffffff; 
+            font-weight: 600; 
+            background: rgba(66, 133, 244, 0.2); 
+            border: 1px solid rgba(66, 133, 244, 0.3);
+            padding: 12px 20px; 
+            border-radius: 18px; 
         }
 
-        .ai-label {
-            font-weight: 600;
-            margin-bottom: 5px;
-            display: block;
-            color: #111;
-        }
-
-        /* --- INPUT BAR --- */
         .input-wrapper {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            padding: 40px 18%;
-            background: linear-gradient(transparent, white 40%);
+            position: absolute; bottom: 30px; left: 0; right: 0;
+            padding: 0 15%;
         }
 
         .input-box {
-            background: white;
-            border: 1px solid #d1d5db;
-            border-radius: 20px;
-            padding: 14px 24px;
-            display: flex;
-            align-items: center;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-            transition: border 0.3s;
+            background: #1e1e26;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 24px;
+            padding: 8px 20px;
+            display: flex; align-items: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
         }
 
-        .input-box:focus-within {
-            border-color: #764ba2;
-            box-shadow: 0 10px 25px rgba(118, 75, 162, 0.1);
-        }
+        #user-msg { border: none; outline: none; width: 100%; background: transparent; color: white; padding: 10px; }
 
-        #user-msg {
-            border: none;
-            outline: none;
-            width: 100%;
-            font-size: 1.05rem;
+        .sidebar-link {
+            color: #e0e0e0; text-decoration: none; margin-bottom: 12px; 
+            font-size: 0.95rem; transition: 0.3s; display: block;
         }
+        .sidebar-link:hover { color: white; transform: translateX(5px); }
 
-        .send-btn {
-            background: none;
-            border: none;
-            color: #764ba2;
-            font-size: 1.3rem;
-            margin-left: 15px;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .send-btn:hover { transform: scale(1.1); color: #667eea; }
-
-        /* --- RESPONSIVENESS --- */
-        @media (max-width: 1024px) {
-            .chat-scroll, .input-wrapper { padding-left: 8%; padding-right: 8%; }
-        }
-        @media (max-width: 768px) {
-            .sidebar { display: none; }
-            .chat-scroll, .input-wrapper { padding-left: 5%; padding-right: 5%; }
-            .chat-scroll { padding-top: 30px; }
-        }
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
     </style>
 </head>
 <body>
 
-    <aside class="sidebar">
-        <button class="new-chat-btn" onclick="location.reload()">
-            <i class="fas fa-plus me-2"></i> New Session
-        </button>
-        <div class="flex-grow-1 overflow-auto">
-            <p class="text-uppercase text-muted fw-bold mb-3" style="font-size: 0.7rem; letter-spacing: 1px;">Recent Insights</p>
-            <div class="d-flex align-items-center p-2 rounded hover-bg cursor-pointer small mb-1" style="cursor: pointer;">
-                <i class="far fa-comment-alt me-3 text-muted"></i>
-                <span class="text-truncate">Breaking Assumptions...</span>
-            </div>
-        </div>
-        <div class="mt-auto pt-3 border-top">
-            <a href="/tracker" class="text-decoration-none text-dark small fw-600">
-                <i class="fas fa-chevron-left me-2"></i> Back to Dashboard
-            </a>
-        </div>
-    </aside>
+<aside class="sidebar">
+    <div class="mb-4">
+        <h4 class="fw-bold"><span style="color: #4285f4;">Solace</span> <span style="color: #9b72cb;">AI</span></h4>
+        <small class="text-muted">Mood: <span class="text-info" style="color:#8ab4f8 !important;">{{ session.get('current_mood', 'Neutral')|capitalize }}</span></small>
+    </div>
+    
+    <a href="/new_chat" class="btn btn-primary btn-sm rounded-pill mb-4 w-100" style="background: linear-gradient(45deg, #4285f4, #9b72cb); border: none;">
+        <i class="fas fa-plus me-2"></i> New Chat
+    </a>
 
-    <main class="main-content">
-        <div class="chat-scroll" id="chat-display">
-            <div class="message-row">
-                <div class="avatar ai-avatar">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 2L14.85 9.15L22 12L14.85 14.85L12 22L9.15 14.85L2 12L9.15 9.15L12 2Z" fill="white"/>
-                    </svg>
+    <nav>
+        <a href="/dashboard" class="sidebar-link"><i class="fas fa-th-large me-2"></i> Dashboard</a>
+        <a href="/todo" class="sidebar-link"><i class="fas fa-tasks me-2"></i> Tasks</a>
+        <a href="/journal" class="sidebar-link"><i class="fas fa-pen-nib me-2"></i> Journal</a>
+    </nav>
+
+    <div class="recent-chats-container">
+        <h6 class="text-uppercase small fw-bold text-muted mb-3" style="letter-spacing: 1px; color: #adadad !important;">History</h6>
+        {% if chat_history %}
+            {% for chat in chat_history %}
+            <div class="recent-chat-item">
+                <a href="/load_chat/{{ chat.session_id }}" class="chat-link">
+                    <i class="far fa-comment-alt me-2"></i> {{ chat.user_message[:18] }}...
+                </a>
+                <a href="/delete_chat/{{ chat.session_id }}" class="delete-btn" title="Delete Chat">
+                    <i class="fas fa-trash-alt"></i>
+                </a>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p class="small text-muted">No history found.</p>
+        {% endif %}
+    </div>
+
+    <div class="mt-auto">
+        <a href="/logout" class="sidebar-link text-danger"><i class="fas fa-sign-out-alt me-2"></i> Logout</a>
+    </div>
+</aside>
+
+<main class="main-content">
+    <div class="chat-scroll" id="chat-display">
+        <div class="message-row">
+            <div class="avatar ai-avatar"><i class="fas fa-sparkles text-white"></i></div>
+            <div class="content ai-text">Hello {{ session['user'] }}. How can I support your {{ session.get('current_mood', 'neutral') }} mood?</div>
+        </div>
+
+        {% if active_messages %}
+            {% for chat in active_messages %}
+                <div class="message-row justify-content-end">
+                    <div class="content user-text">{{ chat.user_message }}</div>
                 </div>
-                <div class="content">
-                    <span class="ai-label">Solace AI</span>
-                    Welcome back, {{ username }}. Let’s dive into what’s on your mind. Remember, an assumption is just a thought, not a fact. How can I help you reframe things today?
-                </div>
-            </div>
-        </div>
-
-        <div class="input-wrapper">
-            <div class="input-box">
-                <input type="text" id="user-msg" placeholder="Type an overthinking thought here..." autocomplete="off">
-                <button class="send-btn" onclick="sendToAI()">
-                    <i class="fas fa-paper-plane"></i>
-                </button>
-            </div>
-            <div class="text-center mt-3">
-                <p class="text-muted mb-0" style="font-size: 0.75rem;">
-                    <i class="fas fa-shield-alt me-1"></i> Private Session. Data used for personal growth logs only.
-                </p>
-            </div>
-        </div>
-    </main>
-
-    <script>
-        // --- 1. The Typewriter Effect Logic ---
-        function typeWriter(text, element, speed = 15) {
-            let i = 0;
-            element.innerHTML = '<span class="ai-label">Solace AI</span>'; 
-            function type() {
-                if (i < text.length) {
-                    element.innerHTML += text.charAt(i);
-                    i++;
-                    setTimeout(type, speed);
-                }
-            }
-            type();
-        }
-
-        // --- 2. Send Message Logic ---
-        function sendToAI() {
-            const input = document.getElementById('user-msg');
-            const display = document.getElementById('chat-display');
-            const message = input.value.trim();
-
-            if (!message) return;
-
-            // Append User Message
-            display.innerHTML += `
                 <div class="message-row">
-                    <div class="avatar user-avatar"><i class="fas fa-user-circle"></i></div>
-                    <div class="content">
-                        <span class="ai-label">You</span>
-                        ${message}
-                    </div>
-                </div>`;
-            
-            input.value = '';
-            display.scrollTop = display.scrollHeight;
+                    <div class="avatar ai-avatar"><i class="fas fa-sparkles text-white"></i></div>
+                    <div class="content ai-text">{{ chat.ai_response }}</div>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
 
-            // Fetch from Flask Backend
-            fetch('/get_ai_response', {
+    <div class="input-wrapper">
+        <div class="input-box">
+            <input type="text" id="user-msg" placeholder="Type your message..." autocomplete="off">
+            <button class="btn p-0 ms-2" style="color: #9b72cb;" onclick="sendToAI()">
+                <i class="fas fa-paper-plane fa-lg"></i>
+            </button>
+        </div>
+    </div>
+</main>
+
+<script>
+    const chatDisplay = document.getElementById('chat-display');
+    const userInput = document.getElementById('user-msg');
+    chatDisplay.scrollTop = chatDisplay.scrollHeight;
+
+    function appendMessage(role, text) {
+        const row = document.createElement('div');
+        row.className = `message-row ${role === 'user' ? 'justify-content-end' : ''}`;
+        if (role === 'ai') {
+            row.innerHTML = `<div class="avatar ai-avatar"><i class="fas fa-sparkles text-white"></i></div><div class="content ai-text"></div>`;
+        } else {
+            row.innerHTML = `<div class="content user-text">${text}</div>`;
+        }
+        chatDisplay.appendChild(row);
+        chatDisplay.scrollTop = chatDisplay.scrollHeight;
+        return row.querySelector('.content');
+    }
+
+    function showTyping() {
+        const row = document.createElement('div');
+        row.className = 'message-row'; row.id = 'temp-typing';
+        row.innerHTML = `<div class="avatar ai-avatar"><i class="fas fa-sparkles text-white"></i></div>
+                         <div class="content typing-indicator"><span></span><span></span><span></span></div>`;
+        chatDisplay.appendChild(row);
+        chatDisplay.scrollTop = chatDisplay.scrollHeight;
+    }
+
+    async function sendToAI() {
+        const msg = userInput.value.trim();
+        if (!msg) return;
+        appendMessage('user', msg);
+        userInput.value = '';
+        showTyping();
+        try {
+            const response = await fetch('/get_ai_response', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ message: message })
-            })
-            .then(res => res.json())
-            .then(data => {
-                // Create the AI Message Container
-                const aiRow = document.createElement('div');
-                aiRow.className = 'message-row';
-                aiRow.innerHTML = `
-                    <div class="avatar ai-avatar">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 2L14.85 9.15L22 12L14.85 14.85L12 22L9.15 14.85L2 12L9.15 9.15L12 2Z" fill="white"/></svg>
-                    </div>
-                    <div class="content typing-target"></div>`;
-                
-                display.appendChild(aiRow);
-                const target = aiRow.querySelector('.typing-target');
-                
-                // Trigger Typewriter effect
-                typeWriter(data.reply, target);
-                
-                // Keep scrolled to bottom
-                setTimeout(() => { display.scrollTop = display.scrollHeight; }, 100);
-            })
-            .catch(err => console.error("Error:", err));
+                body: JSON.stringify({ message: msg })
+            });
+            const data = await response.json();
+            document.getElementById('temp-typing').remove();
+            const aiBox = appendMessage('ai', '');
+            typeWriter(data.reply, aiBox);
+        } catch (e) {
+            document.getElementById('temp-typing').remove();
+            appendMessage('ai', "Connection error. Please try again.");
         }
+    }
 
-        // --- 3. Hit Enter to Send ---
-        document.getElementById('user-msg').addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') sendToAI();
-        });
-    </script>
+    function typeWriter(text, element) {
+        let i = 0;
+        function type() {
+            if (i < text.length) {
+                element.innerHTML += text.charAt(i); i++;
+                chatDisplay.scrollTop = chatDisplay.scrollHeight;
+                setTimeout(type, 15);
+            }
+        }
+        type();
+    }
+
+    userInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendToAI(); });
+</script>
 </body>
 </html>

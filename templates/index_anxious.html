@@ -19,7 +19,7 @@
             flex-direction: column;
         }
 
-        /* Hero Section - Matching index.html but with Soft Blur */
+        /* Hero Section */
         #heroSection {
             background: linear-gradient(rgba(243, 240, 247, 0.6), rgba(243, 240, 247, 0.7)), url("static/background.jpeg");
             background-size: cover;
@@ -33,7 +33,6 @@
             border-bottom: 4px solid #dcd3eb;
         }
 
-        /* --- THE SEPARATE CALM FEED BOX --- */
         .content-feed-container {
             margin-top: -60px;
             margin-bottom: 50px;
@@ -63,7 +62,6 @@
             letter-spacing: 1px;
         }
 
-        /* Feature Boxes - Cloud-like Softness */
         .feature-card {
             background: white;
             border-radius: 30px; 
@@ -84,7 +82,6 @@
             margin-bottom: 15px;
         }
 
-        /* AI Chatbot Area */
         .ai-chat-section {
             background: white;
             border-radius: 35px;
@@ -107,6 +104,18 @@
             font-weight: 500;
             border: none;
             padding: 10px 25px;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-breathe:hover {
+            background-color: #83729d;
+            color: white;
+        }
+
+        .nav-link {
+            color: #5a5266 !important;
+            font-weight: 500;
         }
     </style>
 </head>
@@ -114,9 +123,19 @@
 
     <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
         <div class="container">
-            <a class="navbar-brand fw-bold" href="#" style="color: #9b89b3;">✨ SOLACE</a>
-            <div class="ms-auto">
-                <span class="badge rounded-pill bg-light text-muted border px-3">Peace Mode</span>
+            <a class="navbar-brand fw-bold" href="{{ url_for('dashboard') }}" style="color: #9b89b3;">✨ SOLACE</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item"><a class="nav-link px-3" href="{{ url_for('todo_page') }}">Tasks</a></li>
+                    <li class="nav-item"><a class="nav-link px-3" href="{{ url_for('journal_page') }}">Journal</a></li>
+                    <li class="nav-item"><a class="nav-link px-3 text-danger" href="{{ url_for('logout') }}">Logout</a></li>
+                    <li class="nav-item ms-3">
+                        <span class="badge rounded-pill bg-light text-muted border px-3">Peace Mode</span>
+                    </li>
+                </ul>
             </div>
         </div>
     </nav>
@@ -163,7 +182,8 @@
                     <div class="icon-box"><i class="fas fa-feather"></i></div>
                     <h5 class="fw-bold">Small Steps</h5>
                     <p class="small text-muted">Focus on just one thing right now.</p>
-                    <div class="p-2 bg-light rounded-pill small">Current: Drink Water</div>
+                    <div class="p-2 bg-light rounded-pill small mb-2">Current: Drink Water</div>
+                    <a href="{{ url_for('todo_page') }}" class="btn btn-outline-secondary btn-sm w-100 rounded-pill">View Tasks</a>
                 </div>
             </div>
 
@@ -172,7 +192,7 @@
                     <div class="icon-box"><i class="fas fa-wave-square"></i></div>
                     <h5 class="fw-bold">Peace Tracker</h5>
                     <p class="small text-muted">Viewing your weekly balance.</p>
-                    <button class="btn btn-outline-secondary btn-sm rounded-pill w-100">View Logs</button>
+                    <a href="{{ url_for('tracker') }}" class="btn btn-outline-secondary btn-sm rounded-pill w-100">View Logs</a>
                 </div>
             </div>
 
@@ -187,7 +207,9 @@
                             <p class="text-muted mb-0">"Are you worrying about a 'What If'? Let's break that assumption down into facts together."</p>
                         </div>
                         <div class="col-md-3">
-                            <button class="btn btn-breathe w-100">Begin Conversation</button>
+                            <a href="{{ url_for('ai_chat_page') }}" class="btn btn-breathe w-100 py-2">
+                                Begin Conversation
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -198,10 +220,11 @@
     <footer>
         <div class="container text-center">
             <p class="small mb-0 fst-italic">"Healing is not linear. Take your time."</p>
-            <p class="small mt-2">&copy; 2025 Solace Project - Kriti Upadhyay (BCA)</p>
+            <p class="small mt-2">&copy; 2026 Solace Project - Kriti Upadhyay (BCA)</p>
         </div>
     </footer>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         function newCalm() {
             const quotes = [

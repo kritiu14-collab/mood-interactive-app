@@ -20,7 +20,6 @@
         }
 
         #heroSection {
-            /* Soft focus nature background overlay */
             background: linear-gradient(rgba(241, 243, 240, 0.6), rgba(241, 243, 240, 0.7)), url("static/background.jpeg");
             background-size: cover;
             background-position: center;
@@ -33,7 +32,6 @@
             border-bottom: 4px solid #b2c2b9;
         }
 
-        /* Box Shapes: Softly rounded (not as round as happy, but not sharp) */
         .feature-card {
             background: #ffffff;
             border: 1px solid #d8e0da;
@@ -56,7 +54,6 @@
             margin-bottom: 15px;
         }
 
-        /* AI Chatbot Area - Focused on "De-stressing" */
         .ai-chat-section {
             background: #e4e9e5;
             border-radius: 20px;
@@ -65,7 +62,6 @@
             margin-top: 40px;
         }
 
-        /* Footer */
         footer {
             background-color: #3d4941;
             color: #d8e0da;
@@ -80,6 +76,18 @@
             font-weight: 500;
             border: none;
             padding: 10px 25px;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-sage:hover {
+            background-color: #7a8e80;
+            color: white;
+        }
+
+        .nav-link {
+            color: #4a5d4e !important;
+            font-weight: 500;
         }
     </style>
 </head>
@@ -87,10 +95,20 @@
 
     <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
         <div class="container">
-            <a class="navbar-brand fw-bold" href="#" style="color: #8da394;">🌿 SOLACE</a>
-            <div class="ms-auto">
-                <span class="text-muted small italic me-3">Taking a moment to breathe...</span>
-                <i class="fas fa-seedling text-success"></i>
+            <a class="navbar-brand fw-bold" href="{{ url_for('dashboard') }}" style="color: #8da394;">🌿 SOLACE</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item"><a class="nav-link px-3" href="{{ url_for('todo_page') }}">Tasks</a></li>
+                    <li class="nav-item"><a class="nav-link px-3" href="{{ url_for('journal_page') }}">Journal</a></li>
+                    <li class="nav-item"><a class="nav-link px-3 text-danger" href="{{ url_for('logout') }}">Logout</a></li>
+                    <li class="nav-item ms-3">
+                        <span class="text-muted small italic me-2">Taking a moment to breathe...</span>
+                        <i class="fas fa-seedling text-success"></i>
+                    </li>
+                </ul>
             </div>
         </div>
     </nav>
@@ -110,6 +128,7 @@
                     <div class="icon-box"><i class="fas fa-leaf"></i></div>
                     <h5 class="fw-bold">Quiet Feed</h5>
                     <p class="small">“The greatest remedy for anger is delay.”</p>
+                    <button class="btn btn-sage btn-sm w-100 mt-2">View Feed</button>
                 </div>
             </div>
 
@@ -126,10 +145,12 @@
                 <div class="feature-card">
                     <div class="icon-box"><i class="fas fa-spa"></i></div>
                     <h5 class="fw-bold">Cool Down Tasks</h5>
-                    <ul class="list-unstyled small">
+                    <ul class="list-unstyled small text-start ps-4">
                         <li>🌿 4-7-8 Breathing</li>
                         <li>🌿 Walk for 5 minutes</li>
+                        <li>🌿 Drink cold water</li>
                     </ul>
+                    <a href="{{ url_for('todo_page') }}" class="btn btn-sage btn-sm w-100 mt-2">Check List</a>
                 </div>
             </div>
 
@@ -143,11 +164,10 @@
                             <h5 class="fw-bold">Solace De-stress AI</h5>
                             <p class="mb-0">Tell me what’s frustrating you. We’ll look at the facts together and cool things down.</p>
                         </div>
-                        <div class="col-md-3 mt-3 mt-md-0">
-                            <div class="input-group">
-                                <input type="text" class="form-control" placeholder="Vent here...">
-                                <button class="btn btn-sage">Submit</button>
-                            </div>
+                        <div class="col-md-3 mt-3 mt-md-0 text-end">
+                            <a href="{{ url_for('ai_chat_page') }}" class="btn btn-sage w-100 py-2">
+                                Start Calming Chat <i class="fas fa-arrow-right ms-2"></i>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -157,9 +177,10 @@
 
     <footer>
         <div class="container text-center">
-            <p class="small mb-0">Solace | Grounding Mode &copy; 2025</p>
+            <p class="small mb-0">Solace | Grounding Mode &copy; 2026</p>
         </div>
     </footer>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
