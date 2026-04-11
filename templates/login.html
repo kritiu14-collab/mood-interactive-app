@@ -3,209 +3,509 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Solace | Login & Signup</title>
+    <title>Solace | Welcome</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:ital,wght@1,600&display=swap');
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'DM Sans', sans-serif;
+            min-height: 100vh;
             display: flex;
+            background: #f7f3ee;
+            color: #2d2d2d;
+        }
+
+        /* Left panel — decorative */
+        .left-panel {
+            flex: 1;
+            background: linear-gradient(160deg, #667eea, #764ba2, #f093fb);
+            background-size: 300% 300%;
+            animation: aurora 8s ease infinite;
+            display: flex;
+            flex-direction: column;
             justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: #333;
-        }
-        .container {
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-            width: 350px;
-            max-width: 90%;
+            padding: 60px;
+            color: white;
             position: relative;
+            overflow: hidden;
         }
-        h2 { text-align: center; margin-bottom: 20px; color: #4a4a4a; }
-        form, .forgot-section { display: none; animation: fadeIn 0.3s ease-in-out; }
-        form.active, .forgot-section.active { display: block; }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
+
+        @keyframes aurora {
+            0%   { background-position: 0% 50%; }
+            50%  { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
-        .input-group { position: relative; margin-bottom: 15px; }
-        input {
+
+        .left-panel::after {
+            content: '';
+            position: absolute;
+            width: 400px; height: 400px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 50%;
+            bottom: -100px; right: -100px;
+        }
+
+        .left-panel .brand {
+            font-family: 'Playfair Display', serif;
+            font-size: 3.5rem;
+            margin-bottom: 16px;
+            position: relative; z-index: 1;
+        }
+
+        .left-panel p {
+            font-size: 1.1rem;
+            opacity: 0.85;
+            max-width: 380px;
+            line-height: 1.7;
+            position: relative; z-index: 1;
+        }
+
+        .left-panel .tagline {
+            margin-top: 40px;
+            font-size: 0.85rem;
+            opacity: 0.6;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        /* Right panel — form */
+        .right-panel {
+            width: 460px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            background: #f7f3ee;
+        }
+
+        .form-box { width: 100%; max-width: 380px; }
+
+        .tabs {
+            display: flex;
+            background: #ede9e2;
+            border-radius: 12px;
+            padding: 4px;
+            margin-bottom: 32px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            background: transparent;
+            border-radius: 9px;
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 500;
+            font-size: 0.9rem;
+            cursor: pointer;
+            color: #888;
+            transition: all 0.2s;
+        }
+
+        .tab-btn.active {
+            background: white;
+            color: #2d2d2d;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .form-section { display: none; }
+        .form-section.active { display: block; }
+
+        h2 {
+            font-size: 1.6rem;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .subtitle {
+            color: #888;
+            font-size: 0.88rem;
+            margin-bottom: 28px;
+        }
+
+        label {
+            display: block;
+            font-size: 0.82rem;
+            font-weight: 500;
+            color: #555;
+            margin-bottom: 6px;
+        }
+
+        input[type=text], input[type=email], input[type=password] {
             width: 100%;
-            padding: 12px 40px 12px 12px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 16px;
-            box-sizing: border-box;
+            padding: 12px 14px;
+            border: 1.5px solid #e0dbd2;
+            border-radius: 10px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.92rem;
+            background: white;
+            margin-bottom: 16px;
+            transition: border-color 0.2s;
         }
-        input:focus { border-color: #667eea; outline: none; box-shadow: 0 0 5px rgba(102, 126, 234, 0.5); }
-        .input-group i { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #aaa; }
-        button {
+
+        input:focus { outline: none; border-color: #764ba2; }
+
+        /* Role radio */
+        .role-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+
+        .role-option {
+            flex: 1;
+            border: 1.5px solid #e0dbd2;
+            border-radius: 10px;
+            padding: 10px 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.88rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            background: white;
+        }
+
+        .role-option input[type=radio] { accent-color: #764ba2; }
+
+        .role-option.selected {
+            border-color: #764ba2;
+            background: #f5f0ff;
+            color: #764ba2;
+        }
+
+        .btn-primary {
             width: 100%;
-            padding: 12px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 13px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
             border: none;
-            border-radius: 6px;
+            border-radius: 10px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 600;
             cursor: pointer;
-            font-size: 16px;
-            transition: 0.3s;
+            transition: opacity 0.2s, transform 0.2s;
+            margin-top: 4px;
         }
-        button:hover { opacity: 0.9; transform: translateY(-1px); }
-        .toggle { text-align: center; margin-bottom: 20px; }
-        .toggle a { color: #667eea; text-decoration: none; font-weight: bold; margin: 0 10px; cursor: pointer; }
-        .error { color: #e74c3c; font-size: 14px; margin-top: 5px; text-align: center; }
-        .success { color: #27ae60; font-size: 14px; margin-top: 5px; text-align: center; }
-        .forgot, .back-link { text-align: center; margin-top: 10px; }
-        .forgot a, .back-link a { color: #667eea; text-decoration: none; font-size: 14px; cursor: pointer; }
+
+        .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+
+        .msg-error   { color: #e74c3c; font-size: 0.83rem; margin-bottom: 12px; padding: 10px 14px; background: #fef5f5; border-radius: 8px; border-left: 3px solid #e74c3c; display: none; }
+        .msg-success { color: #27ae60; font-size: 0.83rem; margin-bottom: 12px; padding: 10px 14px; background: #f0fdf4; border-radius: 8px; border-left: 3px solid #27ae60; display: none; }
+
+        .link-btn {
+            background: none;
+            border: none;
+            color: #764ba2;
+            font-size: 0.83rem;
+            cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+            text-decoration: underline;
+            padding: 0;
+        }
+
+        .forgot-row {
+            text-align: right;
+            margin-top: -10px;
+            margin-bottom: 18px;
+        }
+
+        .divider {
+            height: 1px;
+            background: #e0dbd2;
+            margin: 20px 0;
+        }
+
+        .otp-input-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .otp-input-row input {
+            flex: 1;
+            margin-bottom: 0;
+            text-align: center;
+            letter-spacing: 4px;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .left-panel { display: none; }
+            .right-panel { width: 100%; }
+        }
     </style>
 </head>
 <body>
-<div class="container">
-    <div class="toggle">
-        <a onclick="showForm('login')">Login</a> | <a onclick="showForm('signup')">Signup</a>
-    </div>
 
-    <form id="loginForm">
-        <h2><i class="fas fa-sign-in-alt"></i> Login</h2>
-        <div class="input-group">
-            <input type="text" id="loginUsername" placeholder="Username" required>
-            <i class="fas fa-user"></i>
-        </div>
-        <div class="input-group">
-            <input type="password" id="loginPassword" placeholder="Password" required>
-            <i class="fas fa-lock"></i>
-        </div>
-        <div id="loginError" class="error"></div>
-        <button type="submit">Login</button>
-        <div class="forgot">
-            <a onclick="showForgotPassword()">Forgot Password?</a>
-        </div>
-    </form>
+<div class="left-panel">
+    <div class="brand">solace.</div>
+    <p>A mood-aware sanctuary designed to support your emotional wellness, one breath at a time.</p>
+    <div class="tagline">BCA Final Year Project · 2026</div>
+</div>
 
-    <form id="signupForm">
-        <h2><i class="fas fa-user-plus"></i> Signup</h2>
-        <div class="input-group">
-            <input type="text" id="signupUsername" placeholder="Username" required>
-            <i class="fas fa-user"></i>
-        </div>
-        <div class="input-group">
-            <input type="email" id="signupEmail" placeholder="Email" required>
-            <i class="fas fa-envelope"></i>
-        </div>
-        <div class="input-group">
-            <input type="password" id="signupPassword" placeholder="Password" required>
-            <i class="fas fa-lock"></i>
-        </div>
-        <div class="input-group">
-            <input type="password" id="signupConfirmPassword" placeholder="Confirm Password" required>
-            <i class="fas fa-lock"></i>
-        </div>
-        <div id="signupError" class="error"></div>
-        <div id="signupSuccess" class="success"></div>
-        <button type="submit">Signup</button>
-    </form>
+<div class="right-panel">
+    <div class="form-box">
 
-    <div id="forgotSection" class="forgot-section">
-        <h2><i class="fas fa-key"></i> Reset</h2>
-        <div class="input-group">
-            <input type="text" id="forgotUsername" placeholder="Username" required>
-            <i class="fas fa-user"></i>
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('login')">Login</button>
+            <button class="tab-btn"        onclick="switchTab('signup')">Sign Up</button>
+            <button class="tab-btn"        onclick="switchTab('reset')">Reset</button>
         </div>
-        <div id="forgotError" class="error"></div>
-        <div id="forgotSuccess" class="success"></div>
-        <button type="button" onclick="resetPassword()">Reset Password</button>
-        <div class="back-link">
-            <a onclick="showForm('login')">Back to Login</a>
+
+        <!-- ── LOGIN ── -->
+        <div id="loginSection" class="form-section active">
+            <h2>Welcome back</h2>
+            <p class="subtitle">Sign in to your sanctuary.</p>
+
+            <label>I am logging in as:</label>
+            <div class="role-group" id="roleGroup">
+                <label class="role-option selected" id="roleUser">
+                    <input type="radio" name="role" value="user" checked onchange="selectRole(this)">
+                    <i class="fas fa-user"></i> User
+                </label>
+                <label class="role-option" id="roleAdmin">
+                    <input type="radio" name="role" value="admin" onchange="selectRole(this)">
+                    <i class="fas fa-shield-alt"></i> Admin
+                </label>
+            </div>
+
+            <label>Username</label>
+            <input type="text" id="loginUsername" placeholder="Your username">
+
+            <label>Password</label>
+            <input type="password" id="loginPassword" placeholder="••••••••">
+
+            <div class="forgot-row">
+                <button class="link-btn" onclick="switchTab('reset')">Forgot password?</button>
+            </div>
+
+            <div id="loginError"   class="msg-error"></div>
+            <div id="loginSuccess" class="msg-success"></div>
+
+            <button class="btn-primary" onclick="handleLogin()">Sign In</button>
         </div>
+
+        <!-- ── SIGN UP ── -->
+        <div id="signupSection" class="form-section">
+            <h2>Create account</h2>
+            <p class="subtitle">Join Solace — it's free.</p>
+
+            <label>Username</label>
+            <input type="text" id="signupUsername" placeholder="Choose a username">
+
+            <label>Email</label>
+            <input type="email" id="signupEmail" placeholder="your@email.com">
+
+            <label>Password <span style="color:#aaa;font-weight:400">(min. 8 characters)</span></label>
+            <input type="password" id="signupPassword" placeholder="••••••••">
+
+            <label>Confirm Password</label>
+            <input type="password" id="signupConfirm" placeholder="••••••••">
+
+            <div id="signupError"   class="msg-error"></div>
+            <div id="signupSuccess" class="msg-success"></div>
+
+            <button class="btn-primary" onclick="handleSignup()">Create Account</button>
+        </div>
+
+        <!-- ── RESET PASSWORD ── -->
+        <div id="resetSection" class="form-section">
+
+            <!-- Step 1: Enter username -->
+            <div id="resetStep1">
+                <h2>Reset password</h2>
+                <p class="subtitle">We'll send a 6-digit OTP to your registered email.</p>
+
+                <label>Username</label>
+                <input type="text" id="resetUsername" placeholder="Your username">
+
+                <div id="resetError1"   class="msg-error"></div>
+                <div id="resetSuccess1" class="msg-success"></div>
+
+                <button class="btn-primary" onclick="requestOTP()">Send OTP</button>
+            </div>
+
+            <!-- Step 2: Enter OTP + new password -->
+            <div id="resetStep2" style="display:none">
+                <h2>Enter OTP</h2>
+                <p class="subtitle" id="otpHint">Check your email for the 6-digit code.</p>
+
+                <label>OTP Code</label>
+                <div class="otp-input-row">
+                    <input type="text" id="otpCode" placeholder="123456" maxlength="6">
+                </div>
+
+                <label>New Password</label>
+                <input type="password" id="newPassword" placeholder="Min. 8 characters">
+
+                <label>Confirm New Password</label>
+                <input type="password" id="confirmNewPassword" placeholder="••••••••">
+
+                <div id="resetError2"   class="msg-error"></div>
+                <div id="resetSuccess2" class="msg-success"></div>
+
+                <button class="btn-primary" onclick="verifyOTP()">Reset Password</button>
+                <div style="margin-top:12px;text-align:center">
+                    <button class="link-btn" onclick="backToStep1()">← Try different username</button>
+                </div>
+            </div>
+        </div>
+
     </div>
 </div>
 
-<script> 
-    function showForm(formType) {
-        document.getElementById('loginForm').classList.remove('active');
-        document.getElementById('signupForm').classList.remove('active');
-        document.getElementById('forgotSection').classList.remove('active');
-        if(formType === 'login') document.getElementById('loginForm').classList.add('active');
-        else document.getElementById('signupForm').classList.add('active');
-        document.querySelectorAll('.error, .success').forEach(el => el.textContent = '');
+<script>
+    // ── Tab switching ──
+    function switchTab(tab) {
+        ['login','signup','reset'].forEach(t => {
+            document.getElementById(t + 'Section').classList.remove('active');
+        });
+        document.getElementById(tab + 'Section').classList.add('active');
+        document.querySelectorAll('.tab-btn').forEach((b, i) => {
+            b.classList.toggle('active', ['login','signup','reset'][i] === tab);
+        });
     }
 
-    function showForgotPassword() {
-        document.getElementById('loginForm').classList.remove('active');
-        document.getElementById('signupForm').classList.remove('active');
-        document.getElementById('forgotSection').classList.add('active');
+    // ── Role selector ──
+    function selectRole(radio) {
+        document.querySelectorAll('.role-option').forEach(el => el.classList.remove('selected'));
+        radio.closest('.role-option').classList.add('selected');
     }
 
-    // Initialize
-    showForm('login');
+    // ── Show/hide message ──
+    function showMsg(id, text, type) {
+        const el = document.getElementById(id);
+        el.textContent = text;
+        el.style.display = 'block';
+        el.className = type === 'error' ? 'msg-error' : 'msg-success';
+    }
 
-    // SIGNUP HANDLER
-    document.getElementById('signupForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
+    function hideMsg(...ids) { ids.forEach(id => { document.getElementById(id).style.display = 'none'; }); }
+
+    // ── Login ──
+    async function handleLogin() {
+        hideMsg('loginError', 'loginSuccess');
+        const username = document.getElementById('loginUsername').value.trim();
+        const password = document.getElementById('loginPassword').value;
+        const role     = document.querySelector('input[name="role"]:checked').value;
+
+        if (!username || !password) { showMsg('loginError', 'Please fill in all fields.', 'error'); return; }
+
+        const res  = await fetch('/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password, role })
+        });
+        const data = await res.json();
+        if (res.ok) {
+            showMsg('loginSuccess', 'Signing you in...', 'success');
+            setTimeout(() => window.location.href = data.redirect, 800);
+        } else {
+            showMsg('loginError', data.error, 'error');
+        }
+    }
+
+    // ── Sign Up ──
+    async function handleSignup() {
+        hideMsg('signupError', 'signupSuccess');
         const username = document.getElementById('signupUsername').value.trim();
-        const email = document.getElementById('signupEmail').value.trim();
+        const email    = document.getElementById('signupEmail').value.trim();
         const password = document.getElementById('signupPassword').value;
-        const confirmPassword = document.getElementById('signupConfirmPassword').value;
+        const confirm  = document.getElementById('signupConfirm').value;
 
-        if (password.length < 8) {
-            document.getElementById('signupError').textContent = 'Min 8 characters required.';
-            return;
-        }
-        if (password !== confirmPassword) {
-            document.getElementById('signupError').textContent = 'Passwords do not match.';
-            return;
-        }
+        if (!username || !email || !password) { showMsg('signupError', 'All fields are required.', 'error'); return; }
+        if (password.length < 8)              { showMsg('signupError', 'Password must be at least 8 characters.', 'error'); return; }
+        if (password !== confirm)             { showMsg('signupError', 'Passwords do not match.', 'error'); return; }
 
-        const response = await fetch('/signup', {
+        const res  = await fetch('/signup', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ username, email, password })
         });
-
-        const result = await response.json();
-        if (response.ok) {
-            document.getElementById('signupSuccess').textContent = 'Account created! Loading login...';
-            setTimeout(() => showForm('login'), 2000);
+        const data = await res.json();
+        if (res.ok) {
+            showMsg('signupSuccess', data.message, 'success');
+            setTimeout(() => switchTab('login'), 2200);
         } else {
-            document.getElementById('signupError').textContent = result.error;
+            // 409 = username already exists
+            showMsg('signupError', data.error, 'error');
         }
-    });
-
-    // LOGIN HANDLER - CONNECTS TO TRACKER
-    document.getElementById('loginForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        const username = document.getElementById('loginUsername').value.trim();
-        const password = document.getElementById('loginPassword').value;
-        const errorDiv = document.getElementById('loginError');
-        errorDiv.textContent = '';
-
-        try {
-            const response = await fetch('/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, password })
-            });
-
-            const result = await response.json();
-
-            if (response.ok) {
-                // Redirects to /tracker_page as defined in app.py
-                window.location.href = result.redirect || '/tracker_page';
-            } else {
-                errorDiv.textContent = result.error || 'Invalid username or password.';
-            }
-        } catch (err) {
-            errorDiv.textContent = 'Server connection failed.';
-        }
-    });
-
-    function resetPassword() {
-        document.getElementById('forgotSuccess').textContent = 'Contact admin for reset.';
     }
+
+    // ── OTP Step 1 ──
+    async function requestOTP() {
+        hideMsg('resetError1', 'resetSuccess1');
+        const username = document.getElementById('resetUsername').value.trim();
+        if (!username) { showMsg('resetError1', 'Please enter your username.', 'error'); return; }
+
+        const res  = await fetch('/request-otp', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username })
+        });
+        const data = await res.json();
+        if (res.ok) {
+            showMsg('resetSuccess1', data.message, 'success');
+            document.getElementById('otpHint').textContent = data.message;
+            setTimeout(() => {
+                document.getElementById('resetStep1').style.display = 'none';
+                document.getElementById('resetStep2').style.display = 'block';
+            }, 1000);
+        } else {
+            showMsg('resetError1', data.error, 'error');
+        }
+    }
+
+    // ── OTP Step 2 ──
+    async function verifyOTP() {
+        hideMsg('resetError2', 'resetSuccess2');
+        const username    = document.getElementById('resetUsername').value.trim();
+        const otp         = document.getElementById('otpCode').value.trim();
+        const newPassword = document.getElementById('newPassword').value;
+        const confirm     = document.getElementById('confirmNewPassword').value;
+
+        if (!otp)                       { showMsg('resetError2', 'Enter the OTP.', 'error'); return; }
+        if (newPassword.length < 8)     { showMsg('resetError2', 'Password must be at least 8 characters.', 'error'); return; }
+        if (newPassword !== confirm)    { showMsg('resetError2', 'Passwords do not match.', 'error'); return; }
+
+        const res  = await fetch('/verify-otp', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, otp, new_password: newPassword })
+        });
+        const data = await res.json();
+        if (res.ok) {
+            showMsg('resetSuccess2', data.message, 'success');
+            setTimeout(() => {
+                backToStep1();
+                switchTab('login');
+            }, 2000);
+        } else {
+            showMsg('resetError2', data.error, 'error');
+        }
+    }
+
+    function backToStep1() {
+        document.getElementById('resetStep1').style.display = 'block';
+        document.getElementById('resetStep2').style.display = 'none';
+        hideMsg('resetError1','resetSuccess1','resetError2','resetSuccess2');
+    }
+
+    // Enter key support
+    document.addEventListener('keypress', e => {
+        if (e.key !== 'Enter') return;
+        const active = document.querySelector('.form-section.active').id;
+        if (active === 'loginSection')  handleLogin();
+        if (active === 'signupSection') handleSignup();
+    });
 </script>
 </body>
 </html>

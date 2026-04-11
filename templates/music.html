@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solace | Music for your Mood</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background: #0d0d14;
+            color: #fff;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Animated background orbs */
+        .bg-orbs {
+            position: fixed; inset: 0; pointer-events: none; z-index: 0;
+        }
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.15;
+            animation: drift 12s ease-in-out infinite;
+        }
+        .orb1 { width: 500px; height: 500px; background: #6c5ce7; top: -100px; left: -100px; animation-delay: 0s; }
+        .orb2 { width: 400px; height: 400px; background: #1db954; bottom: -50px; right: -50px; animation-delay: 4s; }
+        .orb3 { width: 300px; height: 300px; background: #e91e8c; top: 40%; right: 20%; animation-delay: 8s; }
+
+        @keyframes drift {
+            0%,100% { transform: translate(0,0) scale(1); }
+            50%      { transform: translate(30px, 20px) scale(1.1); }
+        }
+
+        /* Top nav */
+        .topbar {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 16px 32px;
+            background: rgba(0,0,0,0.4);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            position: relative; z-index: 10;
+        }
+
+        .topbar .logo { font-size: 1.2rem; font-weight: 700; color: #1db954; }
+        .topbar .mood-badge {
+            background: rgba(29,185,84,0.15);
+            border: 1px solid rgba(29,185,84,0.3);
+            color: #1db954;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.82rem;
+            font-weight: 500;
+        }
+        .topbar a {
+            color: rgba(255,255,255,0.5);
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: color 0.2s;
+        }
+        .topbar a:hover { color: white; }
+
+        /* Main layout */
+        .layout {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+            position: relative; z-index: 1;
+        }
+
+        /* Sidebar — moods */
+        .sidebar {
+            width: 220px;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255,255,255,0.06);
+            padding: 20px 12px;
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+
+        .sidebar-label {
+            font-size: 0.68rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: rgba(255,255,255,0.3);
+            padding: 0 10px;
+            margin-bottom: 10px;
+        }
+
+        .mood-btn {
+            display: flex; align-items: center; gap: 10px;
+            width: 100%; padding: 11px 14px;
+            background: transparent;
+            border: none; border-radius: 10px;
+            color: rgba(255,255,255,0.65);
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.9rem; font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+            margin-bottom: 4px;
+        }
+
+        .mood-btn:hover { background: rgba(255,255,255,0.07); color: white; }
+        .mood-btn.active {
+            background: linear-gradient(135deg, rgba(29,185,84,0.25), rgba(108,92,231,0.25));
+            color: white;
+            border: 1px solid rgba(29,185,84,0.3);
+        }
+
+        .mood-btn .emoji { font-size: 1.1rem; }
+
+        /* Content area */
+        .content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Playlist header */
+        .playlist-header {
+            padding: 28px 32px 16px;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.3), transparent);
+        }
+
+        .playlist-header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .playlist-header p {
+            color: rgba(255,255,255,0.5);
+            font-size: 0.88rem;
+        }
+
+        /* Spotify CTA */
+        .spotify-cta {
+            margin: 0 32px 20px;
+            background: linear-gradient(135deg, #1db954, #158a3e);
+            border-radius: 14px;
+            padding: 16px 22px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .spotify-cta .left { display: flex; align-items: center; gap: 12px; }
+        .spotify-cta i { font-size: 1.6rem; }
+        .spotify-cta .cta-text strong { display: block; font-size: 0.95rem; }
+        .spotify-cta .cta-text span   { font-size: 0.78rem; opacity: 0.8; }
+
+        .spotify-cta a {
+            background: white;
+            color: #1db954;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            white-space: nowrap;
+            transition: transform 0.2s;
+        }
+        .spotify-cta a:hover { transform: scale(1.04); }
+
+        /* Song list */
+        .song-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0 32px 120px;
+        }
+
+        .song-list::-webkit-scrollbar { width: 4px; }
+        .song-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+
+        .section-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: rgba(255,255,255,0.35);
+            margin: 20px 0 10px;
+        }
+
+        .song-card {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 14px;
+            border-radius: 12px;
+            margin-bottom: 6px;
+            transition: background 0.15s;
+            cursor: pointer;
+            border: 1px solid transparent;
+        }
+
+        .song-card:hover { background: rgba(255,255,255,0.06); }
+        .song-card.active {
+            background: rgba(29,185,84,0.1);
+            border-color: rgba(29,185,84,0.25);
+        }
+
+        .song-num {
+            width: 20px;
+            text-align: center;
+            color: rgba(255,255,255,0.3);
+            font-size: 0.82rem;
+        }
+
+        .song-card.active .song-num { color: #1db954; }
+
+        .song-thumb {
+            width: 44px; height: 44px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .song-info { flex: 1; min-width: 0; }
+        .song-info .title {
+            font-size: 0.92rem; font-weight: 500;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .song-info .artist { font-size: 0.78rem; color: rgba(255,255,255,0.45); margin-top: 2px; }
+        .song-card.active .song-info .title { color: #1db954; }
+
+        .song-open {
+            background: rgba(29,185,84,0.15);
+            border: 1px solid rgba(29,185,84,0.3);
+            color: #1db954;
+            text-decoration: none;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+        .song-open:hover { background: #1db954; color: black; }
+
+        /* Player bar */
+        .player-bar {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            background: rgba(10,10,18,0.95);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255,255,255,0.06);
+            padding: 12px 32px;
+            display: flex; align-items: center; gap: 20px;
+            z-index: 50;
+        }
+
+        .now-playing { display: flex; align-items: center; gap: 12px; width: 220px; }
+        .now-playing .thumb {
+            width: 40px; height: 40px; border-radius: 8px;
+            background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1rem;
+        }
+        .now-playing .info .track { font-size: 0.86rem; font-weight: 500; }
+        .now-playing .info .artist { font-size: 0.75rem; color: rgba(255,255,255,0.4); }
+
+        .controls-center {
+            flex: 1;
+            display: flex; flex-direction: column; align-items: center; gap: 8px;
+        }
+
+        .ctrl-btns { display: flex; align-items: center; gap: 20px; }
+        .ctrl-btn {
+            background: none; border: none; color: rgba(255,255,255,0.5);
+            font-size: 16px; cursor: pointer; transition: color 0.2s;
+        }
+        .ctrl-btn:hover { color: white; }
+        .ctrl-btn.play {
+            width: 36px; height: 36px;
+            background: white; color: #0d0d14;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-size: 14px;
+        }
+        .ctrl-btn.play:hover { transform: scale(1.08); }
+
+        .progress-row { display: flex; align-items: center; gap: 8px; width: 100%; max-width: 500px; }
+        .time { font-size: 0.72rem; color: rgba(255,255,255,0.35); width: 35px; }
+        .time.right { text-align: right; }
+
+        .progress-track {
+            flex: 1; height: 4px; background: rgba(255,255,255,0.1);
+            border-radius: 2px; cursor: pointer; position: relative;
+        }
+        .progress-fill {
+            height: 100%; background: #1db954; border-radius: 2px;
+            width: 0%; transition: width 0.3s;
+        }
+
+        .volume-side { display: flex; align-items: center; gap: 8px; width: 160px; justify-content: flex-end; }
+        .volume-side i { color: rgba(255,255,255,0.4); font-size: 0.9rem; }
+        input[type=range] {
+            width: 80px; -webkit-appearance: none; height: 3px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: rgba(255,255,255,0.2); border-radius: 2px; cursor: pointer;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none; width: 12px; height: 12px;
+            background: white; border-radius: 50%;
+        }
+    </style>
+</head>
+<body>
+
+<div class="bg-orbs">
+    <div class="orb orb1"></div>
+    <div class="orb orb2"></div>
+    <div class="orb orb3"></div>
+</div>
+
+<!-- Top bar -->
+<div class="topbar">
+    <div class="logo"><i class="fab fa-spotify me-2"></i>Solace Music</div>
+    <div class="mood-badge" id="moodBadge">Loading mood...</div>
+    <div style="display:flex;gap:20px;align-items:center">
+        <a href="/dashboard"><i class="fas fa-th-large"></i> Dashboard</a>
+        <a href="/tracker"><i class="fas fa-sync-alt"></i> Change Mood</a>
+        <a href="/logout"><i class="fas fa-sign-out-alt"></i></a>
+    </div>
+</div>
+
+<div class="layout">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-label">Your Mood</div>
+        <div id="moodNav"></div>
+    </div>
+
+    <!-- Content -->
+    <div class="content">
+        <div class="playlist-header">
+            <h1 id="playlistTitle">Select a mood</h1>
+            <p id="playlistSub">Your personalised playlist will appear here</p>
+        </div>
+
+        <!-- Spotify CTA -->
+        <div class="spotify-cta" id="spotifyCTA" style="display:none">
+            <div class="left">
+                <i class="fab fa-spotify"></i>
+                <div class="cta-text">
+                    <strong>Open this playlist on Spotify</strong>
+                    <span>Listen on your phone or desktop</span>
+                </div>
+            </div>
+            <a id="spotifyLink" href="#" target="_blank">
+                <i class="fab fa-spotify"></i> Open Spotify
+            </a>
+        </div>
+
+        <div class="song-list" id="songList">
+            <p style="color:rgba(255,255,255,0.3);padding:20px 0">Choose a mood from the sidebar to see recommendations.</p>
+        </div>
+    </div>
+</div>
+
+<!-- Player bar -->
+<div class="player-bar">
+    <div class="now-playing">
+        <div class="thumb" id="nowThumb">🎵</div>
+        <div class="info">
+            <div class="track"  id="nowTrack">No song selected</div>
+            <div class="artist" id="nowArtist">Solace Music</div>
+        </div>
+    </div>
+
+    <div class="controls-center">
+        <div class="ctrl-btns">
+            <button class="ctrl-btn" id="prevBtn"><i class="fas fa-backward-step"></i></button>
+            <button class="ctrl-btn play" id="playBtn"><i class="fas fa-play"></i></button>
+            <button class="ctrl-btn" id="nextBtn"><i class="fas fa-forward-step"></i></button>
+        </div>
+        <div class="progress-row">
+            <span class="time" id="curTime">0:00</span>
+            <div class="progress-track" id="progressTrack">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <span class="time right" id="durTime">0:00</span>
+        </div>
+    </div>
+
+    <div class="volume-side">
+        <i class="fas fa-volume-high"></i>
+        <input type="range" id="volSlider" min="0" max="100" value="80">
+    </div>
+</div>
+
+<audio id="audioEl"></audio>
+
+<script>
+// ─────────────────────────────────────────────
+// MOOD DATA — edit Spotify links here
+// Each song has a spotifySearch URL that opens
+// Spotify search for that song + artist
+// ─────────────────────────────────────────────
+const PLAYLISTS = {
+    happy: {
+        label: '😊 Happy', emoji: '😊',
+        spotifyPlaylist: 'https://open.spotify.com/playlist/37i9dQZF1DXdPec7aLTmlC',
+        playlistName: 'Happy Hits',
+        description: 'Upbeat tracks to match your radiant energy',
+        songs: [
+            { title: 'Levitating', artist: 'Dua Lipa', emoji: '✨', src: null,
+              spotify: 'https://open.spotify.com/search/Levitating%20Dua%20Lipa' },
+            { title: 'Happy', artist: 'Pharrell Williams', emoji: '☀️', src: null,
+              spotify: 'https://open.spotify.com/search/Happy%20Pharrell%20Williams' },
+            { title: 'Can\'t Stop the Feeling', artist: 'Justin Timberlake', emoji: '🎉', src: null,
+              spotify: 'https://open.spotify.com/search/Cant%20Stop%20the%20Feeling%20Justin%20Timberlake' },
+            { title: 'Good as Hell', artist: 'Lizzo', emoji: '💪', src: null,
+              spotify: 'https://open.spotify.com/search/Good%20as%20Hell%20Lizzo' },
+            { title: 'Shake It Off', artist: 'Taylor Swift', emoji: '🌟', src: null,
+              spotify: 'https://open.spotify.com/search/Shake%20It%20Off%20Taylor%20Swift' },
+            { title: 'Uptown Funk', artist: 'Bruno Mars', emoji: '🎷', src: null,
+              spotify: 'https://open.spotify.com/search/Uptown%20Funk%20Bruno%20Mars' },
+        ]
+    },
+    sad: {
+        label: '😞 Sad', emoji: '😞',
+        spotifyPlaylist: 'https://open.spotify.com/playlist/37i9dQZF1DX7qK8ma5wgG1',
+        playlistName: 'Sad Songs',
+        description: 'Gentle music to hold you through the heaviness',
+        songs: [
+            { title: 'The Night We Met', artist: 'Lord Huron', emoji: '🌧️', src: null,
+              spotify: 'https://open.spotify.com/search/The%20Night%20We%20Met%20Lord%20Huron' },
+            { title: 'Someone Like You', artist: 'Adele', emoji: '💔', src: null,
+              spotify: 'https://open.spotify.com/search/Someone%20Like%20You%20Adele' },
+            { title: 'Fix You', artist: 'Coldplay', emoji: '🌌', src: null,
+              spotify: 'https://open.spotify.com/search/Fix%20You%20Coldplay' },
+            { title: 'Skinny Love', artist: 'Bon Iver', emoji: '🍂', src: null,
+              spotify: 'https://open.spotify.com/search/Skinny%20Love%20Bon%20Iver' },
+            { title: 'Exile', artist: 'Taylor Swift ft. Bon Iver', emoji: '🌊', src: null,
+              spotify: 'https://open.spotify.com/search/Exile%20Taylor%20Swift%20Bon%20Iver' },
+            { title: 'Ocean Eyes', artist: 'Billie Eilish', emoji: '🌙', src: null,
+              spotify: 'https://open.spotify.com/search/Ocean%20Eyes%20Billie%20Eilish' },
+        ]
+    },
+    stressed: {
+        label: '😫 Stressed', emoji: '😫',
+        spotifyPlaylist: 'https://open.spotify.com/playlist/37i9dQZF1DWXe9gFZP0gtP',
+        playlistName: 'De-Stress',
+        description: 'Calming sounds to quiet your overthinking mind',
+        songs: [
+            { title: 'Weightless', artist: 'Marconi Union', emoji: '🌿', src: null,
+              spotify: 'https://open.spotify.com/search/Weightless%20Marconi%20Union' },
+            { title: 'Clair de Lune', artist: 'Debussy', emoji: '🌸', src: null,
+              spotify: 'https://open.spotify.com/search/Clair%20de%20Lune%20Debussy' },
+            { title: 'Experience', artist: 'Ludovico Einaudi', emoji: '🎹', src: null,
+              spotify: 'https://open.spotify.com/search/Experience%20Ludovico%20Einaudi' },
+            { title: 'Breathe (2 AM)', artist: 'Anna Nalick', emoji: '💨', src: null,
+              spotify: 'https://open.spotify.com/search/Breathe%202AM%20Anna%20Nalick' },
+            { title: 'The Sound of Silence', artist: 'Simon & Garfunkel', emoji: '🔕', src: null,
+              spotify: 'https://open.spotify.com/search/Sound%20of%20Silence%20Simon%20Garfunkel' },
+        ]
+    },
+    calm: {
+        label: '😌 Calm', emoji: '😌',
+        spotifyPlaylist: 'https://open.spotify.com/playlist/37i9dQZF1DX4sWSpwq3LiO',
+        playlistName: 'Peaceful Piano',
+        description: 'Serene melodies to complement your inner stillness',
+        songs: [
+            { title: 'River Flows in You', artist: 'Yiruma', emoji: '🌊', src: null,
+              spotify: 'https://open.spotify.com/search/River%20Flows%20in%20You%20Yiruma' },
+            { title: 'Gymnopédie No.1', artist: 'Erik Satie', emoji: '🎵', src: null,
+              spotify: 'https://open.spotify.com/search/Gymnopédie%20No1%20Satie' },
+            { title: 'Nuvole Bianche', artist: 'Ludovico Einaudi', emoji: '☁️', src: null,
+              spotify: 'https://open.spotify.com/search/Nuvole%20Bianche%20Einaudi' },
+            { title: 'Kiss the Rain', artist: 'Yiruma', emoji: '🌧️', src: null,
+              spotify: 'https://open.spotify.com/search/Kiss%20the%20Rain%20Yiruma' },
+            { title: 'Comptine d\'un autre été', artist: 'Yann Tiersen', emoji: '🍃', src: null,
+              spotify: 'https://open.spotify.com/search/Comptine%20autre%20ete%20Yann%20Tiersen' },
+        ]
+    },
+    angry: {
+        label: '😡 Angry', emoji: '😡',
+        spotifyPlaylist: 'https://open.spotify.com/playlist/37i9dQZF1DWTggY0yqBxES',
+        playlistName: 'Release & Reset',
+        description: 'Channel your energy and find your calm after the storm',
+        songs: [
+            { title: 'In the End', artist: 'Linkin Park', emoji: '🔥', src: null,
+              spotify: 'https://open.spotify.com/search/In%20the%20End%20Linkin%20Park' },
+            { title: 'Numb', artist: 'Linkin Park', emoji: '💢', src: null,
+              spotify: 'https://open.spotify.com/search/Numb%20Linkin%20Park' },
+            { title: 'Lose Yourself', artist: 'Eminem', emoji: '⚡', src: null,
+              spotify: 'https://open.spotify.com/search/Lose%20Yourself%20Eminem' },
+            { title: 'Stronger', artist: 'Kelly Clarkson', emoji: '💪', src: null,
+              spotify: 'https://open.spotify.com/search/Stronger%20Kelly%20Clarkson' },
+            { title: 'Fighter', artist: 'Christina Aguilera', emoji: '🥊', src: null,
+              spotify: 'https://open.spotify.com/search/Fighter%20Christina%20Aguilera' },
+        ]
+    },
+    anxious: {
+        label: '😰 Anxious', emoji: '😰',
+        spotifyPlaylist: 'https://open.spotify.com/playlist/37i9dQZF1DX3Ogo9pFvBkY',
+        playlistName: 'Anti-Anxiety',
+        description: 'Grounding frequencies to ease the racing mind',
+        songs: [
+            { title: 'Breathe', artist: 'Pink Floyd', emoji: '🌬️', src: null,
+              spotify: 'https://open.spotify.com/search/Breathe%20Pink%20Floyd' },
+            { title: '528 Hz Healing', artist: 'Solfeggio Frequencies', emoji: '🔮', src: null,
+              spotify: 'https://open.spotify.com/search/528%20Hz%20healing%20frequency' },
+            { title: 'Let Her Go', artist: 'Passenger', emoji: '🕊️', src: null,
+              spotify: 'https://open.spotify.com/search/Let%20Her%20Go%20Passenger' },
+            { title: 'The Scientist', artist: 'Coldplay', emoji: '🌙', src: null,
+              spotify: 'https://open.spotify.com/search/The%20Scientist%20Coldplay' },
+            { title: 'Holocene', artist: 'Bon Iver', emoji: '❄️', src: null,
+              spotify: 'https://open.spotify.com/search/Holocene%20Bon%20Iver' },
+        ]
+    },
+    tired: {
+        label: '😴 Tired', emoji: '😴',
+        spotifyPlaylist: 'https://open.spotify.com/playlist/37i9dQZF1DWZd79rJ6a7lp',
+        playlistName: 'Sleep & Rest',
+        description: 'Soft lullabies and ambient sounds for deep rest',
+        songs: [
+            { title: 'Lullaby', artist: 'Sigrid', emoji: '🌙', src: null,
+              spotify: 'https://open.spotify.com/search/Lullaby%20Sigrid' },
+            { title: 'Saturn', artist: 'Stevie Wonder', emoji: '🪐', src: null,
+              spotify: 'https://open.spotify.com/search/Saturn%20Stevie%20Wonder' },
+            { title: 'Slow Dancing in a Burning Room', artist: 'John Mayer', emoji: '🕯️', src: null,
+              spotify: 'https://open.spotify.com/search/Slow%20Dancing%20in%20a%20Burning%20Room%20John%20Mayer' },
+            { title: 'Yellow', artist: 'Coldplay', emoji: '⭐', src: null,
+              spotify: 'https://open.spotify.com/search/Yellow%20Coldplay' },
+            { title: 'Sleepwalking', artist: 'Bring Me the Horizon', emoji: '💤', src: null,
+              spotify: 'https://open.spotify.com/search/Sleepwalking%20Bring%20Me%20the%20Horizon' },
+        ]
+    },
+    swings: {
+        label: '🎢 Mood Swings', emoji: '🎢',
+        spotifyPlaylist: 'https://open.spotify.com/playlist/37i9dQZF1DX2sUQwD7tbmL',
+        playlistName: 'Mixed Feelings',
+        description: 'A beautifully chaotic mix for your unpredictable day',
+        songs: [
+            { title: 'Rollercoaster', artist: 'Bleachers', emoji: '🎢', src: null,
+              spotify: 'https://open.spotify.com/search/Rollercoaster%20Bleachers' },
+            { title: 'Liability', artist: 'Lorde', emoji: '🌀', src: null,
+              spotify: 'https://open.spotify.com/search/Liability%20Lorde' },
+            { title: 'Vienna', artist: 'Billy Joel', emoji: '🎭', src: null,
+              spotify: 'https://open.spotify.com/search/Vienna%20Billy%20Joel' },
+            { title: 'Fluorescent Adolescent', artist: 'Arctic Monkeys', emoji: '🌈', src: null,
+              spotify: 'https://open.spotify.com/search/Fluorescent%20Adolescent%20Arctic%20Monkeys' },
+            { title: 'Unwritten', artist: 'Natasha Bedingfield', emoji: '📖', src: null,
+              spotify: 'https://open.spotify.com/search/Unwritten%20Natasha%20Bedingfield' },
+        ]
+    },
+    Fear: {
+        label: '😨 Fear', emoji: '😨',
+        spotifyPlaylist: 'https://open.spotify.com/playlist/37i9dQZF1DX3Ogo9pFvBkY',
+        playlistName: 'Courage Playlist',
+        description: 'Music to find your brave and quiet your fears',
+        songs: [
+            { title: 'Hall of Fame', artist: 'The Script ft. will.i.am', emoji: '🏆', src: null,
+              spotify: 'https://open.spotify.com/search/Hall%20of%20Fame%20The%20Script' },
+            { title: 'Brave', artist: 'Sara Bareilles', emoji: '🦁', src: null,
+              spotify: 'https://open.spotify.com/search/Brave%20Sara%20Bareilles' },
+            { title: 'Eye of the Tiger', artist: 'Survivor', emoji: '🐯', src: null,
+              spotify: 'https://open.spotify.com/search/Eye%20of%20the%20Tiger%20Survivor' },
+            { title: 'Rise Up', artist: 'Andra Day', emoji: '🌅', src: null,
+              spotify: 'https://open.spotify.com/search/Rise%20Up%20Andra%20Day' },
+            { title: 'This Is Me', artist: 'The Greatest Showman', emoji: '✨', src: null,
+              spotify: 'https://open.spotify.com/search/This%20Is%20Me%20Greatest%20Showman' },
+        ]
+    },
+};
+
+// Get mood from Flask template variable
+const SESSION_MOOD = "{{ mood }}";
+
+let currentMood  = null;
+let currentSong  = null;
+let currentIndex = 0;
+const audio = document.getElementById('audioEl');
+
+// Build sidebar
+const moodNav = document.getElementById('moodNav');
+Object.keys(PLAYLISTS).forEach(key => {
+    const p = PLAYLISTS[key];
+    const btn = document.createElement('button');
+    btn.className = 'mood-btn';
+    btn.dataset.mood = key;
+    btn.innerHTML = `<span class="emoji">${p.emoji}</span> ${p.label.split(' ').slice(1).join(' ')}`;
+    btn.onclick = () => loadMood(key);
+    moodNav.appendChild(btn);
+});
+
+function loadMood(moodKey) {
+    const p = PLAYLISTS[moodKey];
+    if (!p) return;
+    currentMood = moodKey;
+
+    // Update sidebar
+    document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('active'));
+    const activeBtn = document.querySelector(`.mood-btn[data-mood="${moodKey}"]`);
+    if (activeBtn) activeBtn.classList.add('active');
+
+    // Update header
+    document.getElementById('playlistTitle').textContent = `${p.emoji} ${p.playlistName}`;
+    document.getElementById('playlistSub').textContent    = p.description;
+    document.getElementById('moodBadge').textContent      = `Mood: ${p.label}`;
+
+    // Spotify CTA
+    const cta = document.getElementById('spotifyCTA');
+    cta.style.display = 'flex';
+    document.getElementById('spotifyLink').href = p.spotifyPlaylist;
+
+    // Song list
+    const list = document.getElementById('songList');
+    list.innerHTML = `<div class="section-title">Recommended for you · ${p.songs.length} tracks</div>`;
+
+    p.songs.forEach((song, i) => {
+        const div = document.createElement('div');
+        div.className = 'song-card';
+        div.dataset.index = i;
+        div.innerHTML = `
+            <span class="song-num">${i + 1}</span>
+            <div class="song-thumb">${song.emoji}</div>
+            <div class="song-info">
+                <div class="title">${song.title}</div>
+                <div class="artist">${song.artist}</div>
+            </div>
+            <a class="song-open" href="${song.spotify}" target="_blank">
+                <i class="fab fa-spotify"></i> Open
+            </a>
+        `;
+        div.addEventListener('click', e => {
+            if (e.target.closest('.song-open')) return;
+            playSongAt(i);
+        });
+        list.appendChild(div);
+    });
+}
+
+function playSongAt(index) {
+    const songs = PLAYLISTS[currentMood]?.songs;
+    if (!songs) return;
+    currentIndex = index;
+    const song = songs[index];
+    currentSong = song;
+
+    // Update now-playing
+    document.getElementById('nowThumb').textContent  = song.emoji;
+    document.getElementById('nowTrack').textContent  = song.title;
+    document.getElementById('nowArtist').textContent = song.artist;
+
+    // Highlight active
+    document.querySelectorAll('.song-card').forEach((c, i) => {
+        c.classList.toggle('active', i === index);
+    });
+
+    // Play audio if src available
+    if (song.src) {
+        audio.src = song.src;
+        audio.play();
+        document.getElementById('playBtn').innerHTML = '<i class="fas fa-pause"></i>';
+    } else {
+        // No local src — open on Spotify
+        document.getElementById('playBtn').innerHTML = '<i class="fas fa-play"></i>';
+    }
+}
+
+// Controls
+document.getElementById('playBtn').addEventListener('click', () => {
+    if (!currentSong) return;
+    if (currentSong.src) {
+        if (audio.paused) {
+            audio.play();
+            document.getElementById('playBtn').innerHTML = '<i class="fas fa-pause"></i>';
+        } else {
+            audio.pause();
+            document.getElementById('playBtn').innerHTML = '<i class="fas fa-play"></i>';
+        }
+    } else if (currentSong) {
+        window.open(currentSong.spotify, '_blank');
+    }
+});
+
+document.getElementById('nextBtn').addEventListener('click', () => {
+    const songs = PLAYLISTS[currentMood]?.songs;
+    if (!songs) return;
+    playSongAt((currentIndex + 1) % songs.length);
+});
+
+document.getElementById('prevBtn').addEventListener('click', () => {
+    const songs = PLAYLISTS[currentMood]?.songs;
+    if (!songs) return;
+    playSongAt((currentIndex - 1 + songs.length) % songs.length);
+});
+
+document.getElementById('volSlider').addEventListener('input', e => {
+    audio.volume = e.target.value / 100;
+});
+
+// Progress
+audio.addEventListener('timeupdate', () => {
+    if (!audio.duration) return;
+    const pct = (audio.currentTime / audio.duration) * 100;
+    document.getElementById('progressFill').style.width = pct + '%';
+    document.getElementById('curTime').textContent = fmt(audio.currentTime);
+    document.getElementById('durTime').textContent = fmt(audio.duration);
+});
+
+audio.addEventListener('ended', () => {
+    const songs = PLAYLISTS[currentMood]?.songs;
+    if (songs) playSongAt((currentIndex + 1) % songs.length);
+});
+
+document.getElementById('progressTrack').addEventListener('click', e => {
+    if (!audio.duration) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    audio.currentTime = ((e.clientX - rect.left) / rect.width) * audio.duration;
+});
+
+function fmt(s) {
+    const m = Math.floor(s / 60);
+    const sec = Math.floor(s % 60).toString().padStart(2, '0');
+    return `${m}:${sec}`;
+}
+
+// Auto-load session mood on page open
+window.addEventListener('DOMContentLoaded', () => {
+    const mood = SESSION_MOOD && PLAYLISTS[SESSION_MOOD] ? SESSION_MOOD : 'happy';
+    loadMood(mood);
+});
+</script>
+</body>
+</html>

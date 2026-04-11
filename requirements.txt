@@ -1,3 +1,5 @@
-Flask-Admin
-Flask-SQLAlchemy
-Flask-Login
+flask
+flask-login
+bcrypt
+python-dotenv
+requests

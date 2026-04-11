@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>New Post</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; color: #333; }
+    .sidebar { width: 220px; position: fixed; top: 0; left: 0; height: 100vh; background: #1e2a3a; color: #cdd9e5; display: flex; flex-direction: column; }
+    .sidebar .logo { padding: 24px 20px; font-size: 1.3rem; font-weight: 700; color: #fff; border-bottom: 1px solid #2e3f52; }
+    .sidebar nav a { display: block; padding: 13px 20px; color: #aab8c8; text-decoration: none; font-size: 0.9rem; }
+    .sidebar nav a:hover, .sidebar nav a.active { background: #2e3f52; color: #fff; }
+    .sidebar nav .section-label { padding: 14px 20px 6px; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: #5f7a90; }
+    .main { margin-left: 220px; padding: 30px; }
+    .page-title { font-size: 1.5rem; font-weight: 700; margin-bottom: 4px; }
+    .page-sub { color: #666; font-size: 0.9rem; margin-bottom: 28px; }
+    .card { background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,.06); max-width: 700px; }
+    .card-header { padding: 18px 24px; font-weight: 600; border-bottom: 1px solid #f0f0f0; }
+    .card-body { padding: 24px; }
+    label { display: block; font-size: 0.83rem; font-weight: 600; color: #555; margin-bottom: 5px; }
+    input[type=text], textarea {
+      width: 100%; padding: 10px 13px; border: 1.5px solid #e2e8f0; border-radius: 8px;
+      font-size: 0.9rem; margin-bottom: 18px; font-family: inherit;
+    }
+    input:focus, textarea:focus { outline: none; border-color: #2563eb; }
+    .checkbox-row { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; font-size: 0.88rem; }
+    .checkbox-row input { width: auto; margin: 0; }
+    .btn-row { display: flex; gap: 12px; }
+    .btn { padding: 10px 22px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; font-size: 0.88rem; text-decoration: none; display: inline-block; }
+    .btn-blue { background: #2563eb; color: #fff; }
+    .btn-outline { background: transparent; border: 1.5px solid #d1d5db; color: #555; }
+    .flash { background: #fee2e2; border-left: 4px solid #ef4444; padding: 12px 18px; border-radius: 6px; margin-bottom: 20px; font-size: 0.88rem; }
+    .back-link { display: inline-block; margin-bottom: 20px; color: #2563eb; text-decoration: none; font-size: 0.88rem; }
+  </style>
+</head>
+<body>
+<div class="sidebar">
+  <div class="logo">⚡ Solace Admin</div>
+  <nav>
+    <div class="section-label">Overview</div>
+    <a href="/admin">📊 Dashboard</a>
+    <div class="section-label">Manage</div>
+    <a href="/admin/users">👥 Users</a>
+    <a href="/admin/tasks">✅ Tasks</a>
+    <a href="/admin/posts" class="active">📝 Posts</a>
+    <div class="section-label">App</div>
+    <a href="/tracker">🏠 Back to App</a>
+    <a href="/logout">🚪 Logout</a>
+  </nav>
+</div>
+
+<div class="main">
+  <a href="/admin/posts" class="back-link">← Back to Posts</a>
+  <div class="page-title">New Post</div>
+  <div class="page-sub">Write an announcement or article for your users.</div>
+
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}{% for m in messages %}<div class="flash">{{ m }}</div>{% endfor %}{% endif %}
+  {% endwith %}
+
+  <div class="card">
+    <div class="card-header">Post Details</div>
+    <div class="card-body">
+      <form method="POST" action="/admin/posts/new">
+        <label>Title *</label>
+        <input type="text" name="title" placeholder="Post title..." required>
+
+        <label>Body *</label>
+        <textarea name="body" rows="8" placeholder="Write your post content here..." required></textarea>
+
+        <div class="checkbox-row">
+          <input type="checkbox" name="published" id="pub" checked>
+          <label for="pub" style="margin:0">Publish immediately</label>
+        </div>
+
+        <div class="btn-row">
+          <button type="submit" class="btn btn-blue">Publish Post</button>
+          <a href="/admin/posts" class="btn btn-outline">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+</body>
+</html>

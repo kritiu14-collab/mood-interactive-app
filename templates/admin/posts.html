@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin – Posts</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; color: #333; }
+    .sidebar { width: 220px; position: fixed; top: 0; left: 0; height: 100vh; background: #1e2a3a; color: #cdd9e5; display: flex; flex-direction: column; }
+    .sidebar .logo { padding: 24px 20px; font-size: 1.3rem; font-weight: 700; color: #fff; border-bottom: 1px solid #2e3f52; }
+    .sidebar nav a { display: block; padding: 13px 20px; color: #aab8c8; text-decoration: none; font-size: 0.9rem; }
+    .sidebar nav a:hover, .sidebar nav a.active { background: #2e3f52; color: #fff; }
+    .sidebar nav .section-label { padding: 14px 20px 6px; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: #5f7a90; }
+    .main { margin-left: 220px; padding: 30px; }
+    .page-title { font-size: 1.6rem; font-weight: 700; margin-bottom: 6px; }
+    .page-sub { color: #666; font-size: 0.9rem; margin-bottom: 28px; }
+    .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .card { background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,.06); overflow: hidden; }
+    .card-header { padding: 18px 24px; font-weight: 600; border-bottom: 1px solid #f0f0f0; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+    th { background: #f8f9fb; padding: 10px 18px; text-align: left; font-weight: 600; color: #555; font-size: 0.78rem; text-transform: uppercase; }
+    td { padding: 12px 18px; border-top: 1px solid #f2f2f2; vertical-align: middle; }
+    .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
+    .badge.pub  { background: #d1fae5; color: #065f46; }
+    .badge.draft { background: #f3f4f6; color: #6b7280; }
+    .btn { display: inline-block; padding: 7px 16px; border-radius: 7px; border: none; cursor: pointer; font-weight: 600; font-size: 0.84rem; text-decoration: none; }
+    .btn-blue   { background: #2563eb; color: #fff; }
+    .btn-gray   { background: #6b7280; color: #fff; }
+    .btn-red    { background: #dc2626; color: #fff; }
+    .flash { background: #d1fae5; border-left: 4px solid #10b981; padding: 12px 18px; border-radius: 6px; margin-bottom: 20px; font-size: 0.88rem; }
+    .actions { display: flex; gap: 6px; }
+    .preview { max-width: 360px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #666; font-size: 0.82rem; }
+  </style>
+</head>
+<body>
+<div class="sidebar">
+  <div class="logo">⚡ Solace Admin</div>
+  <nav>
+    <div class="section-label">Overview</div>
+    <a href="/admin">📊 Dashboard</a>
+    <div class="section-label">Manage</div>
+    <a href="/admin/users">👥 Users</a>
+    <a href="/admin/tasks">✅ Tasks</a>
+    <a href="/admin/posts" class="active">📝 Posts</a>
+    <div class="section-label">App</div>
+    <a href="/tracker">🏠 Back to App</a>
+    <a href="/logout">🚪 Logout</a>
+  </nav>
+</div>
+
+<div class="main">
+  <div class="top-bar">
+    <div>
+      <div class="page-title">Posts & Announcements</div>
+      <div class="page-sub">Publish content visible to all users.</div>
+    </div>
+    <a href="/admin/posts/new" class="btn btn-blue">+ New Post</a>
+  </div>
+
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}{% for m in messages %}<div class="flash">{{ m }}</div>{% endfor %}{% endif %}
+  {% endwith %}
+
+  <div class="card">
+    <div class="card-header">All Posts ({{ posts|length }})</div>
+    <table>
+      <thead><tr><th>Title</th><th>Preview</th><th>Author</th><th>Status</th><th>Created</th><th>Actions</th></tr></thead>
+      <tbody>
+        {% for p in posts %}
+        <tr>
+          <td style="font-weight:600">{{ p.title }}</td>
+          <td><div class="preview">{{ p.body }}</div></td>
+          <td>{{ p.author }}</td>
+          <td>
+            <span class="badge {{ 'pub' if p.published else 'draft' }}">
+              {{ 'Published' if p.published else 'Draft' }}
+            </span>
+          </td>
+          <td style="color:#888;font-size:0.82rem">{{ p.created_at }}</td>
+          <td>
+            <div class="actions">
+              <form method="POST" action="/admin/posts/{{ p.id }}/toggle">
+                <button type="submit" class="btn btn-gray" style="padding:5px 12px;font-size:0.78rem">
+                  {{ 'Unpublish' if p.published else 'Publish' }}
+                </button>
+              </form>
+              <form method="POST" action="/admin/posts/{{ p.id }}/delete"
+                    onsubmit="return confirm('Delete this post?')">
+                <button type="submit" class="btn btn-red" style="padding:5px 12px;font-size:0.78rem">Delete</button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+</body>
+</html>
