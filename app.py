@@ -417,7 +417,7 @@ def get_ai_response() -> Any:
 
     url = (
         f"https://generativelanguage.googleapis.com/v1beta/"
-        f"models/gemini-1.5-flash:generateContent?key={GEMINI_API_KEY}"
+        f"models/gemini-2.0-flash:generateContent?key={GEMINI_API_KEY}"
     )
 
     system_prompt = (
@@ -431,7 +431,6 @@ def get_ai_response() -> Any:
     payload = {
         "contents": [
             {
-                "role": "user",
                 "parts": [{"text": f"{system_prompt}\n\nUser message: {user_msg}"}]
             }
         ],
@@ -580,35 +579,57 @@ def music_page() -> Any:
     return render_template("musicapp.html", username=session["username"], mood=mood)
 
 
+@app.route("/exercises")
+@login_required
+def exercises_page() -> Any:
+    mood = request.args.get("mood", session.get("current_mood", "happy"))
+    return render_template("exercises.html", mood=mood, username=session["username"])
+
+
 # ---------------------------------------------------------------------------
 # Admin
 # ---------------------------------------------------------------------------
+# ADMIN ROUTES — Admin only sees user data, no mood/task selection for admin
+# ---------------------------------------------------------------------------
 
-@app.route("/admin")
-@admin_required
-def admin_dashboard() -> Any:
+@app.route("/exercises")
+@login_required
+def exercises() -> Any:
+    mood = session.get("current_mood", "")
+    return render_template("exercises.html", mood=mood, username=session["username"])
+
+
+
     with get_db() as conn:
-        total_users  = conn.execute("SELECT COUNT(*) FROM users").fetchone()[0]
-        total_moods  = conn.execute("SELECT COUNT(*) FROM mood_logs").fetchone()[0]
-        total_tasks  = conn.execute("SELECT COUNT(*) FROM admin_tasks").fetchone()[0]
-        done_tasks   = conn.execute("SELECT COUNT(*) FROM admin_tasks WHERE status='done'").fetchone()[0]
-        total_posts  = conn.execute("SELECT COUNT(*) FROM posts").fetchone()[0]
+        total_users   = conn.execute("SELECT COUNT(*) FROM users").fetchone()[0]
+        total_moods   = conn.execute("SELECT COUNT(*) FROM mood_logs").fetchone()[0]
+        total_journals= conn.execute("SELECT COUNT(*) FROM journals").fetchone()[0]
+        total_chats   = conn.execute("SELECT COUNT(*) FROM chat_history").fetchone()[0]
+        total_posts   = conn.execute("SELECT COUNT(*) FROM posts").fetchone()[0]
+
         recent_users = conn.execute(
             "SELECT id, username, email, is_admin, created_at FROM users ORDER BY created_at DESC LIMIT 5"
         ).fetchall()
+
         recent_moods = conn.execute("""
             SELECT u.username, ml.mood, ml.timestamp
             FROM mood_logs ml JOIN users u ON ml.user_id=u.id
-            ORDER BY ml.timestamp DESC LIMIT 5
+            ORDER BY ml.timestamp DESC LIMIT 8
         """).fetchall()
-        recent_tasks = conn.execute(
-            "SELECT title, status, created_at FROM admin_tasks ORDER BY created_at DESC LIMIT 5"
-        ).fetchall()
+
+        recent_chats = conn.execute("""
+            SELECT u.username, ch.user_message, ch.ai_response, ch.timestamp
+            FROM chat_history ch JOIN users u ON ch.user_id=u.id
+            ORDER BY ch.timestamp DESC LIMIT 5
+        """).fetchall()
+
     return render_template(
         "admin/dashboard.html",
         total_users=total_users, total_moods=total_moods,
-        total_tasks=total_tasks, done_tasks=done_tasks, total_posts=total_posts,
-        recent_users=recent_users, recent_moods=recent_moods, recent_tasks=recent_tasks,
+        total_journals=total_journals, total_chats=total_chats,
+        total_posts=total_posts,
+        recent_users=recent_users, recent_moods=recent_moods,
+        recent_chats=recent_chats,
     )
 
 
@@ -641,12 +662,13 @@ def admin_user_detail(uid: int) -> Any:
         moods    = conn.execute("SELECT mood, timestamp FROM mood_logs WHERE user_id=? ORDER BY timestamp DESC", (uid,)).fetchall()
         journals = conn.execute("SELECT date, title, mood FROM journals WHERE user_id=? ORDER BY date DESC", (uid,)).fetchall()
         tasks    = conn.execute("SELECT title, status, task_date FROM tasks WHERE user_id=? ORDER BY created_at DESC", (uid,)).fetchall()
+        ai_chats = conn.execute("SELECT user_message, ai_response, timestamp FROM chat_history WHERE user_id=? ORDER BY timestamp DESC LIMIT 20", (uid,)).fetchall()
     mood_counts: dict[str, int] = {}
     for r in moods:
         mood_counts[r["mood"]] = mood_counts.get(r["mood"], 0) + 1
     return render_template("admin/user_detail.html",
                            user=user, moods=moods, mood_counts=mood_counts,
-                           journals=journals, tasks=tasks)
+                           journals=journals, tasks=tasks, ai_chats=ai_chats)
 
 
 @app.route("/admin/users/<int:uid>/toggle-admin", methods=["POST"])
@@ -677,9 +699,40 @@ def delete_user(uid: int) -> Any:
     return redirect(url_for("admin_users"))
 
 
-@app.route("/admin/tasks")
+@app.route("/admin/chats")
 @admin_required
-def admin_tasks() -> Any:
+def admin_chats() -> Any:
+    """Admin can view all users' AI conversations with Eva."""
+    uid_filter = request.args.get("user_id", "")
+    with get_db() as conn:
+        users = conn.execute(
+            "SELECT id, username FROM users WHERE is_admin=0 ORDER BY username"
+        ).fetchall()
+
+        if uid_filter:
+            chats = conn.execute("""
+                SELECT ch.id, u.username, ch.user_message, ch.ai_response,
+                       ch.session_id, ch.timestamp
+                FROM chat_history ch JOIN users u ON ch.user_id=u.id
+                WHERE ch.user_id=?
+                ORDER BY ch.timestamp DESC
+            """, (uid_filter,)).fetchall()
+        else:
+            chats = conn.execute("""
+                SELECT ch.id, u.username, ch.user_message, ch.ai_response,
+                       ch.session_id, ch.timestamp
+                FROM chat_history ch JOIN users u ON ch.user_id=u.id
+                ORDER BY ch.timestamp DESC LIMIT 50
+            """).fetchall()
+
+    return render_template(
+        "admin/chats.html",
+        chats=chats, users=users,
+        selected_user=uid_filter,
+    )
+
+
+
     with get_db() as conn:
         tasks = conn.execute("""
             SELECT t.*, u.username AS assignee

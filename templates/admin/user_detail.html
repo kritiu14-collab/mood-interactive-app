@@ -43,14 +43,13 @@
 <div class="sidebar">
   <div class="logo">⚡ Solace Admin</div>
   <nav>
-    <div class="section-label">Overview</div>
+        <div class="section-label">Overview</div>
     <a href="/admin">📊 Dashboard</a>
     <div class="section-label">Manage</div>
     <a href="/admin/users" class="active">👥 Users</a>
-    <a href="/admin/tasks">✅ Tasks</a>
+    <a href="/admin/chats">💬 AI Conversations</a>
     <a href="/admin/posts">📝 Posts</a>
     <div class="section-label">App</div>
-    <a href="/tracker">🏠 Back to App</a>
     <a href="/logout">🚪 Logout</a>
   </nav>
 </div>
@@ -142,6 +141,39 @@
             {% endfor %}
           </tbody>
         </table>
+      </div>
+      <div class="card" style="margin-bottom:20px;margin-top:20px">
+        <div class="card-header">Journal Entries ({{ journals|length }})</div>
+        <table>
+          <thead><tr><th>Date</th><th>Title</th><th>Mood</th></tr></thead>
+          <tbody>
+            {% for j in journals %}
+            <tr>
+              <td style="color:#888;font-size:0.82rem">{{ j.date }}</td>
+              <td>{{ j.title or 'Untitled' }}</td>
+              <td>{{ j.mood.capitalize() if j.mood else '—' }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="3" style="color:#aaa;padding:16px">No journal entries.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <div class="card-header">Eva AI Chat History</div>
+        {% if ai_chats %}
+          {% for c in ai_chats %}
+          <div style="padding:14px 20px;border-top:1px solid #f5f5f5">
+            <div style="font-size:0.7rem;font-weight:700;color:#2563eb;text-transform:uppercase;margin-bottom:4px">User said · {{ (c.timestamp or '')[:16] }}</div>
+            <div style="background:#EFF6FF;border-left:3px solid #2563eb;padding:8px 12px;border-radius:0 6px 6px 0;font-size:0.84rem;margin-bottom:8px">{{ c.user_message }}</div>
+            <div style="font-size:0.7rem;font-weight:700;color:#7c3aed;text-transform:uppercase;margin-bottom:4px">Eva replied</div>
+            <div style="background:#F5F3FF;border-left:3px solid #7c3aed;padding:8px 12px;border-radius:0 6px 6px 0;font-size:0.84rem;color:#444">{{ c.ai_response }}</div>
+          </div>
+          {% endfor %}
+        {% else %}
+          <div style="padding:20px;color:#aaa;font-size:0.88rem">No AI conversations yet.</div>
+        {% endif %}
       </div>
     </div>
   </div>

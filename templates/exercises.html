@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solace | Healing Exercises</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        *{box-sizing:border-box;margin:0;padding:0;}
+        body{font-family:'Nunito',sans-serif;background:#f4f1f8;color:#333;min-height:100vh;}
+        .topbar{background:#1e1235;padding:14px 32px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+        .brand{font-size:1.2rem;font-weight:800;color:#c4b5fd;text-decoration:none;}
+        .tlinks{display:flex;gap:6px;}
+        .tlinks a{color:rgba(255,255,255,0.55);text-decoration:none;font-size:0.83rem;padding:7px 14px;border-radius:8px;transition:all 0.2s;}
+        .tlinks a:hover{background:rgba(255,255,255,0.08);color:white;}
+        .back-btn{background:rgba(196,181,253,0.15);color:#c4b5fd;border:1px solid rgba(196,181,253,0.25);border-radius:8px;padding:7px 14px;font-size:0.83rem;text-decoration:none;font-weight:600;}
+        .back-btn:hover{background:rgba(196,181,253,0.25);color:#e0d9ff;}
+        .wrap{max-width:1000px;margin:0 auto;padding:36px 20px 60px;}
+        .hero{background:linear-gradient(135deg,#7c3aed,#4f46e5);color:white;padding:32px 36px;border-radius:24px;margin-bottom:32px;box-shadow:0 12px 40px rgba(124,58,237,0.25);}
+        .hero h1{font-size:1.7rem;font-weight:800;margin-bottom:6px;}
+        .hero p{opacity:0.85;font-size:0.9rem;line-height:1.6;}
+        .filter-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:30px;}
+        .filter-btn{padding:8px 18px;border-radius:20px;border:2px solid #e0d9f5;background:white;font-family:'Nunito',sans-serif;font-size:0.85rem;font-weight:700;cursor:pointer;transition:all 0.2s;color:#555;}
+        .filter-btn:hover{border-color:#7c3aed;color:#7c3aed;}
+        .filter-btn.active{background:#7c3aed;color:white;border-color:#7c3aed;}
+        .mood-section{margin-bottom:44px;display:none;}
+        .mood-section.visible{display:block;}
+        .section-header{display:flex;align-items:center;gap:14px;margin-bottom:20px;}
+        .section-emoji{font-size:2.2rem;}
+        .section-title{font-size:1.25rem;font-weight:800;}
+        .section-sub{font-size:0.85rem;color:#888;margin-top:2px;}
+        .ex-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;}
+        .ex-card{background:white;border-radius:18px;padding:22px;border:1.5px solid #ede9f5;transition:all 0.3s ease;position:relative;overflow:hidden;}
+        .ex-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:var(--mc,#7c3aed);}
+        .ex-card:hover{transform:translateY(-5px);box-shadow:0 12px 32px rgba(0,0,0,0.1);border-color:#c4b5fd;}
+        .step-num{display:inline-block;background:#f3f0ff;color:#7c3aed;border-radius:20px;padding:3px 11px;font-size:0.7rem;font-weight:800;margin-bottom:10px;text-transform:uppercase;letter-spacing:1px;}
+        .ex-icon{font-size:2rem;display:block;margin-bottom:8px;}
+        .ex-title{font-weight:800;font-size:0.95rem;color:#1e1235;margin-bottom:8px;}
+        .ex-desc{font-size:0.8rem;color:#666;line-height:1.65;}
+        .timer-btn{margin-top:12px;padding:6px 16px;background:#f3f0ff;color:#7c3aed;border:1px solid #c4b5fd;border-radius:20px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif;transition:all 0.2s;display:inline-block;text-decoration:none;}
+        .timer-btn:hover{background:#7c3aed;color:white;}
+        .timer-btn.active{background:#dc2626;color:white;border-color:#dc2626;}
+        .timer-disp{font-size:1.2rem;font-weight:800;color:#7c3aed;margin-top:8px;display:none;}
+    </style>
+</head>
+<body>
+<div class="topbar">
+    <a href="/dashboard" class="brand">✦ solace.</a>
+    <div class="tlinks">
+        <a href="/ai_chat"><i class="fas fa-robot"></i> Eva AI</a>
+        <a href="/journal"><i class="fas fa-book"></i> Journal</a>
+        <a href="/history"><i class="fas fa-chart-line"></i> History</a>
+        <a href="/music"><i class="fas fa-music"></i> Music</a>
+    </div>
+    <a href="/dashboard" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
+</div>
+
+<div class="wrap">
+    <div class="hero">
+        <h1>🧘 Healing Exercises</h1>
+        <p>Science-backed techniques to process emotions, calm your nervous system, and find your ground. Your current mood is auto-selected below — or choose any mood to explore its exercises.</p>
+    </div>
+
+    <div class="filter-row">
+        <button class="filter-btn active" onclick="showMood('all',this)">All Moods</button>
+        <button class="filter-btn" onclick="showMood('angry',this)">😡 Angry</button>
+        <button class="filter-btn" onclick="showMood('anxious',this)">😰 Anxious</button>
+        <button class="filter-btn" onclick="showMood('sad',this)">😞 Sad</button>
+        <button class="filter-btn" onclick="showMood('fear',this)">😨 Fear</button>
+        <button class="filter-btn" onclick="showMood('swings',this)">🎢 Mood Swings</button>
+        <button class="filter-btn" onclick="showMood('stressed',this)">😫 Stressed</button>
+        <button class="filter-btn" onclick="showMood('tired',this)">😴 Tired</button>
+    </div>
+
+    <!-- ANGRY -->
+    <div class="mood-section visible" id="section-angry">
+        <div class="section-header"><span class="section-emoji">😡</span><div><div class="section-title">Cool Down Exercises</div><div class="section-sub">Physical and mental techniques to release anger safely</div></div></div>
+        <div class="ex-grid">
+            <div class="ex-card" style="--mc:#EF5350"><span class="step-num">Step 1</span><span class="ex-icon">🌬️</span><div class="ex-title">4-7-8 Breathing</div><div class="ex-desc">Inhale 4 sec → Hold 7 sec → Exhale 8 sec. Repeat 4 times. Activates your parasympathetic nervous system and physically slows your heart rate.</div><button class="timer-btn" onclick="startTimer(this,19)">▶ Start (19s)</button><div class="timer-disp">0:19</div></div>
+            <div class="ex-card" style="--mc:#EF5350"><span class="step-num">Step 2</span><span class="ex-icon">🚶</span><div class="ex-title">5-Minute Walk</div><div class="ex-desc">Step outside and walk briskly for 5 minutes. Movement burns off adrenaline — the chemical making you feel hot and tense right now.</div><button class="timer-btn" onclick="startTimer(this,300)">▶ Start (5 min)</button><div class="timer-disp">5:00</div></div>
+            <div class="ex-card" style="--mc:#EF5350"><span class="step-num">Step 3</span><span class="ex-icon">💧</span><div class="ex-title">Cold Water Technique</div><div class="ex-desc">Splash cold water on your face or hold wrists under cold water for 30 seconds. Activates the dive reflex and instantly lowers your heart rate.</div><button class="timer-btn" onclick="startTimer(this,30)">▶ Start (30s)</button><div class="timer-disp">0:30</div></div>
+            <div class="ex-card" style="--mc:#EF5350"><span class="step-num">Step 4</span><span class="ex-icon">✍️</span><div class="ex-title">Anger Dump</div><div class="ex-desc">Write everything you're angry about — completely uncensored. Then tear or delete the paper. Getting it out of your head breaks the mental loop.</div></div>
+            <div class="ex-card" style="--mc:#EF5350"><span class="step-num">Step 5</span><span class="ex-icon">🧘</span><div class="ex-title">Progressive Muscle Relaxation</div><div class="ex-desc">Tense each muscle group for 5 seconds then release. Start from feet, work up to your jaw. Releases physical tension stored from anger.</div><button class="timer-btn" onclick="startTimer(this,120)">▶ Start (2 min)</button><div class="timer-disp">2:00</div></div>
+            <div class="ex-card" style="--mc:#EF5350"><span class="step-num">Step 6</span><span class="ex-icon">🎵</span><div class="ex-title">Music Reset</div><div class="ex-desc">Put on music that matches your energy first, then gradually switch to calmer tracks. Ease your nervous system into calm rather than forcing it.</div><a href="/music" class="timer-btn">🎵 Open Music</a></div>
+        </div>
+    </div>
+
+    <!-- ANXIOUS -->
+    <div class="mood-section visible" id="section-anxious">
+        <div class="section-header"><span class="section-emoji">😰</span><div><div class="section-title">Calm Your Nervous System</div><div class="section-sub">Grounding exercises to bring you back to the present moment</div></div></div>
+        <div class="ex-grid">
+            <div class="ex-card" style="--mc:#AB47BC"><span class="step-num">Step 1</span><span class="ex-icon">5️⃣</span><div class="ex-title">5-4-3-2-1 Grounding</div><div class="ex-desc">Name 5 things you SEE → 4 you TOUCH → 3 you HEAR → 2 you SMELL → 1 you TASTE. Grounds you in the present, stops anxious future-thinking instantly.</div></div>
+            <div class="ex-card" style="--mc:#AB47BC"><span class="step-num">Step 2</span><span class="ex-icon">📦</span><div class="ex-title">Box Breathing</div><div class="ex-desc">Breathe IN 4 sec → HOLD 4 sec → OUT 4 sec → HOLD 4 sec. Used by Navy SEALs under pressure. Do 4 rounds slowly.</div><button class="timer-btn" onclick="startTimer(this,64)">▶ Start (4 rounds)</button><div class="timer-disp">1:04</div></div>
+            <div class="ex-card" style="--mc:#AB47BC"><span class="step-num">Step 3</span><span class="ex-icon">📝</span><div class="ex-title">Worry Fact-Check</div><div class="ex-desc">Write your top 3 worries. Next to each write: "Is this definitely true?" Most anxious thoughts don't survive this question.</div></div>
+            <div class="ex-card" style="--mc:#AB47BC"><span class="step-num">Step 4</span><span class="ex-icon">🤲</span><div class="ex-title">Hand on Heart</div><div class="ex-desc">Place one hand on your chest. Feel your heartbeat. Say: "I am safe. This feeling will pass." Repeat 5 times slowly. Releases oxytocin.</div><button class="timer-btn" onclick="startTimer(this,60)">▶ Start (1 min)</button><div class="timer-disp">1:00</div></div>
+            <div class="ex-card" style="--mc:#AB47BC"><span class="step-num">Step 5</span><span class="ex-icon">🌊</span><div class="ex-title">Cold Splash Reset</div><div class="ex-desc">Splash cold water on your face for 30 seconds. Triggers the mammalian dive reflex — a biological override that calms panic fast.</div><button class="timer-btn" onclick="startTimer(this,30)">▶ Start (30s)</button><div class="timer-disp">0:30</div></div>
+            <div class="ex-card" style="--mc:#AB47BC"><span class="step-num">Step 6</span><span class="ex-icon">🧘</span><div class="ex-title">Body Scan</div><div class="ex-desc">Close your eyes. Scan from head to toe noticing tension without judging it. Awareness itself reduces anxiety — you don't have to fix it, just observe.</div><button class="timer-btn" onclick="startTimer(this,180)">▶ Start (3 min)</button><div class="timer-disp">3:00</div></div>
+        </div>
+    </div>
+
+    <!-- SAD -->
+    <div class="mood-section visible" id="section-sad">
+        <div class="section-header"><span class="section-emoji">😞</span><div><div class="section-title">Gentle Healing Exercises</div><div class="section-sub">Small, kind things you can do for yourself right now</div></div></div>
+        <div class="ex-grid">
+            <div class="ex-card" style="--mc:#4FC3F7"><span class="step-num">Step 1</span><span class="ex-icon">☀️</span><div class="ex-title">Get Some Light</div><div class="ex-desc">Open a window or step outside for 5 minutes. Natural light boosts serotonin even on cloudy days — your brain genuinely needs this when low.</div><button class="timer-btn" onclick="startTimer(this,300)">▶ Start (5 min)</button><div class="timer-disp">5:00</div></div>
+            <div class="ex-card" style="--mc:#4FC3F7"><span class="step-num">Step 2</span><span class="ex-icon">🤗</span><div class="ex-title">Self-Compassion Hug</div><div class="ex-desc">Cross your arms and hold your own shoulders. Take 3 slow breaths. This releases oxytocin and tells your nervous system you are safe right now.</div><button class="timer-btn" onclick="startTimer(this,30)">▶ Start (30s)</button><div class="timer-disp">0:30</div></div>
+            <div class="ex-card" style="--mc:#4FC3F7"><span class="step-num">Step 3</span><span class="ex-icon">📖</span><div class="ex-title">Gratitude — Just 1 Thing</div><div class="ex-desc">Write one tiny thing you're grateful for. Even "my blanket is warm" counts. Small gratitude rewires the brain — start small and be honest.</div></div>
+            <div class="ex-card" style="--mc:#4FC3F7"><span class="step-num">Step 4</span><span class="ex-icon">🎵</span><div class="ex-title">Feel It With Music</div><div class="ex-desc">Don't force happiness. Put on sad music and let yourself feel it fully for 10 minutes. Processing emotions speeds healing — fighting them slows it.</div><a href="/music" class="timer-btn">🎵 Open Music</a></div>
+            <div class="ex-card" style="--mc:#4FC3F7"><span class="step-num">Step 5</span><span class="ex-icon">🚿</span><div class="ex-title">Warm Shower or Bath</div><div class="ex-desc">Warm water mimics the feeling of being held and is genuinely therapeutic for sadness. Take a longer shower than usual. You deserve the comfort.</div></div>
+            <div class="ex-card" style="--mc:#4FC3F7"><span class="step-num">Step 6</span><span class="ex-icon">📞</span><div class="ex-title">Reach Out to One Person</div><div class="ex-desc">Text or call one person — even just to say hi. Sadness grows in isolation. You don't have to explain everything. Just make one connection.</div></div>
+        </div>
+    </div>
+
+    <!-- FEAR -->
+    <div class="mood-section visible" id="section-fear">
+        <div class="section-header"><span class="section-emoji">😨</span><div><div class="section-title">Face Fear Gently</div><div class="section-sub">Evidence-based exercises to reduce fear and build courage</div></div></div>
+        <div class="ex-grid">
+            <div class="ex-card" style="--mc:#5C6BC0"><span class="step-num">Step 1</span><span class="ex-icon">🔍</span><div class="ex-title">Name It to Tame It</div><div class="ex-desc">Say out loud: "I am feeling fear." Naming an emotion activates the prefrontal cortex and literally reduces the amygdala's alarm response in your brain.</div></div>
+            <div class="ex-card" style="--mc:#5C6BC0"><span class="step-num">Step 2</span><span class="ex-icon">📊</span><div class="ex-title">Fear Fact-Check</div><div class="ex-desc">Write your fear. Then: What's the realistic worst case? Best case? Most likely outcome? Fear reliably shrinks when examined with actual facts.</div></div>
+            <div class="ex-card" style="--mc:#5C6BC0"><span class="step-num">Step 3</span><span class="ex-icon">🐢</span><div class="ex-title">Slow Exhale Technique</div><div class="ex-desc">Inhale normally, then exhale TWICE as long. Long exhales directly activate the vagus nerve and send a safety signal to your brain.</div><button class="timer-btn" onclick="startTimer(this,60)">▶ Start (1 min)</button><div class="timer-disp">1:00</div></div>
+            <div class="ex-card" style="--mc:#5C6BC0"><span class="step-num">Step 4</span><span class="ex-icon">🦁</span><div class="ex-title">Courage Anchor</div><div class="ex-desc">Think of one moment you were brave — even something small. Hold that memory for 30 seconds. Your brain can't feel fear and pride simultaneously.</div><button class="timer-btn" onclick="startTimer(this,30)">▶ Start (30s)</button><div class="timer-disp">0:30</div></div>
+            <div class="ex-card" style="--mc:#5C6BC0"><span class="step-num">Step 5</span><span class="ex-icon">🚶</span><div class="ex-title">Move Through It</div><div class="ex-desc">Walk around your space for 2 minutes. Fear is stored as physical tension. Movement tells your body the threat is not real and helps release it.</div><button class="timer-btn" onclick="startTimer(this,120)">▶ Start (2 min)</button><div class="timer-disp">2:00</div></div>
+            <div class="ex-card" style="--mc:#5C6BC0"><span class="step-num">Step 6</span><span class="ex-icon">✍️</span><div class="ex-title">Best Case Journaling</div><div class="ex-desc">Write in detail what your life looks like if the feared thing goes WELL. Spend 5 minutes here. Your brain responds to what you vividly imagine.</div><a href="/journal" class="timer-btn">📖 Open Journal</a></div>
+        </div>
+    </div>
+
+    <!-- MOOD SWINGS -->
+    <div class="mood-section visible" id="section-swings">
+        <div class="section-header"><span class="section-emoji">🎢</span><div><div class="section-title">Stabilising Exercises</div><div class="section-sub">When everything feels mixed up — these help you find your ground</div></div></div>
+        <div class="ex-grid">
+            <div class="ex-card" style="--mc:#FF7043"><span class="step-num">Step 1</span><span class="ex-icon">⚓</span><div class="ex-title">Anchor Breathing</div><div class="ex-desc">Breathe in for 4, out for 6. When moods swing rapidly, your breath is the one constant anchor you always have. Return to it again and again.</div><button class="timer-btn" onclick="startTimer(this,120)">▶ Start (2 min)</button><div class="timer-disp">2:00</div></div>
+            <div class="ex-card" style="--mc:#FF7043"><span class="step-num">Step 2</span><span class="ex-icon">📓</span><div class="ex-title">Emotion Check-In</div><div class="ex-desc">Write: "Right now I feel ___ because ___." Do this 3 times for 3 different feelings. Naming multiple emotions reduces their intensity.</div></div>
+            <div class="ex-card" style="--mc:#FF7043"><span class="step-num">Step 3</span><span class="ex-icon">🎨</span><div class="ex-title">Creative Release</div><div class="ex-desc">Draw, doodle, or colour anything for 5 minutes — even scribbles. Creative expression externalises internal chaos without needing words.</div><button class="timer-btn" onclick="startTimer(this,300)">▶ Start (5 min)</button><div class="timer-disp">5:00</div></div>
+            <div class="ex-card" style="--mc:#FF7043"><span class="step-num">Step 4</span><span class="ex-icon">🌡️</span><div class="ex-title">Rate Your Emotions</div><div class="ex-desc">On a scale 1–10, rate each emotion you're feeling right now. Writing numbers makes feelings feel more manageable and less overwhelming.</div></div>
+            <div class="ex-card" style="--mc:#FF7043"><span class="step-num">Step 5</span><span class="ex-icon">🚶</span><div class="ex-title">Rhythmic Movement</div><div class="ex-desc">Walk, sway, or rock gently. Bilateral rhythmic movement (alternating both sides of body) naturally regulates the nervous system.</div><button class="timer-btn" onclick="startTimer(this,180)">▶ Start (3 min)</button><div class="timer-disp">3:00</div></div>
+            <div class="ex-card" style="--mc:#FF7043"><span class="step-num">Step 6</span><span class="ex-icon">🌱</span><div class="ex-title">One Stable Thing</div><div class="ex-desc">Name one thing in your life that is consistent and reliable right now. Focusing on stability when moods swing interrupts the emotional spiral.</div></div>
+        </div>
+    </div>
+
+    <!-- STRESSED -->
+    <div class="mood-section visible" id="section-stressed">
+        <div class="section-header"><span class="section-emoji">😫</span><div><div class="section-title">Stress Relief Exercises</div><div class="section-sub">Simplify and decompress — one step at a time</div></div></div>
+        <div class="ex-grid">
+            <div class="ex-card" style="--mc:#FF7043"><span class="step-num">Step 1</span><span class="ex-icon">📋</span><div class="ex-title">Brain Dump List</div><div class="ex-desc">Write everything that's stressing you — every single thing. Getting it out of your head and onto paper immediately reduces mental load.</div></div>
+            <div class="ex-card" style="--mc:#FF7043"><span class="step-num">Step 2</span><span class="ex-icon">⏱️</span><div class="ex-title">Pomodoro Focus</div><div class="ex-desc">Work on just ONE task for 25 minutes, then 5-minute break. The Pomodoro technique reduces overwhelm by making tasks feel finite and doable.</div><button class="timer-btn" onclick="startTimer(this,1500)">▶ Start 25 min</button><div class="timer-disp">25:00</div></div>
+            <div class="ex-card" style="--mc:#FF7043"><span class="step-num">Step 3</span><span class="ex-icon">🌬️</span><div class="ex-title">4-7-8 Breathing</div><div class="ex-desc">Inhale 4 → Hold 7 → Exhale 8. Do 4 rounds. One of the fastest ways to activate your body's relaxation response.</div><button class="timer-btn" onclick="startTimer(this,76)">▶ Start Timer</button><div class="timer-disp">1:16</div></div>
+            <div class="ex-card" style="--mc:#FF7043"><span class="step-num">Step 4</span><span class="ex-icon">🚶</span><div class="ex-title">10-Minute Walk</div><div class="ex-desc">Step away from your work entirely for 10 minutes. Even a short walk reduces cortisol and improves problem-solving ability significantly.</div><button class="timer-btn" onclick="startTimer(this,600)">▶ Start (10 min)</button><div class="timer-disp">10:00</div></div>
+            <div class="ex-card" style="--mc:#FF7043"><span class="step-num">Step 5</span><span class="ex-icon">🎵</span><div class="ex-title">Focus Music</div><div class="ex-desc">Put on instrumental or lo-fi music. Music without lyrics reduces cognitive load and helps you concentrate without adding mental noise.</div><a href="/music" class="timer-btn">🎵 Open Music</a></div>
+            <div class="ex-card" style="--mc:#FF7043"><span class="step-num">Step 6</span><span class="ex-icon">💧</span><div class="ex-title">Drink Water</div><div class="ex-desc">Drink two full glasses of cold water slowly. Even mild dehydration worsens stress and anxiety. Simple but genuinely physiologically helpful.</div></div>
+        </div>
+    </div>
+
+    <!-- TIRED -->
+    <div class="mood-section visible" id="section-tired">
+        <div class="section-header"><span class="section-emoji">😴</span><div><div class="section-title">Rest & Restore Exercises</div><div class="section-sub">Gentle practices to recharge your body and mind</div></div></div>
+        <div class="ex-grid">
+            <div class="ex-card" style="--mc:#90A4AE"><span class="step-num">Step 1</span><span class="ex-icon">😴</span><div class="ex-title">10-Minute Rest</div><div class="ex-desc">Set a timer for 10 minutes and close your eyes. Even if you don't sleep, this rest genuinely reduces fatigue and improves alertness.</div><button class="timer-btn" onclick="startTimer(this,600)">▶ Start (10 min)</button><div class="timer-disp">10:00</div></div>
+            <div class="ex-card" style="--mc:#90A4AE"><span class="step-num">Step 2</span><span class="ex-icon">🧘</span><div class="ex-title">Legs Up the Wall</div><div class="ex-desc">Lie on your back and put your legs up against a wall for 5 minutes. Reverses blood flow and is one of the most restorative poses for fatigue.</div><button class="timer-btn" onclick="startTimer(this,300)">▶ Start (5 min)</button><div class="timer-disp">5:00</div></div>
+            <div class="ex-card" style="--mc:#90A4AE"><span class="step-num">Step 3</span><span class="ex-icon">💧</span><div class="ex-title">Hydrate First</div><div class="ex-desc">Drink two full glasses of water. Fatigue is often the first symptom of dehydration — before reaching for coffee, try water first.</div></div>
+            <div class="ex-card" style="--mc:#90A4AE"><span class="step-num">Step 4</span><span class="ex-icon">🌬️</span><div class="ex-title">Energising Breath</div><div class="ex-desc">Take 10 quick sharp inhales through the nose, then one long exhale. Kapalbhati breathing oxygenates the blood and increases alertness fast.</div><button class="timer-btn" onclick="startTimer(this,30)">▶ Start (30s)</button><div class="timer-disp">0:30</div></div>
+            <div class="ex-card" style="--mc:#90A4AE"><span class="step-num">Step 5</span><span class="ex-icon">🎵</span><div class="ex-title">Sleep Sounds</div><div class="ex-desc">If it's rest time, play gentle ambient or binaural beats. These sounds reduce cortisol and ease your transition into genuine rest.</div><a href="/music" class="timer-btn">🎵 Open Music</a></div>
+            <div class="ex-card" style="--mc:#90A4AE"><span class="step-num">Step 6</span><span class="ex-icon">📵</span><div class="ex-title">Screen Break</div><div class="ex-desc">Put your phone face down for 15 minutes. Screen blue light suppresses melatonin and keeps your brain alert. A real break means no screen.</div><button class="timer-btn" onclick="startTimer(this,900)">▶ Start (15 min)</button><div class="timer-disp">15:00</div></div>
+        </div>
+    </div>
+</div>
+
+<script>
+function showMood(mood, btn) {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const sections = document.querySelectorAll('.mood-section');
+    if (mood === 'all') {
+        sections.forEach(s => s.classList.add('visible'));
+    } else {
+        sections.forEach(s => { s.classList.toggle('visible', s.id === 'section-' + mood); });
+    }
+}
+
+// Auto-show current session mood
+const sessionMood = "{{ mood }}";
+if (sessionMood) {
+    const map = { Fear:'fear', swings:'swings', anxious:'anxious', angry:'angry', sad:'sad', stressed:'stressed', tired:'tired' };
+    const m = map[sessionMood] || sessionMood;
+    const sec = document.getElementById('section-' + m);
+    if (sec) {
+        document.querySelectorAll('.mood-section').forEach(s => s.classList.remove('visible'));
+        sec.classList.add('visible');
+        document.querySelectorAll('.filter-btn').forEach(b => {
+            if (b.getAttribute('onclick') && b.getAttribute('onclick').includes("'" + m + "'")) b.classList.add('active');
+            else b.classList.remove('active');
+        });
+    }
+}
+
+const timers = {};
+function startTimer(btn, secs) {
+    const disp = btn.nextElementSibling;
+    const key = btn.closest('.ex-card').querySelector('.ex-title').textContent;
+    if (timers[key]) {
+        clearInterval(timers[key]); delete timers[key];
+        btn.classList.remove('active');
+        btn.textContent = btn.dataset.orig;
+        disp.style.display = 'none'; return;
+    }
+    if (!btn.dataset.orig) btn.dataset.orig = btn.textContent;
+    btn.classList.add('active'); btn.textContent = '⏸ Pause';
+    disp.style.display = 'block';
+    let r = secs;
+    const fmt = s => Math.floor(s/60)+':'+(s%60).toString().padStart(2,'0');
+    disp.textContent = fmt(r);
+    timers[key] = setInterval(() => {
+        r--;
+        disp.textContent = fmt(r);
+        if (r <= 0) {
+            clearInterval(timers[key]); delete timers[key];
+            btn.classList.remove('active'); btn.textContent = '✅ Done!';
+            disp.textContent = 'Complete! 🎉'; disp.style.color = '#16a34a';
+        }
+    }, 1000);
+}
+</script>
+</body>
+</html>

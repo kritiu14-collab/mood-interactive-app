@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><title>Admin – AI Conversations</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Segoe UI',sans-serif;background:#f0f2f5;color:#333;}
+    .sidebar{width:220px;position:fixed;top:0;left:0;height:100vh;background:#1e2a3a;display:flex;flex-direction:column;}
+    .sidebar .logo{padding:24px 20px;font-size:1.3rem;font-weight:700;color:#fff;border-bottom:1px solid #2e3f52;}
+    .sidebar nav a{display:block;padding:13px 20px;color:#aab8c8;text-decoration:none;font-size:0.9rem;}
+    .sidebar nav a:hover,.sidebar nav a.active{background:#2e3f52;color:#fff;}
+    .sidebar nav .sl{padding:14px 20px 6px;font-size:0.7rem;text-transform:uppercase;letter-spacing:1px;color:#5f7a90;}
+    .sidebar .bot{margin-top:auto;padding:16px 20px;border-top:1px solid #2e3f52;}
+    .sidebar .bot a{color:#f87171;text-decoration:none;font-size:0.88rem;}
+    .main{margin-left:220px;padding:30px;}
+    .page-title{font-size:1.6rem;font-weight:700;margin-bottom:6px;}
+    .page-sub{color:#666;font-size:0.9rem;margin-bottom:24px;}
+    .filter-bar{display:flex;align-items:center;gap:12px;margin-bottom:20px;}
+    .filter-bar select{padding:8px 14px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:0.88rem;background:white;}
+    .filter-bar button{padding:8px 18px;background:#2563eb;color:white;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:0.88rem;}
+    .card{background:#fff;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.06);overflow:hidden;}
+    .card-header{padding:18px 24px;font-weight:600;border-bottom:1px solid #f0f0f0;}
+    .chat-row{padding:16px 24px;border-top:1px solid #f5f5f5;}
+    .chat-row:first-child{border-top:none;}
+    .chat-meta{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+    .chat-user{font-weight:700;font-size:0.88rem;}
+    .chat-time{font-size:0.75rem;color:#aaa;}
+    .msg-user{background:#EFF6FF;border-left:3px solid #2563eb;padding:10px 14px;border-radius:0 8px 8px 0;font-size:0.86rem;margin-bottom:8px;}
+    .msg-eva{background:#F5F3FF;border-left:3px solid #7c3aed;padding:10px 14px;border-radius:0 8px 8px 0;font-size:0.86rem;color:#444;}
+    .msg-label{font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;}
+    .msg-label.u{color:#2563eb;}.msg-label.e{color:#7c3aed;}
+    .empty{text-align:center;padding:50px;color:#aaa;}
+  </style>
+</head>
+<body>
+<div class="sidebar">
+  <div class="logo">⚡ Solace Admin</div>
+  <nav>
+    <div class="sl">Overview</div>
+    <a href="/admin">📊 Dashboard</a>
+    <div class="sl">Manage</div>
+    <a href="/admin/users">👥 Users</a>
+    <a href="/admin/chats" class="active">💬 AI Conversations</a>
+    <a href="/admin/posts">📝 Posts</a>
+  </nav>
+  <div class="bot"><a href="/logout">🚪 Logout</a></div>
+</div>
+
+<div class="main">
+  <div class="page-title">Eva AI Conversations</div>
+  <div class="page-sub">View all user conversations with Eva. Filter by user to see their full chat history.</div>
+
+  <form method="GET" action="/admin/chats" class="filter-bar">
+    <label style="font-weight:600;font-size:0.88rem">Filter by user:</label>
+    <select name="user_id">
+      <option value="">All Users</option>
+      {% for u in users %}
+      <option value="{{ u.id }}" {{ 'selected' if selected_user == u.id|string }}>{{ u.username }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit">Filter</button>
+    {% if selected_user %}<a href="/admin/chats" style="color:#888;font-size:0.85rem;text-decoration:none">Clear ×</a>{% endif %}
+  </form>
+
+  <div class="card">
+    <div class="card-header">{{ chats|length }} conversation{% if chats|length != 1 %}s{% endif %}
+      {% if selected_user %} for this user{% endif %}
+    </div>
+    {% if chats %}
+      {% for c in chats %}
+      <div class="chat-row">
+        <div class="chat-meta">
+          <span class="chat-user">👤 {{ c.username }}</span>
+          <span class="chat-time">{{ (c.timestamp or '')[:16] }}</span>
+        </div>
+        <div class="msg-label u">User said</div>
+        <div class="msg-user">{{ c.user_message }}</div>
+        <div class="msg-label e">Eva replied</div>
+        <div class="msg-eva">{{ c.ai_response }}</div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="empty">No conversations found.</div>
+    {% endif %}
+  </div>
+</div>
+</body>
+</html>
