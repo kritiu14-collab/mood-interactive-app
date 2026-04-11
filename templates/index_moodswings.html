@@ -3,24 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Solace | Happy 😊</title>
+    <title>Solace | Mood Swings 🎢</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         /* ── INSIDE OUT: HAPPY = GOLDEN YELLOW ── */
         :root {
-            --mood-primary:   #F9C74F;
-            --mood-secondary: #F8961E;
-            --mood-light:     #FFFDF0;
-            --mood-dark:      #3d2800;
+            --mood-primary:   #4CC9BE;
+            --mood-secondary: #2A9D8F;
+            --mood-light:     #E8FAF8;
+            --mood-dark:      #1a3c38;
             --mood-card-bg:   #FFFDF0;
-            --mood-border:    #FDEAA8;
+            --mood-border:    #A8E6E1;
             --mood-btn:       #FFD700;
-            --mood-btn-text:  #3d2800;
-            --mood-hero-from: #F9C74F;
-            --mood-hero-to:   #F8961E;
-            --mood-nav-bg:    #2b1d00;
-            --mood-footer-bg: #2b1d00;
+            --mood-btn-text:  #1a3c38;
+            --mood-hero-from: #4CC9BE;
+            --mood-hero-to:   #2A9D8F;
+            --mood-nav-bg:    #0d2420;
+            --mood-footer-bg: #0d2420;
         }
 
         @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
@@ -481,7 +481,7 @@
 <!-- NAVBAR -->
 <nav class="navbar navbar-expand-lg">
     <div class="container">
-        <a class="navbar-brand" href="/tracker">😊 solace.</a>
+        <a class="navbar-brand" href="/tracker">🎢 solace.</a>
         <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
             <i class="fas fa-bars text-white"></i>
         </button>
@@ -492,7 +492,7 @@
                 <li class="nav-item"><a class="nav-link" href="/journal"><i class="fas fa-book me-1"></i>Journal</a></li>
                 <li class="nav-item"><a class="nav-link" href="/music"><i class="fas fa-music me-1"></i>Music</a></li>
                 <li class="nav-item"><a class="nav-link" href="/history"><i class="fas fa-chart-line me-1"></i>History</a></li>
-                <li class="nav-item ms-2"><span class="mood-badge-nav">😊 Happy</span></li>
+                <li class="nav-item ms-2"><span class="mood-badge-nav">🎢 Grounding</span></li>
                 <li class="nav-item ms-2">
                     <button class="account-btn" onclick="openPanel()" title="My Account">
                         <i class="fas fa-user"></i>
@@ -506,16 +506,16 @@
 <!-- HERO -->
 <section class="hero-section">
     <div class="container">
-        <span class="hero-emoji">😊</span>
-        <h1>Wonderful to see you smiling, {{ username }}!</h1>
-        <p class="lead">"A beautiful day begins with a beautiful mindset."</p>
+        <span class="hero-emoji">🎢</span>
+        <h1>Let's find your centre., {{ username }}!</h1>
+        <p class="lead">"You don't have to label every feeling. Just let it pass through."</p>
     </div>
 </section>
 
 <!-- QUOTE -->
 <div class="container mt-4">
     <div class="quote-box" id="quoteBox">
-        "Your positive action combined with positive thinking results in success."
+        "You don't have to label every feeling. Just let it pass through."
     </div>
     <div class="text-end mb-4">
         <button class="btn-mood-outline btn-sm" onclick="newQuote()">
@@ -530,12 +530,12 @@
         <div class="row g-4">
 
             
-            <div class="col-md-4 col-sm-6"><div class="feature-card"><span class="feature-icon">🤖</span><h5>Solace AI</h5><p>Feeling great? Chat with AI and make today even better!</p><a href="/ai_chat" class="btn-mood w-100">Chat Now</a></div></div>
-            <div class="col-md-4 col-sm-6"><div class="feature-card"><span class="feature-icon">🎵</span><h5>Happy Beats</h5><p>Your mood-curated upbeat playlist is ready to go.</p><a href="/music" class="btn-mood w-100">Open Music</a></div></div>
-            <div class="col-md-4 col-sm-6"><div class="feature-card"><span class="feature-icon">✅</span><h5>Your Goals</h5><p>Great headspace — perfect time to crush your tasks!</p><a href="/todo" class="btn-mood w-100">Open Tasks</a></div></div>
-            <div class="col-md-4 col-sm-6"><div class="feature-card"><span class="feature-icon">📖</span><h5>Gratitude Journal</h5><p>Capture this happy moment. Write what you are grateful for.</p><a href="/journal" class="btn-mood w-100">Start Writing</a></div></div>
-            <div class="col-md-4 col-sm-6"><div class="feature-card"><span class="feature-icon">📊</span><h5>Mood Journey</h5><p>See your emotional highs and lows over time.</p><a href="/history" class="btn-mood w-100">View History</a></div></div>
-            <div class="col-md-4 col-sm-6"><div class="feature-card"><span class="feature-icon">🔄</span><h5>Change Mood</h5><p>Feeling differently? Update your mood anytime.</p><a href="/tracker" class="btn-mood w-100">Update Mood</a></div></div>
+            <div class="col-md-4 col-sm-6"><div class="feature-card"><span class="feature-icon">🤖</span><h5>Grounding AI</h5><p>Feeling everything at once? Let's untangle it gently.</p><a href="/ai_chat" class="btn-mood w-100">Talk to AI</a></div></div>
+            <div class="col-md-4 col-sm-6"><div class="feature-card"><span class="feature-icon">🎵</span><h5>Balancing Sounds</h5><p>Steady teal-toned beats to anchor your energy.</p><a href="/music" class="btn-mood w-100">Play Music</a></div></div>
+            <div class="col-md-4 col-sm-6"><div class="feature-card"><span class="feature-icon">✅</span><h5>Grounding Tasks</h5><p>Simple tasks to anchor you when emotions feel overwhelming.</p><a href="/todo" class="btn-mood w-100">View Tasks</a></div></div>
+            <div class="col-md-4 col-sm-6"><div class="feature-card"><span class="feature-icon">📖</span><h5>Stream of Thoughts</h5><p>Write without a plan — whatever comes let it flow.</p><a href="/journal" class="btn-mood w-100">Open Journal</a></div></div>
+            <div class="col-md-4 col-sm-6"><div class="feature-card"><span class="feature-icon">📊</span><h5>Mood Patterns</h5><p>Swings often have triggers. Your history can help reveal them.</p><a href="/history" class="btn-mood w-100">View History</a></div></div>
+            <div class="col-md-4 col-sm-6"><div class="feature-card"><span class="feature-icon">🔄</span><h5>Change Mood</h5><p>Feeling more settled? Update your mood anytime.</p><a href="/tracker" class="btn-mood w-100">Update Mood</a></div></div>
 
         <!-- AI Section -->
         <div class="ai-section mt-4">
@@ -545,7 +545,7 @@
                 </div>
                 <div class="col">
                     <h5 class="fw-bold mb-1">Solace AI is here for you</h5>
-                    <p class="mb-0 text-muted small">Feeling great? Let's talk about how to channel this energy into something meaningful today.</p>
+                    <p class="mb-0 text-muted small">It's okay to feel multiple things at once. Let's sort through them gently — one emotion at a time.</p>
                 </div>
                 <div class="col-md-3">
                     <a href="/ai_chat" class="btn-mood w-100 text-center d-block py-2">Start Chat →</a>
@@ -566,10 +566,10 @@
 <script>
 // ── QUOTES ──
 const quotes = [
-    "Your positive action combined with positive thinking results in success.",
-    "Happiness is not something readymade. It comes from your own actions.",
-    "The more you praise and celebrate your life, the more there is to celebrate.",
-    "Joy is not in things; it is in us."
+    "You don't have to label every feeling. Just let it pass through.",
+    "Emotions are visitors. Let them come, let them go.",
+    "The ocean has waves but the depths are always still.",
+    "Your feelings are valid, even when they contradict each other."
 ];
 function newQuote() {
     document.getElementById('quoteBox').textContent =
