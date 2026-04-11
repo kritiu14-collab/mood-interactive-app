@@ -1,78 +1,172 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Solace | Your Insights</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solace | Mood History</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #fffcf2; color: #333; padding: 40px; }
-        .container { max-width: 800px; margin: 0 auto; }
-        
-        /* Insight Box */
-        .insight-card {
-            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
-            color: white;
-            padding: 30px;
-            border-radius: 20px;
-            margin-bottom: 30px;
-            box-shadow: 0 10px 20px rgba(118, 75, 162, 0.2);
-        }
-
-        /* Timeline Style */
-        .timeline { position: relative; padding: 20px 0; }
-        .timeline::before {
-            content: '';
-            position: absolute;
-            left: 50px; width: 2px; height: 100%;
-            background: #ddd;
-        }
-        .log-item {
-            position: relative;
-            margin-bottom: 20px;
-            padding-left: 80px;
-            display: flex;
-            align-items: center;
-        }
-        .mood-icon {
-            position: absolute;
-            left: 35px; width: 30px; height: 30px;
-            background: white; border: 2px solid #764ba2;
-            border-radius: 50%; text-align: center; line-height: 30px;
-        }
+        *{box-sizing:border-box;margin:0;padding:0;}
+        body{font-family:'Nunito',sans-serif;background:#f4f1f8;color:#333;min-height:100vh;}
+        .topbar{background:#1e1235;padding:14px 32px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+        .brand{font-size:1.2rem;font-weight:800;color:#c4b5fd;text-decoration:none;}
+        .tlinks{display:flex;gap:6px;}
+        .tlinks a{color:rgba(255,255,255,0.55);text-decoration:none;font-size:0.83rem;padding:7px 14px;border-radius:8px;transition:all 0.2s;}
+        .tlinks a:hover{background:rgba(255,255,255,0.08);color:white;}
+        .back-btn{background:rgba(196,181,253,0.15);color:#c4b5fd;border:1px solid rgba(196,181,253,0.25);border-radius:8px;padding:7px 14px;font-size:0.83rem;text-decoration:none;font-weight:600;transition:all 0.2s;}
+        .back-btn:hover{background:rgba(196,181,253,0.25);color:#e0d9ff;}
+        .wrap{max-width:900px;margin:0 auto;padding:36px 20px 60px;}
+        .insight{background:linear-gradient(135deg,#7c3aed,#4f46e5);color:white;padding:28px 32px;border-radius:24px;margin-bottom:26px;display:flex;align-items:center;gap:22px;box-shadow:0 12px 40px rgba(124,58,237,0.25);}
+        .insight-emoji{font-size:2.8rem;flex-shrink:0;}
+        .insight h2{font-size:1.4rem;font-weight:800;margin-bottom:4px;}
+        .insight p{opacity:0.85;font-size:0.88rem;line-height:1.6;}
+        .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px;}
+        .scard{background:white;border-radius:18px;padding:20px;text-align:center;box-shadow:0 4px 14px rgba(0,0,0,0.06);}
+        .scard .num{font-size:1.9rem;font-weight:800;color:#7c3aed;}
+        .scard .lbl{font-size:0.75rem;color:#888;margin-top:3px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;}
+        .ccard{background:white;border-radius:24px;padding:26px;box-shadow:0 4px 14px rgba(0,0,0,0.06);margin-bottom:24px;}
+        .ctitle{font-size:0.98rem;font-weight:800;margin-bottom:18px;color:#1e1235;display:flex;align-items:center;gap:8px;}
+        .chart-wrap{position:relative;height:260px;}
+        .legend{display:flex;flex-wrap:wrap;gap:9px;margin-top:14px;}
+        .li{display:flex;align-items:center;gap:5px;font-size:0.73rem;color:#555;font-weight:700;}
+        .ld{width:11px;height:11px;border-radius:50%;flex-shrink:0;}
+        .tline{position:relative;padding-left:38px;}
+        .tline::before{content:'';position:absolute;left:13px;top:0;bottom:0;width:2px;background:#e9e3f5;border-radius:2px;}
+        .li-row{position:relative;margin-bottom:16px;display:flex;align-items:center;gap:12px;}
+        .ldot{position:absolute;left:-31px;width:14px;height:14px;border-radius:50%;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.15);}
+        .lmeta{flex:1;}
+        .lmood{font-weight:700;font-size:0.88rem;}
+        .ltime{font-size:0.73rem;color:#aaa;margin-top:1px;}
+        .lbadge{padding:3px 11px;border-radius:20px;font-size:0.7rem;font-weight:700;}
+        .d-happy{background:#FFD700;} .d-sad{background:#4FC3F7;} .d-angry{background:#EF5350;}
+        .d-anxious{background:#AB47BC;} .d-calm{background:#66BB6A;} .d-stressed{background:#FF7043;}
+        .d-tired{background:#90A4AE;} .d-Fear{background:#5C6BC0;} .d-swings{background:linear-gradient(135deg,#FF7043,#AB47BC);}
+        .b-happy{background:#FFF9C4;color:#7a5c00;} .b-sad{background:#E1F5FE;color:#01579b;}
+        .b-angry{background:#FFEBEE;color:#b71c1c;} .b-anxious{background:#F3E5F5;color:#4a148c;}
+        .b-calm{background:#E8F5E9;color:#1b5e20;} .b-stressed{background:#FBE9E7;color:#bf360c;}
+        .b-tired{background:#ECEFF1;color:#263238;} .b-Fear{background:#E8EAF6;color:#1a237e;}
+        .b-swings{background:#FFF3E0;color:#3b1f00;}
+        .empty{text-align:center;padding:50px;color:#aaa;}
+        .empty i{font-size:3rem;margin-bottom:14px;opacity:0.3;display:block;}
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Welcome Back, {{ username }}</h1>
 
-        <div class="insight-card">
-            <h2><i class="fas fa-magic"></i> Weekly Vibe: {{ top_mood.capitalize() }}</h2>
-            <p>You've been feeling <strong>{{ top_mood }}</strong> quite a bit lately. 
-               {% if top_mood == 'happy' %}
-               Keep riding this wave! Try sharing this energy with a friend today.
-               {% elif top_mood == 'sad' or top_mood == 'stressed' %}
-               It looks like a heavy week. Remember to take 5 minutes just for deep breathing.
-               {% else %}
-               You are finding your balance. Consistency is key!
-               {% endif %}
+<div class="topbar">
+    <a href="/dashboard" class="brand">✦ solace.</a>
+    <div class="tlinks">
+        <a href="/tracker"><i class="fas fa-sync-alt"></i> Tracker</a>
+        <a href="/journal"><i class="fas fa-book"></i> Journal</a>
+        <a href="/music"><i class="fas fa-music"></i> Music</a>
+        <a href="/ai_chat"><i class="fas fa-robot"></i> Eva AI</a>
+    </div>
+    <a href="/dashboard" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
+</div>
+
+<div class="wrap">
+
+    <div class="insight">
+        <div class="insight-emoji">
+            {% if top_mood == 'happy' %}😊{% elif top_mood == 'sad' %}😞{% elif top_mood == 'angry' %}😡
+            {% elif top_mood == 'anxious' %}😰{% elif top_mood == 'calm' %}😌{% elif top_mood == 'stressed' %}😫
+            {% elif top_mood == 'tired' %}😴{% elif top_mood == 'Fear' %}😨{% elif top_mood == 'swings' %}🎢
+            {% else %}✨{% endif %}
+        </div>
+        <div>
+            <h2>Top Mood: {{ top_mood.capitalize() }}</h2>
+            <p>
+                {% if top_mood == 'happy' %}You've been glowing! Keep riding this wave.
+                {% elif top_mood in ['sad','stressed'] %}It's been a heavy week. 5 minutes of deep breathing can shift everything.
+                {% elif top_mood == 'calm' %}You're finding your balance — consistency is your superpower.
+                {% elif top_mood == 'angry' %}Something's been bothering you. Let's channel that into growth.
+                {% elif top_mood == 'anxious' %}Your mind's been busy. One breath, one fact at a time.
+                {% elif top_mood == 'tired' %}Rest is productive. You're allowed to slow down.
+                {% else %}Your emotional journey is unique — every mood tells a story.{% endif %}
             </p>
         </div>
+    </div>
 
-        <h3>Your Timeline</h3>
-        <div class="timeline">
+    <div class="stats">
+        <div class="scard"><div class="num">{{ logs|length }}</div><div class="lbl">Total Logs</div></div>
+        <div class="scard"><div class="num">{{ top_mood.capitalize() }}</div><div class="lbl">Top Mood</div></div>
+        <div class="scard"><div class="num">{{ username }}</div><div class="lbl">Account</div></div>
+    </div>
+
+    <div class="ccard">
+        <div class="ctitle"><i class="fas fa-chart-line" style="color:#7c3aed"></i> Mood Highs &amp; Lows Over Time</div>
+        <div class="chart-wrap"><canvas id="moodChart"></canvas></div>
+        <div class="legend" id="legend"></div>
+    </div>
+
+    <div class="ccard">
+        <div class="ctitle"><i class="fas fa-clock" style="color:#7c3aed"></i> Mood Timeline</div>
+        {% if logs %}
+        <div class="tline">
             {% for mood, time in logs %}
-            <div class="log-item">
-                <div class="mood-icon">
-                    {% if mood == 'happy' %}😊{% elif mood == 'sad' %}😞{% else %}✨{% endif %}
+            <div class="li-row">
+                <div class="ldot d-{{ mood }}"></div>
+                <div class="lmeta">
+                    <div class="lmood">
+                        {% if mood=='happy'%}😊{%elif mood=='sad'%}😞{%elif mood=='angry'%}😡
+                        {%elif mood=='anxious'%}😰{%elif mood=='calm'%}😌{%elif mood=='stressed'%}😫
+                        {%elif mood=='tired'%}😴{%elif mood=='Fear'%}😨{%elif mood=='swings'%}🎢{%endif%}
+                        {{ mood.capitalize() }}
+                    </div>
+                    <div class="ltime"><i class="far fa-clock"></i> {{ time }}</div>
                 </div>
-                <div>
-                    <strong>{{ mood.capitalize() }}</strong> <br>
-                    <small style="color: #888;">{{ time }}</small>
-                </div>
+                <span class="lbadge b-{{ mood }}">{{ mood.capitalize() }}</span>
             </div>
             {% endfor %}
         </div>
-
-        <a href="/tracker" style="text-decoration: none; color: #764ba2; font-weight: bold;">← Back to Tracker</a>
+        {% else %}
+        <div class="empty"><i class="fas fa-chart-bar"></i><p>No mood logs yet. Start from the tracker!</p></div>
+        {% endif %}
     </div>
+</div>
+
+<script type="application/json" id="mood-data">
+[{% for mood, time in logs %}{"mood":"{{ mood }}","time":"{{ time }}"}{% if not loop.last %},{% endif %}{% endfor %}]
+</script>
+
+<script>
+const MS={happy:8,calm:7,swings:5,tired:4,anxious:3,stressed:3,sad:2,angry:2,Fear:2};
+const MC={happy:'#FFD700',sad:'#4FC3F7',angry:'#EF5350',anxious:'#AB47BC',calm:'#66BB6A',stressed:'#FF7043',tired:'#90A4AE',Fear:'#5C6BC0',swings:'#FF7043'};
+const ME={happy:'😊',sad:'😞',angry:'😡',anxious:'😰',calm:'😌',stressed:'😫',tired:'😴',Fear:'😨',swings:'🎢'};
+
+const raw=JSON.parse(document.getElementById('mood-data').textContent);
+const data=raw.slice().reverse();
+
+const labels=data.map((l,i)=>{const d=new Date(l.time);return isNaN(d)?`#${i+1}`:d.toLocaleDateString('en-IN',{month:'short',day:'numeric'});});
+const scores=data.map(l=>MS[l.mood]||5);
+const ptColors=data.map(l=>MC[l.mood]||'#aaa');
+const moods=data.map(l=>l.mood);
+
+const ctx=document.getElementById('moodChart').getContext('2d');
+const gr=ctx.createLinearGradient(0,0,0,260);
+gr.addColorStop(0,'rgba(124,58,237,0.28)');
+gr.addColorStop(1,'rgba(124,58,237,0)');
+
+new Chart(ctx,{
+    type:'line',
+    data:{labels,datasets:[{label:'Mood',data:scores,borderColor:'#7c3aed',backgroundColor:gr,borderWidth:2.5,
+        pointBackgroundColor:ptColors,pointBorderColor:'#fff',pointBorderWidth:2,pointRadius:7,pointHoverRadius:11,
+        fill:true,tension:0.4}]},
+    options:{responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:false},
+            tooltip:{callbacks:{label:c=>{const m=moods[c.dataIndex];return ` ${ME[m]||''} ${m} (${c.raw}/10)`;}},
+                backgroundColor:'rgba(20,10,40,0.92)',padding:12,bodyFont:{size:13,weight:'bold'},
+                borderColor:'rgba(196,181,253,0.3)',borderWidth:1}},
+        scales:{
+            y:{min:0,max:10,ticks:{stepSize:2,callback:v=>({0:'😴',2:'😞',4:'😐',6:'😊',8:'🌟',10:'🚀'}[v]||v),color:'#888',font:{size:11}},grid:{color:'rgba(0,0,0,0.05)'}},
+            x:{ticks:{color:'#888',font:{size:10},maxRotation:45},grid:{display:false}}
+        },interaction:{intersect:false,mode:'index'}}
+});
+
+const leg=document.getElementById('legend'),seen={};
+data.forEach(l=>{if(!seen[l.mood]){seen[l.mood]=true;}});
+Object.keys(seen).forEach(m=>{const d=document.createElement('div');d.className='li';d.innerHTML=`<div class="ld" style="background:${MC[m]||'#aaa'}"></div><span>${ME[m]||''} ${m.charAt(0).toUpperCase()+m.slice(1)}</span>`;leg.appendChild(d);});
+</script>
 </body>
 </html>
