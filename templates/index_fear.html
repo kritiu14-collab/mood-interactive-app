@@ -401,72 +401,30 @@
         }
 
 
-        /* ── EXERCISE SECTION ── */
-        .exercise-section {
-            padding: 50px 0 20px;
-            background: rgba(0,0,0,0.03);
-        }
-        .exercise-title {
-            text-align: center;
-            margin-bottom: 8px;
-            font-size: 1.5rem;
-            font-weight: 800;
-            color: var(--mood-dark);
-        }
-        .exercise-subtitle {
-            text-align: center;
-            color: #888;
-            font-size: 0.88rem;
-            margin-bottom: 36px;
-        }
-        .exercise-card {
+        /* ── EXERCISE WIDGET ── */
+        .exercise-widget {
             background: white;
-            border-radius: 18px;
-            padding: 22px;
-            height: 100%;
             border: 1.5px solid var(--mood-border);
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-        .exercise-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, var(--mood-hero-from), var(--mood-hero-to));
-        }
-        .exercise-card:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 14px 36px rgba(0,0,0,0.1);
-            border-color: var(--mood-primary);
-        }
-        .ex-icon {
-            font-size: 2rem;
-            display: block;
-            margin-bottom: 10px;
-        }
-        .ex-title {
-            font-weight: 800;
-            font-size: 0.95rem;
-            color: var(--mood-dark);
-            margin-bottom: 8px;
-        }
-        .ex-desc {
-            font-size: 0.8rem;
-            color: #666;
-            line-height: 1.6;
-        }
-        .exercise-card .step-badge {
-            display: inline-block;
-            background: var(--mood-light);
-            color: var(--mood-secondary);
             border-radius: 20px;
-            padding: 3px 10px;
-            font-size: 0.7rem;
-            font-weight: 700;
-            margin-bottom: 8px;
+            padding: 22px 26px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
         }
+        .ex-widget-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; gap: 12px; }
+        .ex-widget-left  { display: flex; align-items: center; gap: 14px; }
+        .ex-widget-icon  { font-size: 2.2rem; flex-shrink: 0; }
+        .ex-widget-label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--mood-secondary); margin-bottom: 3px; }
+        .ex-widget-title { font-size: 1.05rem; font-weight: 800; color: var(--mood-dark); }
+        .ex-widget-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+        .ex-step-counter { font-size: 0.78rem; color: #aaa; font-weight: 600; }
+        .ex-rotate-btn { width: 40px; height: 40px; border-radius: 50%; background: var(--mood-light); border: 1.5px solid var(--mood-border); color: var(--mood-secondary); font-size: 1.3rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; line-height: 1; }
+        .ex-rotate-btn:hover { background: var(--mood-primary); color: var(--mood-btn-text); transform: rotate(180deg); }
+        .ex-widget-desc { font-size: 0.88rem; color: #555; line-height: 1.7; padding: 12px 16px; background: var(--mood-light); border-radius: 12px; margin-bottom: 14px; min-height: 70px; }
+        .ex-widget-footer { display: flex; align-items: center; justify-content: space-between; }
+        .ex-dots { display: flex; gap: 6px; }
+        .ex-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--mood-border); cursor: pointer; transition: all 0.2s; }
+        .ex-dot.active { background: var(--mood-primary); transform: scale(1.3); }
+        .ex-all-link { font-size: 0.8rem; color: var(--mood-secondary); text-decoration: none; font-weight: 700; }
+        .ex-all-link:hover { opacity: 0.7; }
 
         /* ── FOOTER ── */
         footer {
@@ -482,79 +440,6 @@
 
 <!-- Account Panel Overlay -->
 <div class="panel-overlay" id="panelOverlay" onclick="closePanel()"></div>
-
-<!-- Account Panel -->
-<div class="account-panel" id="accountPanel">
-    <div class="panel-header">
-        <button class="panel-close" onclick="closePanel()"><i class="fas fa-times"></i></button>
-        <div class="panel-avatar" id="panelAvatar">👤</div>
-        <div class="panel-username" id="panelUsername">Loading...</div>
-        <div class="panel-email"    id="panelEmail">—</div>
-        <div style="font-size:0.72rem;opacity:0.65;margin-top:4px">Member since <span id="panelSince">—</span></div>
-    </div>
-
-    <div class="panel-body">
-
-        <!-- Stats — 4 boxes -->
-        <div class="panel-section-title">Your Progress</div>
-        <div class="stats-row" style="grid-template-columns:repeat(4,1fr)">
-            <div class="stat-box">
-                <div class="num" id="statMoods">—</div>
-                <div class="lbl">Moods</div>
-            </div>
-            <div class="stat-box">
-                <div class="num" id="statJournals">—</div>
-                <div class="lbl">Journals</div>
-            </div>
-            <div class="stat-box">
-                <div class="num" id="statTasks">—</div>
-                <div class="lbl">Tasks</div>
-            </div>
-            <div class="stat-box">
-                <div class="num" id="statDays">—</div>
-                <div class="lbl">Days</div>
-            </div>
-        </div>
-
-        <!-- Top mood -->
-        <div class="panel-section-title">Top Mood Overall</div>
-        <div style="font-size:0.82rem;color:#555;margin-bottom:6px">
-            <span id="topMoodLabel">—</span>
-        </div>
-        <div class="progress-bar-mood">
-            <div class="progress-fill-mood" id="topMoodBar" style="width:0%"></div>
-        </div>
-
-        <!-- Recent moods -->
-        <div class="panel-section-title">Recent Activity</div>
-        <div id="recentMoods" style="margin-bottom:8px">
-            <div style="font-size:0.78rem;color:#bbb">Loading...</div>
-        </div>
-
-        <!-- Mood Calendar -->
-        <div class="panel-section-title">Mood Calendar (Last 28 Days)</div>
-        <div class="cal-label-row">
-            <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span>
-            <span>Thu</span><span>Fri</span><span>Sat</span>
-        </div>
-        <div class="mood-calendar" id="moodCalendar"></div>
-
-        <!-- Quick links -->
-        <div class="panel-section-title">Quick Links</div>
-        <a href="/history"   class="panel-nav-link"><i class="fas fa-chart-line"></i> Mood History</a>
-        <a href="/journal"   class="panel-nav-link"><i class="fas fa-book-open"></i> My Journal</a>
-        <a href="/todo"      class="panel-nav-link"><i class="fas fa-tasks"></i> My Tasks</a>
-        <a href="/tracker"   class="panel-nav-link"><i class="fas fa-sync-alt"></i> Change Mood</a>
-        <a href="/music"     class="panel-nav-link"><i class="fas fa-music"></i> Mood Music</a>
-        <a href="/ai_chat"   class="panel-nav-link"><i class="fas fa-robot"></i> Eva AI</a>
-    </div>
-
-    <div class="panel-logout">
-        <button class="btn-logout" onclick="window.location.href='/logout'">
-            <i class="fas fa-sign-out-alt me-2"></i> Log Out
-        </button>
-    </div>
-</div>
 
 <!-- Account Panel -->
 <div class="account-panel" id="accountPanel">
@@ -678,84 +563,45 @@
             <div class="col-md-4 col-sm-6"><div class="feature-card"><span class="feature-icon">📊</span><h5>Progress Check</h5><p>See how many hard moments you have already gotten through.</p><a href="/history" class="btn-mood w-100">View History</a></div></div>
             <div class="col-md-4 col-sm-6"><div class="feature-card"><span class="feature-icon">🔄</span><h5>Change Mood</h5><p>Feeling steadier? Update your mood anytime.</p><a href="/tracker" class="btn-mood w-100">Update Mood</a></div></div>
 
-        <!-- AI Section -->
-        <div class="ai-section mt-4">
-            <div class="row align-items-center g-3">
-                <div class="col-auto">
-                    <span style="font-size:3rem">✨</span>
+        <!-- EXERCISE WIDGET -->
+        <div class="exercise-widget mt-4">
+            <div class="ex-widget-header">
+                <div class="ex-widget-left">
+                    <span class="ex-widget-icon" id="exIconFear">🔍</span>
+                    <div>
+                        <div class="ex-widget-label">Exercise for your mood</div>
+                        <div class="ex-widget-title" id="exTitleFear">Name It to Tame It</div>
+                    </div>
                 </div>
-                <div class="col">
-                    <h5 class="fw-bold mb-1">Solace AI is here for you</h5>
-                    <p class="mb-0 text-muted small">Let's look at what's scaring you. Most fears shrink when we examine the facts behind them.</p>
-                </div>
-                <div class="col-md-3">
-                    <a href="/ai_chat" class="btn-mood w-100 text-center d-block py-2">Start Chat →</a>
+                <div class="ex-widget-right">
+                    <span class="ex-step-counter" id="exCtrFear">1 / 6</span>
+                    <button class="ex-rotate-btn" onclick="rotateExFear()" title="Next exercise">&#x27F3;</button>
                 </div>
             </div>
+            <div class="ex-widget-desc" id="exDescFear">Say out loud: I am feeling fear. Naming an emotion activates the prefrontal cortex and reduces the amygdala alarm response.</div>
+            <div class="ex-widget-footer">
+                <div class="ex-dots" id="exDotsFear"><div class="ex-dot  active" onclick="goToExFear(0)"></div><div class="ex-dot" onclick="goToExFear(1)"></div><div class="ex-dot" onclick="goToExFear(2)"></div><div class="ex-dot" onclick="goToExFear(3)"></div><div class="ex-dot" onclick="goToExFear(4)"></div><div class="ex-dot" onclick="goToExFear(5)"></div></div>
+                <a href="/exercises" class="ex-all-link">See all exercises &#8594;</a>
+            </div>
         </div>
+        <script>
+        (function(){
+            const steps=[{"icon":"🔍","title":"Name It to Tame It","desc":"Say out loud: I am feeling fear. Naming an emotion activates the prefrontal cortex and reduces the amygdala alarm response."},{"icon":"📊","title":"Fear Fact-Check","desc":"Write your fear. Then: What is the realistic worst case? Best case? Most likely? Fear shrinks when examined with facts."},{"icon":"🐢","title":"Slow Exhale Technique","desc":"Inhale normally, then exhale TWICE as long. Long exhales activate the vagus nerve and signal safety to your brain."},{"icon":"🦁","title":"Courage Anchor","desc":"Think of one moment you were brave. Hold that memory for 30 seconds. Your brain cannot feel fear and pride at once."},{"icon":"🚶","title":"Move Through It","desc":"Walk around your space for 2 minutes. Fear is stored as physical tension. Movement tells your body the threat is not real."},{"icon":"✍️","title":"Best Case Journaling","desc":"Write what your life looks like if the feared thing goes WELL. Your brain responds to what you vividly imagine."}];
+            let cur=0;
+            function upd(){
+                document.getElementById('exIconFear').textContent=steps[cur].icon;
+                document.getElementById('exTitleFear').textContent=steps[cur].title;
+                document.getElementById('exDescFear').textContent=steps[cur].desc;
+                document.getElementById('exCtrFear').textContent=(cur+1)+' / '+steps.length;
+                document.querySelectorAll('#exDotsFear .ex-dot').forEach((d,i)=>d.classList.toggle('active',i===cur));
+            }
+            window['rotateExFear']=function(){cur=(cur+1)%steps.length;upd();};
+            window['goToExFear']=function(i){cur=i;upd();};
+        })();
+        </script>
 
     </div>
-
 </section>
-
-<!-- EXERCISE SECTION -->
-<section class="exercise-section">
-    <div class="container">
-        <div class="exercise-title">Face Fear Gently 💙</div>
-        <div class="exercise-subtitle">Evidence-based exercises to reduce fear and build courage</div>
-        <div class="row g-3">
-
-            <div class="col-md-4 col-sm-6 mb-4">
-                <div class="exercise-card">
-                    <span class="step-badge">Step 1</span>
-                    <span class="ex-icon">🔍</span>
-                    <div class="ex-title">Name It to Tame It</div>
-                    <div class="ex-desc">Say out loud: 'I am feeling fear.' Naming an emotion activates the prefrontal cortex and literally reduces the amygdala's alarm response.</div>
-                </div>
-            </div>
-            <div class="col-md-4 col-sm-6 mb-4">
-                <div class="exercise-card">
-                    <span class="step-badge">Step 2</span>
-                    <span class="ex-icon">📊</span>
-                    <div class="ex-title">Fear Fact-Check</div>
-                    <div class="ex-desc">Write your fear down. Then write: What's the realistic worst case? What's the realistic best case? What's most likely? Fear shrinks with facts.</div>
-                </div>
-            </div>
-            <div class="col-md-4 col-sm-6 mb-4">
-                <div class="exercise-card">
-                    <span class="step-badge">Step 3</span>
-                    <span class="ex-icon">🐢</span>
-                    <div class="ex-title">Slow Exhale Technique</div>
-                    <div class="ex-desc">Inhale normally, then exhale TWICE as long as you inhaled. Long exhales directly activate the vagus nerve and signal safety to your brain.</div>
-                </div>
-            </div>
-            <div class="col-md-4 col-sm-6 mb-4">
-                <div class="exercise-card">
-                    <span class="step-badge">Step 4</span>
-                    <span class="ex-icon">🦁</span>
-                    <div class="ex-title">Courage Anchor</div>
-                    <div class="ex-desc">Think of one moment you were brave — even something small. Hold that memory for 30 seconds. Your brain can't feel fear and pride simultaneously.</div>
-                </div>
-            </div>
-            <div class="col-md-4 col-sm-6 mb-4">
-                <div class="exercise-card">
-                    <span class="step-badge">Step 5</span>
-                    <span class="ex-icon">🚶</span>
-                    <div class="ex-title">Move Through It</div>
-                    <div class="ex-desc">Walk around your space for 2 minutes. Fear is stored as physical tension. Movement tells your body the 'threat' is not real.</div>
-                </div>
-            </div>
-            <div class="col-md-4 col-sm-6 mb-4">
-                <div class="exercise-card">
-                    <span class="step-badge">Step 6</span>
-                    <span class="ex-icon">✍️</span>
-                    <div class="ex-title">Best Case Journaling</div>
-                    <div class="ex-desc">Write in detail what your life looks like if the feared thing goes WELL. Spend 5 minutes here. Your brain responds to what you vividly imagine.</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
 
 <footer>
     <div class="container text-center">
@@ -791,48 +637,23 @@ function closePanel() {
 async function loadAccountData() {
     try {
         const res  = await fetch('/account_data');
-        if (!res.ok) throw new Error('Not logged in');
         const data = await res.json();
 
-        const MOOD_EMOJI = {happy:'😊',sad:'😞',angry:'😡',anxious:'😰',calm:'😌',
-                            stressed:'😫',tired:'😴',Fear:'😨',swings:'🎢'};
-
-        document.getElementById('panelAvatar').textContent  = MOOD_EMOJI[data.top_mood] || '👤';
-        document.getElementById('panelUsername').textContent = data.username   || '—';
-        document.getElementById('panelEmail').textContent    = data.email      || '—';
-        document.getElementById('panelSince').textContent    = data.member_since || '—';
-        document.getElementById('statMoods').textContent     = data.mood_count    ?? '—';
+        document.getElementById('panelUsername').textContent = data.username  || '—';
+        document.getElementById('panelEmail').textContent    = data.email     || '—';
+        document.getElementById('statMoods').textContent     = data.mood_count   ?? '—';
         document.getElementById('statJournals').textContent  = data.journal_count ?? '—';
-        document.getElementById('statTasks').textContent     = data.task_count    ?? '—';
-        document.getElementById('statDays').textContent      = data.days_active   ?? '—';
+        document.getElementById('statDays').textContent      = data.days_active  ?? '—';
 
         if (data.top_mood) {
             document.getElementById('topMoodLabel').textContent =
-                `${MOOD_EMOJI[data.top_mood]||''} ${data.top_mood} · ${data.top_mood_pct}% of all logs`;
+                `${data.top_mood} (${data.top_mood_pct}% of logs)`;
             document.getElementById('topMoodBar').style.width = data.top_mood_pct + '%';
-        }
-
-        // Recent moods
-        const rec = document.getElementById('recentMoods');
-        if (data.recent_moods && data.recent_moods.length) {
-            rec.innerHTML = data.recent_moods.map(r => {
-                const emoji = MOOD_EMOJI[r.mood] || '●';
-                const time  = r.time ? r.time.slice(0,16).replace('T',' ') : '';
-                return `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f5f5f5;font-size:0.8rem">
-                    <span style="font-size:1rem">${emoji}</span>
-                    <div><div style="font-weight:700;color:#333">${r.mood.charAt(0).toUpperCase()+r.mood.slice(1)}</div>
-                    <div style="color:#aaa;font-size:0.7rem">${time}</div></div>
-                </div>`;
-            }).join('');
-        } else {
-            rec.innerHTML = '<div style="font-size:0.78rem;color:#bbb">No mood logs yet.</div>';
         }
 
         buildCalendar(data.calendar || []);
     } catch(e) {
         console.error('Account data error:', e);
-        document.getElementById('panelUsername').textContent = 'Error loading data';
-        document.getElementById('panelEmail').textContent    = 'Please refresh the page';
     }
 }
 

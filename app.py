@@ -599,7 +599,9 @@ def exercises() -> Any:
     return render_template("exercises.html", mood=mood, username=session["username"])
 
 
-
+@app.route("/admin")
+@admin_required
+def admin_dashboard() -> Any:
     with get_db() as conn:
         total_users   = conn.execute("SELECT COUNT(*) FROM users").fetchone()[0]
         total_moods   = conn.execute("SELECT COUNT(*) FROM mood_logs").fetchone()[0]
