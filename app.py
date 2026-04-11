@@ -367,7 +367,13 @@ def ai_chat_page() -> Any:
                 "SELECT * FROM chat_history WHERE session_id=? ORDER BY timestamp ASC",
                 (session["active_chat_id"],),
             ).fetchall()
-    return render_template("ai_chat.html", chat_history=history_heads, active_messages=active_messages)
+    return render_template(
+        "ai_chat.html",
+        chat_history=history_heads,
+        active_messages=active_messages,
+        username=session.get("username", "Friend"),
+        current_mood=session.get("current_mood", "neutral"),
+    )
 
 
 @app.route("/new_chat")
@@ -401,23 +407,65 @@ def get_ai_response() -> Any:
     data     = request.json or {}
     user_msg = data.get("message", "")
     mood     = session.get("current_mood", "neutral")
+
     if "active_chat_id" not in session:
         session["active_chat_id"] = str(uuid.uuid4())
     sid = session["active_chat_id"]
 
-    url = (f"https://generativelanguage.googleapis.com/v1beta/"
-           f"models/gemini-1.5-flash:generateContent?key={GEMINI_API_KEY}")
-    payload = {"contents": [{"parts": [{"text":
-        f"System: You are Solace AI, a compassionate mental wellness companion. "
-        f"The user is currently feeling {mood}. Be supportive and empathetic. "
-        f"User: {user_msg}"
-    }]}]}
+    if not GEMINI_API_KEY:
+        return jsonify({"reply": "⚠️ Gemini API key is missing. Please add GEMINI_API_KEY to your .env file."}), 200
 
+    url = (
+        f"https://generativelanguage.googleapis.com/v1beta/"
+        f"models/gemini-1.5-flash:generateContent?key={GEMINI_API_KEY}"
+    )
+
+    system_prompt = (
+        f"You are Eva, a compassionate AI mental wellness companion built into Solace app. "
+        f"The user is currently feeling '{mood}'. "
+        f"Respond with empathy, warmth and gentle CBT techniques. "
+        f"Keep responses concise (2-4 sentences). Never give medical advice. "
+        f"Always validate the user's feelings first before offering perspective."
+    )
+
+    payload = {
+        "contents": [
+            {
+                "role": "user",
+                "parts": [{"text": f"{system_prompt}\n\nUser message: {user_msg}"}]
+            }
+        ],
+        "generationConfig": {
+            "temperature": 0.8,
+            "maxOutputTokens": 400,
+        }
+    }
+
+    text = ""
     try:
-        res  = requests.post(url, json=payload, timeout=30)
-        text = res.json()["candidates"][0]["content"]["parts"][0]["text"]
-    except Exception:
-        text = "Solace is taking a mindful pause. Please try again. 🌿"
+        res      = requests.post(url, json=payload, timeout=30)
+        res_json = res.json()
+
+        # Print full response to terminal for debugging
+        print(f"[Gemini] Status: {res.status_code}")
+        print(f"[Gemini] Response: {res_json}")
+
+        if res.status_code != 200:
+            error_msg = res_json.get("error", {}).get("message", "Unknown API error")
+            text = f"⚠️ API Error: {error_msg}"
+        else:
+            text = res_json["candidates"][0]["content"]["parts"][0]["text"]
+
+    except requests.exceptions.Timeout:
+        text = "Eva took too long to respond. Please try again."
+    except requests.exceptions.ConnectionError:
+        text = "Cannot reach Eva right now. Check your internet connection."
+    except KeyError as e:
+        print(f"[Gemini] KeyError: {e} — Full response: {res_json}")
+        text = "Eva received an unexpected response. Please try again."
+    except Exception as e:
+        print(f"[Gemini] Unexpected error: {e}")
+        text = f"Something went wrong: {str(e)}"
 
     with get_db() as conn:
         conn.execute(
@@ -723,6 +771,52 @@ def delete_post(pid: int) -> Any:
     with get_db() as conn:
         conn.execute("DELETE FROM posts WHERE id=?", (pid,))
     return redirect(url_for("admin_posts"))
+
+
+@app.route("/account_data")
+@login_required
+def account_data() -> Any:
+    uid = session["user_id"]
+    with get_db() as conn:
+        user = conn.execute(
+            "SELECT username, email, created_at FROM users WHERE id=?", (uid,)
+        ).fetchone()
+        mood_count    = conn.execute("SELECT COUNT(*) FROM mood_logs WHERE user_id=?", (uid,)).fetchone()[0]
+        journal_count = conn.execute("SELECT COUNT(*) FROM journals  WHERE user_id=?", (uid,)).fetchone()[0]
+        task_count    = conn.execute("SELECT COUNT(*) FROM tasks     WHERE user_id=?", (uid,)).fetchone()[0]
+        days_active   = conn.execute(
+            "SELECT COUNT(DISTINCT DATE(timestamp)) FROM mood_logs WHERE user_id=?", (uid,)
+        ).fetchone()[0]
+        top = conn.execute("""
+            SELECT mood, COUNT(*) as cnt FROM mood_logs
+            WHERE user_id=? GROUP BY mood ORDER BY cnt DESC LIMIT 1
+        """, (uid,)).fetchone()
+        calendar = conn.execute("""
+            SELECT DATE(timestamp) as date, mood FROM mood_logs
+            WHERE user_id=? AND timestamp >= DATE('now','-28 days')
+            GROUP BY DATE(timestamp) ORDER BY date ASC
+        """, (uid,)).fetchall()
+        recent = conn.execute("""
+            SELECT mood, timestamp FROM mood_logs
+            WHERE user_id=? ORDER BY timestamp DESC LIMIT 5
+        """, (uid,)).fetchall()
+
+    top_mood     = top["mood"]                             if top else None
+    top_mood_pct = round((top["cnt"] / mood_count) * 100) if top and mood_count else 0
+
+    return jsonify({
+        "username":      user["username"],
+        "email":         user["email"],
+        "member_since":  (user["created_at"] or "")[:10],
+        "mood_count":    mood_count,
+        "journal_count": journal_count,
+        "task_count":    task_count,
+        "days_active":   days_active,
+        "top_mood":      top_mood,
+        "top_mood_pct":  top_mood_pct,
+        "calendar":      [{"date": r["date"], "mood": r["mood"]} for r in calendar],
+        "recent_moods":  [{"mood": r["mood"], "time": r["timestamp"]} for r in recent],
+    })
 
 
 if __name__ == "__main__":

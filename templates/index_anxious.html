@@ -400,6 +400,74 @@
             color: #555;
         }
 
+
+        /* ── EXERCISE SECTION ── */
+        .exercise-section {
+            padding: 50px 0 20px;
+            background: rgba(0,0,0,0.03);
+        }
+        .exercise-title {
+            text-align: center;
+            margin-bottom: 8px;
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--mood-dark);
+        }
+        .exercise-subtitle {
+            text-align: center;
+            color: #888;
+            font-size: 0.88rem;
+            margin-bottom: 36px;
+        }
+        .exercise-card {
+            background: white;
+            border-radius: 18px;
+            padding: 22px;
+            height: 100%;
+            border: 1.5px solid var(--mood-border);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .exercise-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--mood-hero-from), var(--mood-hero-to));
+        }
+        .exercise-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 14px 36px rgba(0,0,0,0.1);
+            border-color: var(--mood-primary);
+        }
+        .ex-icon {
+            font-size: 2rem;
+            display: block;
+            margin-bottom: 10px;
+        }
+        .ex-title {
+            font-weight: 800;
+            font-size: 0.95rem;
+            color: var(--mood-dark);
+            margin-bottom: 8px;
+        }
+        .ex-desc {
+            font-size: 0.8rem;
+            color: #666;
+            line-height: 1.6;
+        }
+        .exercise-card .step-badge {
+            display: inline-block;
+            background: var(--mood-light);
+            color: var(--mood-secondary);
+            border-radius: 20px;
+            padding: 3px 10px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
         /* ── FOOTER ── */
         footer {
             background: var(--mood-footer-bg);
@@ -414,6 +482,79 @@
 
 <!-- Account Panel Overlay -->
 <div class="panel-overlay" id="panelOverlay" onclick="closePanel()"></div>
+
+<!-- Account Panel -->
+<div class="account-panel" id="accountPanel">
+    <div class="panel-header">
+        <button class="panel-close" onclick="closePanel()"><i class="fas fa-times"></i></button>
+        <div class="panel-avatar" id="panelAvatar">👤</div>
+        <div class="panel-username" id="panelUsername">Loading...</div>
+        <div class="panel-email"    id="panelEmail">—</div>
+        <div style="font-size:0.72rem;opacity:0.65;margin-top:4px">Member since <span id="panelSince">—</span></div>
+    </div>
+
+    <div class="panel-body">
+
+        <!-- Stats — 4 boxes -->
+        <div class="panel-section-title">Your Progress</div>
+        <div class="stats-row" style="grid-template-columns:repeat(4,1fr)">
+            <div class="stat-box">
+                <div class="num" id="statMoods">—</div>
+                <div class="lbl">Moods</div>
+            </div>
+            <div class="stat-box">
+                <div class="num" id="statJournals">—</div>
+                <div class="lbl">Journals</div>
+            </div>
+            <div class="stat-box">
+                <div class="num" id="statTasks">—</div>
+                <div class="lbl">Tasks</div>
+            </div>
+            <div class="stat-box">
+                <div class="num" id="statDays">—</div>
+                <div class="lbl">Days</div>
+            </div>
+        </div>
+
+        <!-- Top mood -->
+        <div class="panel-section-title">Top Mood Overall</div>
+        <div style="font-size:0.82rem;color:#555;margin-bottom:6px">
+            <span id="topMoodLabel">—</span>
+        </div>
+        <div class="progress-bar-mood">
+            <div class="progress-fill-mood" id="topMoodBar" style="width:0%"></div>
+        </div>
+
+        <!-- Recent moods -->
+        <div class="panel-section-title">Recent Activity</div>
+        <div id="recentMoods" style="margin-bottom:8px">
+            <div style="font-size:0.78rem;color:#bbb">Loading...</div>
+        </div>
+
+        <!-- Mood Calendar -->
+        <div class="panel-section-title">Mood Calendar (Last 28 Days)</div>
+        <div class="cal-label-row">
+            <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span>
+            <span>Thu</span><span>Fri</span><span>Sat</span>
+        </div>
+        <div class="mood-calendar" id="moodCalendar"></div>
+
+        <!-- Quick links -->
+        <div class="panel-section-title">Quick Links</div>
+        <a href="/history"   class="panel-nav-link"><i class="fas fa-chart-line"></i> Mood History</a>
+        <a href="/journal"   class="panel-nav-link"><i class="fas fa-book-open"></i> My Journal</a>
+        <a href="/todo"      class="panel-nav-link"><i class="fas fa-tasks"></i> My Tasks</a>
+        <a href="/tracker"   class="panel-nav-link"><i class="fas fa-sync-alt"></i> Change Mood</a>
+        <a href="/music"     class="panel-nav-link"><i class="fas fa-music"></i> Mood Music</a>
+        <a href="/ai_chat"   class="panel-nav-link"><i class="fas fa-robot"></i> Eva AI</a>
+    </div>
+
+    <div class="panel-logout">
+        <button class="btn-logout" onclick="window.location.href='/logout'">
+            <i class="fas fa-sign-out-alt me-2"></i> Log Out
+        </button>
+    </div>
+</div>
 
 <!-- Account Panel -->
 <div class="account-panel" id="accountPanel">
@@ -554,7 +695,67 @@
         </div>
 
     </div>
+
 </section>
+
+<!-- EXERCISE SECTION -->
+<section class="exercise-section">
+    <div class="container">
+        <div class="exercise-title">Calm Your Nervous System 💜</div>
+        <div class="exercise-subtitle">Grounding exercises to bring you back to the present moment</div>
+        <div class="row g-3">
+
+            <div class="col-md-4 col-sm-6 mb-4">
+                <div class="exercise-card">
+                    <span class="step-badge">Step 1</span>
+                    <span class="ex-icon">5️⃣</span>
+                    <div class="ex-title">5-4-3-2-1 Grounding</div>
+                    <div class="ex-desc">Name 5 things you SEE → 4 you can TOUCH → 3 you HEAR → 2 you SMELL → 1 you TASTE. This grounds you in the present and stops anxious future-thinking.</div>
+                </div>
+            </div>
+            <div class="col-md-4 col-sm-6 mb-4">
+                <div class="exercise-card">
+                    <span class="step-badge">Step 2</span>
+                    <span class="ex-icon">📦</span>
+                    <div class="ex-title">Box Breathing</div>
+                    <div class="ex-desc">Breathe IN 4 sec → HOLD 4 sec → OUT 4 sec → HOLD 4 sec. Used by Navy SEALs to calm under pressure. Do it 4 times.</div>
+                </div>
+            </div>
+            <div class="col-md-4 col-sm-6 mb-4">
+                <div class="exercise-card">
+                    <span class="step-badge">Step 3</span>
+                    <span class="ex-icon">🧊</span>
+                    <div class="ex-title">Body Scan</div>
+                    <div class="ex-desc">Close your eyes. Starting from your head, scan down your body noticing tension without judging it. Just observe — awareness reduces anxiety.</div>
+                </div>
+            </div>
+            <div class="col-md-4 col-sm-6 mb-4">
+                <div class="exercise-card">
+                    <span class="step-badge">Step 4</span>
+                    <span class="ex-icon">📝</span>
+                    <div class="ex-title">Worry List + Challenge</div>
+                    <div class="ex-desc">Write your top 3 worries. Next to each, write: 'Is this definitely true?' Most anxious thoughts don't survive this question.</div>
+                </div>
+            </div>
+            <div class="col-md-4 col-sm-6 mb-4">
+                <div class="exercise-card">
+                    <span class="step-badge">Step 5</span>
+                    <span class="ex-icon">🤲</span>
+                    <div class="ex-title">Hand on Heart</div>
+                    <div class="ex-desc">Place one hand on your chest. Feel your heartbeat. Say out loud: 'I am safe. This feeling will pass.' Say it 5 times slowly.</div>
+                </div>
+            </div>
+            <div class="col-md-4 col-sm-6 mb-4">
+                <div class="exercise-card">
+                    <span class="step-badge">Step 6</span>
+                    <span class="ex-icon">🌊</span>
+                    <div class="ex-title">Cold Splash Reset</div>
+                    <div class="ex-desc">Splash cold water on your face for 30 seconds. This triggers the mammalian dive reflex — a biological override that calms panic fast.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
 <footer>
     <div class="container text-center">
@@ -590,23 +791,48 @@ function closePanel() {
 async function loadAccountData() {
     try {
         const res  = await fetch('/account_data');
+        if (!res.ok) throw new Error('Not logged in');
         const data = await res.json();
 
-        document.getElementById('panelUsername').textContent = data.username  || '—';
-        document.getElementById('panelEmail').textContent    = data.email     || '—';
-        document.getElementById('statMoods').textContent     = data.mood_count   ?? '—';
+        const MOOD_EMOJI = {happy:'😊',sad:'😞',angry:'😡',anxious:'😰',calm:'😌',
+                            stressed:'😫',tired:'😴',Fear:'😨',swings:'🎢'};
+
+        document.getElementById('panelAvatar').textContent  = MOOD_EMOJI[data.top_mood] || '👤';
+        document.getElementById('panelUsername').textContent = data.username   || '—';
+        document.getElementById('panelEmail').textContent    = data.email      || '—';
+        document.getElementById('panelSince').textContent    = data.member_since || '—';
+        document.getElementById('statMoods').textContent     = data.mood_count    ?? '—';
         document.getElementById('statJournals').textContent  = data.journal_count ?? '—';
-        document.getElementById('statDays').textContent      = data.days_active  ?? '—';
+        document.getElementById('statTasks').textContent     = data.task_count    ?? '—';
+        document.getElementById('statDays').textContent      = data.days_active   ?? '—';
 
         if (data.top_mood) {
             document.getElementById('topMoodLabel').textContent =
-                `${data.top_mood} (${data.top_mood_pct}% of logs)`;
+                `${MOOD_EMOJI[data.top_mood]||''} ${data.top_mood} · ${data.top_mood_pct}% of all logs`;
             document.getElementById('topMoodBar').style.width = data.top_mood_pct + '%';
+        }
+
+        // Recent moods
+        const rec = document.getElementById('recentMoods');
+        if (data.recent_moods && data.recent_moods.length) {
+            rec.innerHTML = data.recent_moods.map(r => {
+                const emoji = MOOD_EMOJI[r.mood] || '●';
+                const time  = r.time ? r.time.slice(0,16).replace('T',' ') : '';
+                return `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f5f5f5;font-size:0.8rem">
+                    <span style="font-size:1rem">${emoji}</span>
+                    <div><div style="font-weight:700;color:#333">${r.mood.charAt(0).toUpperCase()+r.mood.slice(1)}</div>
+                    <div style="color:#aaa;font-size:0.7rem">${time}</div></div>
+                </div>`;
+            }).join('');
+        } else {
+            rec.innerHTML = '<div style="font-size:0.78rem;color:#bbb">No mood logs yet.</div>';
         }
 
         buildCalendar(data.calendar || []);
     } catch(e) {
         console.error('Account data error:', e);
+        document.getElementById('panelUsername').textContent = 'Error loading data';
+        document.getElementById('panelEmail').textContent    = 'Please refresh the page';
     }
 }
 

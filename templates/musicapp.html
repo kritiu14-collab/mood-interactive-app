@@ -307,13 +307,11 @@
         .volume-side { display: flex; align-items: center; gap: 8px; width: 160px; justify-content: flex-end; }
         .volume-side i { color: rgba(255,255,255,0.4); font-size: 0.9rem; }
         input[type=range] {
-            width: 80px; -webkit-appearance: none; height: 3px;
-            -webkit-appearance: none;
-            appearance: none;
+            width: 80px; -webkit-appearance: none; appearance: none; height: 3px;
             background: rgba(255,255,255,0.2); border-radius: 2px; cursor: pointer;
         }
         input[type=range]::-webkit-slider-thumb {
-            -webkit-appearance: none; width: 12px; height: 12px;
+            -webkit-appearance: none; appearance: none; width: 12px; height: 12px;
             background: white; border-radius: 50%;
         }
     </style>
@@ -342,6 +340,12 @@
     <div class="sidebar">
         <div class="sidebar-label">Your Mood</div>
         <div id="moodNav"></div>
+
+        <div class="sidebar-label" style="margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.06)">🎬 Bollywood</div>
+        <div id="bollyNav"></div>
+
+        <div class="sidebar-label" style="margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.06)">🎧 Playlists</div>
+        <div id="recNav"></div>
     </div>
 
     <!-- Content -->
@@ -577,6 +581,87 @@ const PLAYLISTS = {
               spotify: 'https://open.spotify.com/search/This%20Is%20Me%20Greatest%20Showman' },
         ]
     },
+
+    // ── BOLLYWOOD MOODS ──
+    bollywood_happy: {
+        label: '🎉 Bollywood Happy', emoji: '🎉',
+        spotifyPlaylist: 'https://open.spotify.com/playlist/37i9dQZF1DX0XUsuxWHRQd',
+        playlistName: 'Bollywood Happy Hits',
+        description: 'Party karo! Upbeat Bollywood tracks for your happy mood',
+        songs: [
+            { title: 'Badtameez Dil', artist: 'Pritam, Benny Dayal', emoji: '💃', src: null,
+              spotify: 'https://open.spotify.com/search/Badtameez%20Dil%20Yeh%20Jawaani' },
+            { title: 'Gallan Goodiyaan', artist: 'Dil Dhadakne Do', emoji: '🥳', src: null,
+              spotify: 'https://open.spotify.com/search/Gallan%20Goodiyaan%20Dil%20Dhadakne%20Do' },
+            { title: 'Zindagi Na Milegi Dobara', artist: 'Shankar Ehsaan Loy', emoji: '🌟', src: null,
+              spotify: 'https://open.spotify.com/search/Senorita%20Zindagi%20Na%20Milegi%20Dobara' },
+            { title: 'Kar Gayi Chull', artist: 'Kapoor & Sons', emoji: '🎊', src: null,
+              spotify: 'https://open.spotify.com/search/Kar%20Gayi%20Chull%20Kapoor%20Sons' },
+            { title: 'London Thumakda', artist: 'Queen', emoji: '🎶', src: null,
+              spotify: 'https://open.spotify.com/search/London%20Thumakda%20Queen' },
+            { title: 'Cutiepie', artist: 'Ae Dil Hai Mushkil', emoji: '✨', src: null,
+              spotify: 'https://open.spotify.com/search/Cutiepie%20Ae%20Dil%20Hai%20Mushkil' },
+        ]
+    },
+
+    bollywood_sad: {
+        label: '💙 Bollywood Sad', emoji: '💙',
+        spotifyPlaylist: 'https://open.spotify.com/playlist/37i9dQZF1DX3YSRoSdA634',
+        playlistName: 'Bollywood Dard',
+        description: 'Dil ko sukoon de — emotional Bollywood for your heavy heart',
+        songs: [
+            { title: 'Channa Mereya', artist: 'Arijit Singh', emoji: '💔', src: null,
+              spotify: 'https://open.spotify.com/search/Channa%20Mereya%20Arijit%20Singh' },
+            { title: 'Tum Hi Ho', artist: 'Arijit Singh', emoji: '🌧️', src: null,
+              spotify: 'https://open.spotify.com/search/Tum%20Hi%20Ho%20Arijit%20Singh%20Aashiqui' },
+            { title: 'Agar Tum Saath Ho', artist: 'Alka Yagnik, Arijit Singh', emoji: '🌊', src: null,
+              spotify: 'https://open.spotify.com/search/Agar%20Tum%20Saath%20Ho%20Tamasha' },
+            { title: 'Kabhi Alvida Naa Kehna', artist: 'Sonu Nigam', emoji: '😢', src: null,
+              spotify: 'https://open.spotify.com/search/Kabhi%20Alvida%20Naa%20Kehna%20title%20song' },
+            { title: 'Phir Bhi Tumko Chahunga', artist: 'Arijit Singh', emoji: '🌙', src: null,
+              spotify: 'https://open.spotify.com/search/Phir%20Bhi%20Tumko%20Chahunga%20Half%20Girlfriend' },
+            { title: 'Ae Dil Hai Mushkil', artist: 'Arijit Singh', emoji: '🍂', src: null,
+              spotify: 'https://open.spotify.com/search/Ae%20Dil%20Hai%20Mushkil%20title%20Arijit' },
+        ]
+    },
+
+    bollywood_calm: {
+        label: '🌸 Bollywood Calm', emoji: '🌸',
+        spotifyPlaylist: 'https://open.spotify.com/playlist/37i9dQZF1DWZqd5JICZI0u',
+        playlistName: 'Bollywood Sukon',
+        description: 'Peaceful Hindi melodies to calm your soul',
+        songs: [
+            { title: 'Iktara', artist: 'Wake Up Sid', emoji: '🎵', src: null,
+              spotify: 'https://open.spotify.com/search/Iktara%20Wake%20Up%20Sid' },
+            { title: 'Kun Faya Kun', artist: 'A.R. Rahman', emoji: '☮️', src: null,
+              spotify: 'https://open.spotify.com/search/Kun%20Faya%20Kun%20AR%20Rahman%20Rockstar' },
+            { title: 'Tu Jaane Na', artist: 'Atif Aslam', emoji: '🌿', src: null,
+              spotify: 'https://open.spotify.com/search/Tu%20Jaane%20Na%20Atif%20Aslam%20Ajab%20Prem' },
+            { title: 'Kehna Hi Kya', artist: 'A.R. Rahman', emoji: '🌾', src: null,
+              spotify: 'https://open.spotify.com/search/Kehna%20Hi%20Kya%20AR%20Rahman%20Bombay' },
+            { title: 'Tere Bina', artist: 'Guru', emoji: '🕊️', src: null,
+              spotify: 'https://open.spotify.com/search/Tere%20Bina%20Guru%20AR%20Rahman' },
+        ]
+    },
+
+    bollywood_motivated: {
+        label: '💪 Bollywood Motivation', emoji: '💪',
+        spotifyPlaylist: 'https://open.spotify.com/playlist/37i9dQZF1DX0XUsuxWHRQd',
+        playlistName: 'Bollywood Josh',
+        description: 'Josh aur jazba — Bollywood tracks to fire you up',
+        songs: [
+            { title: 'Kar Har Maidaan Fateh', artist: 'Sukhwinder Singh', emoji: '🏆', src: null,
+              spotify: 'https://open.spotify.com/search/Kar%20Har%20Maidaan%20Fateh%20Sanju' },
+            { title: 'Sultan Title Track', artist: 'Sukhwinder Singh', emoji: '🥊', src: null,
+              spotify: 'https://open.spotify.com/search/Sultan%20Title%20Track%20Sukhwinder%20Singh' },
+            { title: 'Jai Ho', artist: 'A.R. Rahman', emoji: '🌅', src: null,
+              spotify: 'https://open.spotify.com/search/Jai%20Ho%20AR%20Rahman%20Slumdog' },
+            { title: 'Dangal Title Song', artist: 'Daler Mehndi', emoji: '💥', src: null,
+              spotify: 'https://open.spotify.com/search/Dangal%20Title%20Song%20Daler%20Mehndi' },
+            { title: 'Ziddi Dil', artist: 'Vishal Dadlani', emoji: '⚡', src: null,
+              spotify: 'https://open.spotify.com/search/Ziddi%20Dil%20Mary%20Kom%20Vishal%20Dadlani' },
+        ]
+    },
 };
 
 // Get mood from Flask template variable
@@ -587,9 +672,9 @@ let currentSong  = null;
 let currentIndex = 0;
 const audio = document.getElementById('audioEl');
 
-// Build sidebar
+// Build mood sidebar
 const moodNav = document.getElementById('moodNav');
-Object.keys(PLAYLISTS).forEach(key => {
+Object.keys(PLAYLISTS).filter(k => !k.startsWith('bollywood')).forEach(key => {
     const p = PLAYLISTS[key];
     const btn = document.createElement('button');
     btn.className = 'mood-btn';
@@ -597,6 +682,41 @@ Object.keys(PLAYLISTS).forEach(key => {
     btn.innerHTML = `<span class="emoji">${p.emoji}</span> ${p.label.split(' ').slice(1).join(' ')}`;
     btn.onclick = () => loadMood(key);
     moodNav.appendChild(btn);
+});
+
+// Build Bollywood sidebar
+const bollyNav = document.getElementById('bollyNav');
+Object.keys(PLAYLISTS).filter(k => k.startsWith('bollywood')).forEach(key => {
+    const p = PLAYLISTS[key];
+    const btn = document.createElement('button');
+    btn.className = 'mood-btn';
+    btn.dataset.mood = key;
+    btn.innerHTML = `<span class="emoji">${p.emoji}</span> ${p.label.split(' ').slice(1).join(' ')}`;
+    btn.onclick = () => loadMood(key);
+    bollyNav.appendChild(btn);
+});
+
+// Recommended playlists
+const RECOMMENDED = [
+    { name: 'Top 50 India',     emoji: '🇮🇳', url: 'https://open.spotify.com/playlist/37i9dQZEVXbLZ52XmnySJg' },
+    { name: 'Bollywood Hits',   emoji: '🎬', url: 'https://open.spotify.com/playlist/37i9dQZF1DX0XUsuxWHRQd' },
+    { name: 'Arijit Singh Best',emoji: '🎤', url: 'https://open.spotify.com/search/Arijit%20Singh%20top%20songs' },
+    { name: 'Lo-Fi Study',      emoji: '📚', url: 'https://open.spotify.com/playlist/37i9dQZF1DWWQRwui0ExPn' },
+    { name: 'Feel Good Mix',    emoji: '☀️', url: 'https://open.spotify.com/playlist/37i9dQZF1DXdPec7aLTmlC' },
+    { name: 'Sad Songs Hindi',  emoji: '💙', url: 'https://open.spotify.com/playlist/37i9dQZF1DX3YSRoSdA634' },
+    { name: 'AR Rahman Hits',   emoji: '🎹', url: 'https://open.spotify.com/search/AR%20Rahman%20greatest%20hits' },
+    { name: 'Workout Beats',    emoji: '🏋️', url: 'https://open.spotify.com/playlist/37i9dQZF1DWZq91oLsHZvy' },
+];
+
+const recNav = document.getElementById('recNav');
+RECOMMENDED.forEach(r => {
+    const btn = document.createElement('a');
+    btn.href   = r.url;
+    btn.target = '_blank';
+    btn.className = 'mood-btn';
+    btn.style.textDecoration = 'none';
+    btn.innerHTML = `<span class="emoji">${r.emoji}</span> ${r.name}`;
+    recNav.appendChild(btn);
 });
 
 function loadMood(moodKey) {
