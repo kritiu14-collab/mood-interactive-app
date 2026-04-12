@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solace | Streak & Badges</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        *{box-sizing:border-box;margin:0;padding:0;}
+        body{font-family:'Nunito',sans-serif;background:#f4f1f8;color:#333;min-height:100vh;}
+        .topbar{background:#1e1235;padding:14px 32px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+        .brand{font-size:1.2rem;font-weight:800;color:#c4b5fd;text-decoration:none;}
+        .back-btn{background:rgba(196,181,253,0.15);color:#c4b5fd;border:1px solid rgba(196,181,253,0.25);border-radius:8px;padding:7px 14px;font-size:0.83rem;text-decoration:none;font-weight:600;}
+        .hero{background:linear-gradient(135deg,#7c3aed,#4f46e5);color:white;padding:40px 32px;text-align:center;}
+        .streak-circle{width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,0.15);border:4px solid rgba(255,255,255,0.4);display:flex;flex-direction:column;align-items:center;justify-content:center;margin:0 auto 20px;}
+        .streak-num{font-size:2.8rem;font-weight:800;line-height:1;}
+        .streak-lbl{font-size:0.72rem;opacity:0.8;text-transform:uppercase;letter-spacing:1px;}
+        .hero h1{font-size:1.5rem;font-weight:800;margin-bottom:6px;}
+        .stats-row{display:flex;justify-content:center;gap:32px;margin-top:22px;}
+        .stat-item .n{font-size:1.8rem;font-weight:800;}
+        .stat-item .l{font-size:0.7rem;opacity:0.7;text-transform:uppercase;letter-spacing:.5px;}
+        .new-toast{position:fixed;top:80px;right:20px;background:white;border-radius:16px;padding:18px 22px;box-shadow:0 8px 32px rgba(124,58,237,0.3);border-left:4px solid #7c3aed;z-index:9999;max-width:300px;display:none;animation:si 0.4s ease;}
+        @keyframes si{from{opacity:0;transform:translateX(100px);}to{opacity:1;transform:translateX(0);}}
+        .wrap{max-width:900px;margin:0 auto;padding:28px 20px 60px;}
+        .card{background:white;border-radius:18px;box-shadow:0 4px 16px rgba(0,0,0,0.06);padding:24px;margin-bottom:20px;}
+        .card-title{font-size:1rem;font-weight:800;color:#1e1235;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+        .progress-track{height:12px;background:#f0f0f0;border-radius:6px;overflow:hidden;margin-bottom:6px;}
+        .progress-fill{height:100%;border-radius:6px;background:linear-gradient(90deg,#7c3aed,#c4b5fd);transition:width 1s ease;}
+        .progress-labels{display:flex;justify-content:space-between;font-size:0.72rem;color:#aaa;}
+        .next-info{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
+        .next-emoji{font-size:2rem;}
+        .next-name{font-weight:800;font-size:0.95rem;color:#1e1235;}
+        .next-sub{font-size:0.76rem;color:#888;}
+        .badges-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px;}
+        .badge-card{background:white;border-radius:14px;padding:18px;box-shadow:0 2px 10px rgba(0,0,0,0.05);border:2px solid #f0f0f0;transition:all 0.3s;}
+        .badge-card.earned{border-color:#7c3aed;background:linear-gradient(135deg,#faf5ff,white);}
+        .badge-card.locked{opacity:0.5;filter:grayscale(0.7);}
+        .badge-emoji{font-size:2.2rem;margin-bottom:8px;display:block;}
+        .badge-name{font-weight:800;font-size:0.9rem;color:#1e1235;margin-bottom:3px;}
+        .badge-req{font-size:0.73rem;color:#888;margin-bottom:6px;}
+        .badge-quote{font-size:0.76rem;color:#5b21b6;font-style:italic;line-height:1.5;display:none;}
+        .badge-card.earned .badge-quote{display:block;}
+        .earned-pill{display:inline-block;background:#ede9fe;color:#5b21b6;padding:2px 9px;border-radius:10px;font-size:0.68rem;font-weight:700;margin-bottom:7px;}
+        .locked-pill{display:inline-block;background:#f3f4f6;color:#9ca3af;padding:2px 9px;border-radius:10px;font-size:0.68rem;font-weight:700;margin-bottom:7px;}
+        .badge-date{font-size:0.68rem;color:#aaa;margin-top:6px;}
+    </style>
+</head>
+<body>
+<div class="new-toast" id="toast">
+    <button onclick="this.parentElement.style.display='none'" style="position:absolute;top:8px;right:10px;background:none;border:none;color:#aaa;cursor:pointer;font-size:1rem">×</button>
+    <span id="tEmoji" style="font-size:2rem;display:block;margin-bottom:6px"></span>
+    <div style="font-weight:800;color:#1e1235;font-size:0.9rem">New Badge: <span id="tName"></span></div>
+    <div id="tQuote" style="font-size:0.78rem;color:#666;margin-top:4px;font-style:italic;line-height:1.5"></div>
+</div>
+<div class="topbar">
+    <a href="/dashboard" class="brand">✦ solace.</a>
+    <a href="/dashboard" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
+</div>
+<div class="hero">
+    <div class="streak-circle">
+        <div class="streak-num" id="sNum">—</div>
+        <div class="streak-lbl">Day Streak</div>
+    </div>
+    <h1>Your Consistency Journey</h1>
+    <p style="opacity:0.8;font-size:0.88rem">Every day you show up for yourself counts.</p>
+    <div class="stats-row">
+        <div class="stat-item"><div class="n" id="lNum">—</div><div class="l">Longest</div></div>
+        <div class="stat-item"><div class="n" id="tNum">—</div><div class="l">Total Logins</div></div>
+        <div class="stat-item"><div class="n" id="bNum">—</div><div class="l">Badges</div></div>
+    </div>
+</div>
+<div class="wrap">
+    <div class="card">
+        <div class="card-title"><i class="fas fa-bullseye" style="color:#7c3aed"></i> Progress to Next Badge</div>
+        <div class="next-info">
+            <span class="next-emoji" id="nEmoji">🎯</span>
+            <div><div class="next-name" id="nName">Loading...</div><div class="next-sub" id="nSub"></div></div>
+        </div>
+        <div class="progress-track"><div class="progress-fill" id="pFill" style="width:0%"></div></div>
+        <div class="progress-labels"><span id="pLeft">0 days</span><span id="pRight"></span></div>
+    </div>
+    <div class="card-title" style="margin-bottom:14px"><i class="fas fa-medal" style="color:#7c3aed"></i> All Badges</div>
+    <div class="badges-grid" id="bGrid"><div style="color:#aaa">Loading...</div></div>
+</div>
+<script>
+async function load(){
+    const d = await (await fetch('/streak_data')).json();
+    document.getElementById('sNum').textContent = d.current_streak;
+    document.getElementById('lNum').textContent = d.longest_streak;
+    document.getElementById('tNum').textContent = d.total_logins;
+    document.getElementById('bNum').textContent = d.badges.filter(b=>b.earned).length;
+    const next = d.badges.find(b=>!b.earned);
+    if(next){
+        document.getElementById('nEmoji').textContent = next.emoji;
+        document.getElementById('nName').textContent  = next.name;
+        document.getElementById('nSub').textContent   = next.streak+' day streak needed';
+        const pct = Math.min(100,(d.current_streak/next.streak)*100);
+        document.getElementById('pFill').style.width  = pct+'%';
+        document.getElementById('pLeft').textContent  = d.current_streak+' days';
+        document.getElementById('pRight').textContent = (next.streak-d.current_streak)+' days to go';
+    } else {
+        document.getElementById('nName').textContent  = '🏆 All badges earned!';
+        document.getElementById('pFill').style.width  = '100%';
+    }
+    const g = document.getElementById('bGrid'); g.innerHTML='';
+    d.badges.forEach(b=>{
+        const c=document.createElement('div');
+        c.className='badge-card '+(b.earned?'earned':'locked');
+        c.innerHTML=`<span class="badge-emoji">${b.emoji}</span>
+            <div class="${b.earned?'earned-pill':'locked-pill'}">${b.earned?'✅ Earned':'🔒 Locked'}</div>
+            <div class="badge-name">${b.name}</div>
+            <div class="badge-req">${b.streak} day streak</div>
+            ${b.earned?`<div class="badge-quote">"${b.quote}"</div>`:''}
+            ${b.earned&&b.earned_at?`<div class="badge-date">Earned ${b.earned_at.slice(0,10)}</div>`:''}`;
+        g.appendChild(c);
+    });
+    if(d.new_badges&&d.new_badges.length){
+        const nb=d.new_badges[0];
+        document.getElementById('tEmoji').textContent=nb.emoji;
+        document.getElementById('tName').textContent=nb.name;
+        document.getElementById('tQuote').textContent=nb.quote;
+        const t=document.getElementById('toast'); t.style.display='block';
+        setTimeout(()=>t.style.display='none',6000);
+    }
+}
+load();
+</script>
+</body>
+</html>

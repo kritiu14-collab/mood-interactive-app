@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solace | Feedback</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        *{box-sizing:border-box;margin:0;padding:0;}
+        body{font-family:'Nunito',sans-serif;background:#f4f1f8;color:#333;min-height:100vh;}
+        .topbar{background:#1e1235;padding:14px 32px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+        .brand{font-size:1.2rem;font-weight:800;color:#c4b5fd;text-decoration:none;}
+        .back-btn{background:rgba(196,181,253,0.15);color:#c4b5fd;border:1px solid rgba(196,181,253,0.25);border-radius:8px;padding:7px 14px;font-size:0.83rem;text-decoration:none;font-weight:600;}
+        .hero{background:linear-gradient(135deg,#7c3aed,#4f46e5);color:white;padding:40px 32px;text-align:center;}
+        .hero h1{font-size:1.7rem;font-weight:800;margin-bottom:8px;}
+        .hero p{opacity:0.85;font-size:0.9rem;max-width:500px;margin:0 auto;}
+        .wrap{max-width:680px;margin:0 auto;padding:32px 20px 60px;}
+        .card{background:white;border-radius:18px;box-shadow:0 4px 16px rgba(0,0,0,0.06);padding:30px;}
+        .flash{background:#d1fae5;border-left:4px solid #10b981;padding:12px 18px;border-radius:10px;margin-bottom:20px;font-size:0.86rem;font-weight:600;color:#065f46;}
+        .field{margin-bottom:22px;}
+        .field label{display:block;font-size:0.78rem;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;}
+        .star-row{display:flex;gap:8px;}
+        .star-btn{font-size:2rem;background:none;border:none;cursor:pointer;transition:transform 0.1s;color:#d1d5db;}
+        .star-btn.active{color:#FFD700;}
+        .star-btn:hover{transform:scale(1.15);}
+        .pill-row{display:flex;flex-wrap:wrap;gap:8px;}
+        .pill-btn{padding:8px 16px;border-radius:20px;border:1.5px solid #e5e7eb;background:white;font-family:'Nunito',sans-serif;font-size:0.82rem;font-weight:700;cursor:pointer;color:#555;transition:all 0.2s;}
+        .pill-btn:hover{border-color:#7c3aed;color:#7c3aed;}
+        .pill-btn.selected{background:#7c3aed;color:white;border-color:#7c3aed;}
+        textarea{width:100%;padding:12px 14px;border:1.5px solid #e5e7eb;border-radius:12px;font-family:'Nunito',sans-serif;font-size:0.9rem;resize:vertical;min-height:120px;transition:border-color 0.2s;}
+        textarea:focus{outline:none;border-color:#7c3aed;}
+        .char-lbl{text-align:right;font-size:0.72rem;color:#aaa;margin-top:4px;}
+        .btn-submit{width:100%;padding:14px;background:linear-gradient(135deg,#7c3aed,#4f46e5);color:white;border:none;border-radius:12px;font-family:'Nunito',sans-serif;font-weight:800;font-size:0.95rem;cursor:pointer;transition:opacity 0.2s;margin-top:6px;}
+        .btn-submit:hover{opacity:0.88;}
+    </style>
+</head>
+<body>
+<div class="topbar">
+    <a href="/dashboard" class="brand">✦ solace.</a>
+    <a href="/dashboard" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
+</div>
+<div class="hero">
+    <h1>💙 Share Your Feedback</h1>
+    <p>Help us make Solace better. Your honest thoughts mean everything to us, {{ username }}.</p>
+</div>
+<div class="wrap">
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}{% for m in messages %}<div class="flash">{{ m }}</div>{% endfor %}{% endif %}
+    {% endwith %}
+    <div class="card">
+        <form method="POST" action="/submit_feedback">
+            <div class="field">
+                <label>How would you rate Solace?</label>
+                <div class="star-row">
+                    {% for i in range(1,6) %}
+                    <button type="button" class="star-btn" data-val="{{ i }}" onclick="setRating({{ i }})">★</button>
+                    {% endfor %}
+                </div>
+                <input type="hidden" name="rating" id="ratingInput" value="5">
+            </div>
+            <div class="field">
+                <label>What is your feedback about?</label>
+                <div class="pill-row">
+                    {% for cat in ['General','Eva AI','Mood Tracking','Community','Exercises','Design','Bug Report','Suggestion'] %}
+                    <button type="button" class="pill-btn {{ 'selected' if loop.first }}" onclick="setCat(this,'{{ cat }}')">{{ cat }}</button>
+                    {% endfor %}
+                </div>
+                <input type="hidden" name="category" id="categoryInput" value="General">
+            </div>
+            <div class="field">
+                <label>Your Feedback</label>
+                <textarea name="message" placeholder="Tell us what you love, what could be better, or anything on your mind..." oninput="document.getElementById('cLbl').textContent=this.value.length+' characters'" required></textarea>
+                <div class="char-lbl" id="cLbl">0 characters</div>
+            </div>
+            <button type="submit" class="btn-submit"><i class="fas fa-paper-plane"></i> Send Feedback</button>
+        </form>
+    </div>
+</div>
+<script>
+function setRating(v){
+    document.getElementById('ratingInput').value=v;
+    document.querySelectorAll('.star-btn').forEach((b,i)=>b.classList.toggle('active',i<v));
+}
+function setCat(btn,val){
+    document.querySelectorAll('.pill-btn').forEach(b=>b.classList.remove('selected'));
+    btn.classList.add('selected');
+    document.getElementById('categoryInput').value=val;
+}
+setRating(5);
+</script>
+</body>
+</html>

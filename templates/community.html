@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solace | Community</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Nunito', sans-serif; background: #f4f1f8; color: #333; min-height: 100vh; }
+
+        /* TOPBAR */
+        .topbar { background: #1e1235; padding: 14px 32px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; }
+        .brand  { font-size: 1.2rem; font-weight: 800; color: #c4b5fd; text-decoration: none; }
+        .tlinks { display: flex; gap: 6px; }
+        .tlinks a { color: rgba(255,255,255,0.55); text-decoration: none; font-size: 0.83rem; padding: 7px 14px; border-radius: 8px; transition: all 0.2s; }
+        .tlinks a:hover { background: rgba(255,255,255,0.08); color: white; }
+        .back-btn { background: rgba(196,181,253,0.15); color: #c4b5fd; border: 1px solid rgba(196,181,253,0.25); border-radius: 8px; padding: 7px 14px; font-size: 0.83rem; text-decoration: none; font-weight: 600; }
+
+        /* HERO */
+        .hero { background: linear-gradient(135deg, #7c3aed, #4f46e5); color: white; padding: 40px 32px; text-align: center; }
+        .hero h1 { font-size: 2rem; font-weight: 800; margin-bottom: 6px; }
+        .hero p  { opacity: 0.85; font-size: 0.92rem; max-width: 560px; margin: 0 auto 20px; line-height: 1.6; }
+
+        /* Animal badge */
+        .my-animal {
+            display: inline-flex; align-items: center; gap: 10px;
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 50px; padding: 8px 20px;
+            font-size: 0.88rem; font-weight: 700;
+        }
+        .my-animal .emoji { font-size: 1.4rem; }
+
+        /* LAYOUT */
+        .layout { display: grid; grid-template-columns: 260px 1fr; gap: 28px; max-width: 1400px; margin: 0 auto; padding: 28px 32px 60px; }
+        @media(max-width:768px) { .layout { grid-template-columns: 1fr; } }
+
+        /* SIDEBAR — Mood Rooms */
+        .sidebar-card { background: white; border-radius: 18px; box-shadow: 0 4px 16px rgba(0,0,0,0.06); overflow: hidden; }
+        .sidebar-title { padding: 16px 18px; font-weight: 800; font-size: 0.9rem; background: #f8f5ff; border-bottom: 1px solid #ede9fe; color: #5b21b6; }
+        .room-btn {
+            display: flex; align-items: center; gap: 10px;
+            padding: 12px 18px; text-decoration: none; color: #444;
+            font-size: 0.86rem; font-weight: 600; transition: all 0.15s;
+            border-bottom: 1px solid #f5f5f5;
+        }
+        .room-btn:hover { background: #f5f3ff; color: #7c3aed; }
+        .room-btn.active { background: #ede9fe; color: #7c3aed; border-left: 3px solid #7c3aed; }
+        .room-emoji { font-size: 1.1rem; }
+        .room-count { margin-left: auto; background: #e9d5ff; color: #7c3aed; border-radius: 12px; padding: 2px 8px; font-size: 0.7rem; font-weight: 800; }
+
+        /* POST FORM */
+        .post-form-card { background: white; border-radius: 18px; box-shadow: 0 4px 16px rgba(0,0,0,0.06); padding: 24px; margin-bottom: 22px; }
+        .form-header { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
+        .form-animal { font-size: 2rem; }
+        .form-label-block .name { font-weight: 800; font-size: 0.95rem; color: #1e1235; }
+        .form-label-block .sub  { font-size: 0.75rem; color: #aaa; }
+
+        .form-field { margin-bottom: 14px; }
+        .form-field label { display: block; font-size: 0.78rem; font-weight: 700; color: #666; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .form-field input, .form-field textarea, .form-field select {
+            width: 100%; padding: 10px 14px; border: 1.5px solid #e5e7eb;
+            border-radius: 10px; font-family: 'Nunito', sans-serif; font-size: 0.9rem;
+            transition: border-color 0.2s;
+        }
+        .form-field input:focus, .form-field textarea:focus, .form-field select:focus {
+            outline: none; border-color: #7c3aed;
+        }
+        .form-field textarea { resize: vertical; min-height: 100px; }
+        .char-count { font-size: 0.72rem; color: #aaa; text-align: right; margin-top: 4px; }
+
+        .guideline-box {
+            background: #f5f3ff; border-left: 3px solid #7c3aed;
+            border-radius: 0 10px 10px 0; padding: 10px 14px;
+            font-size: 0.78rem; color: #5b21b6; margin-bottom: 14px; line-height: 1.6;
+        }
+
+        .btn-submit {
+            width: 100%; padding: 12px; background: linear-gradient(135deg, #7c3aed, #4f46e5);
+            color: white; border: none; border-radius: 10px; font-family: 'Nunito', sans-serif;
+            font-weight: 800; font-size: 0.9rem; cursor: pointer; transition: opacity 0.2s;
+        }
+        .btn-submit:hover { opacity: 0.88; }
+
+        /* FLASH */
+        .flash { background: #d1fae5; border-left: 4px solid #10b981; padding: 12px 18px; border-radius: 10px; margin-bottom: 18px; font-size: 0.86rem; font-weight: 600; color: #065f46; }
+        .flash.warn { background: #fef3c7; border-color: #f59e0b; color: #92400e; }
+
+        /* POSTS FEED */
+        .room-header { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
+        .room-header .emoji-big { font-size: 2rem; }
+        .room-header h2 { font-size: 1.2rem; font-weight: 800; color: #1e1235; }
+        .room-header p  { font-size: 0.8rem; color: #888; margin-top: 2px; }
+
+        .story-card {
+            background: white; border-radius: 18px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+            padding: 22px 24px; margin-bottom: 16px;
+            border-left: 4px solid var(--room-color, #7c3aed);
+            transition: transform 0.2s;
+        }
+        .story-card:hover { transform: translateY(-2px); }
+
+        .story-header { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+        .story-animal-badge {
+            width: 46px; height: 46px; border-radius: 50%;
+            background: #f5f3ff; border: 2px solid #ede9fe;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem; flex-shrink: 0;
+        }
+        .story-meta { flex: 1; }
+        .story-animal-name { font-weight: 800; font-size: 0.92rem; color: #1e1235; }
+        .story-room-badge {
+            display: inline-block; padding: 2px 10px; border-radius: 12px;
+            font-size: 0.7rem; font-weight: 700; margin-left: 6px;
+            background: #ede9fe; color: #5b21b6;
+        }
+        .story-time { font-size: 0.72rem; color: #aaa; margin-top: 2px; }
+
+        .story-title { font-size: 1rem; font-weight: 800; color: #1e1235; margin-bottom: 8px; }
+        .story-body  { font-size: 0.86rem; color: #555; line-height: 1.75; }
+        .story-body.collapsed { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+
+        .story-footer { display: flex; align-items: center; gap: 14px; margin-top: 14px; padding-top: 12px; border-top: 1px solid #f5f5f5; }
+        .like-btn {
+            display: flex; align-items: center; gap: 6px;
+            background: none; border: 1.5px solid #e5e7eb;
+            border-radius: 20px; padding: 5px 14px;
+            font-family: 'Nunito', sans-serif; font-size: 0.82rem;
+            font-weight: 700; cursor: pointer; transition: all 0.2s; color: #666;
+        }
+        .like-btn:hover { border-color: #ef4444; color: #ef4444; }
+        .like-btn.liked { background: #fef2f2; border-color: #ef4444; color: #ef4444; }
+        .read-more-btn { background: none; border: none; color: #7c3aed; font-size: 0.8rem; font-weight: 700; cursor: pointer; padding: 0; font-family: 'Nunito', sans-serif; }
+
+        .empty-state { text-align: center; padding: 60px 20px; color: #aaa; }
+        .empty-state .icon { font-size: 3rem; margin-bottom: 14px; display: block; }
+        .empty-state p { font-size: 0.9rem; }
+
+        /* Pending badge for own posts */
+        .pending-notice { background: #fef3c7; color: #92400e; font-size: 0.72rem; font-weight: 700; padding: 3px 10px; border-radius: 12px; }
+    </style>
+</head>
+<body>
+
+<div class="topbar">
+    <a href="/dashboard" class="brand">✦ solace.</a>
+    <div class="tlinks">
+        <a href="/ai_chat"><i class="fas fa-robot"></i> Eva AI</a>
+        <a href="/tracker"><i class="fas fa-sync-alt"></i> Mood</a>
+        <a href="/journal"><i class="fas fa-book"></i> Journal</a>
+    </div>
+    <a href="/dashboard" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+    <h1>🌿 Solace Community</h1>
+    <p>A safe space to share your story anonymously. Every post is reviewed by our admin before publishing. Only positive, uplifting experiences — how you found your way back.</p>
+    <div class="my-animal">
+        <span class="emoji">{{ animal_emoji }}</span>
+        <span>You are the <strong>{{ animal_name }}</strong> in this community</span>
+    </div>
+</div>
+
+<div class="layout">
+
+    <!-- LEFT: Mood Rooms sidebar -->
+    <div>
+        <div class="sidebar-card">
+            <div class="sidebar-title">🏠 Mood Rooms</div>
+            <a href="/community?room=general" class="room-btn {{ 'active' if current_room == 'general' }}">
+                <span class="room-emoji">🌟</span> All Stories
+            </a>
+            {% for key, room in rooms.items() %}
+            {% if key != 'general' %}
+            <a href="/community?room={{ key }}" class="room-btn {{ 'active' if current_room == key }}">
+                <span class="room-emoji">{{ room.emoji }}</span>
+                {{ room.label }}
+            </a>
+            {% endif %}
+            {% endfor %}
+        </div>
+
+        <!-- Community rules -->
+        <div style="background:white;border-radius:18px;padding:20px;margin-top:16px;box-shadow:0 4px 16px rgba(0,0,0,0.06)">
+            <div style="font-weight:800;font-size:0.88rem;color:#1e1235;margin-bottom:10px">📋 Community Rules</div>
+            <div style="font-size:0.78rem;color:#666;line-height:1.8">
+                ✅ Share <strong>positive</strong> recovery stories only<br>
+                ✅ Your animal identity is <strong>anonymous</strong><br>
+                ✅ Be kind and supportive<br>
+                ✅ No personal info or real names<br>
+                ✅ Posts reviewed before publishing<br>
+                ❌ No negativity or harmful content
+            </div>
+        </div>
+    </div>
+
+    <!-- RIGHT: Posts + Form -->
+    <div>
+
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for m in messages %}
+                <div class="flash">{{ m }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- Room header -->
+        {% set room_info = rooms[current_room] %}
+        <div class="room-header">
+            <span class="emoji-big">{{ room_info.emoji }}</span>
+            <div>
+                <h2>{{ room_info.label }}</h2>
+                <p>Share your story of how you found your way back from a difficult place</p>
+            </div>
+        </div>
+
+        <!-- POST FORM -->
+        <div class="post-form-card">
+            <div class="form-header">
+                <div class="form-animal">{{ animal_emoji }}</div>
+                <div class="form-label-block">
+                    <div class="name">Share as {{ animal_name }}</div>
+                    <div class="sub">Your identity stays anonymous — only your animal shows</div>
+                </div>
+            </div>
+
+            <div class="guideline-box">
+                💡 Share a <strong>positive experience</strong> — how you brought yourself back from a difficult emotional place. Your story could help someone else find their way. Posts are reviewed by admin before going live.
+            </div>
+
+            <form method="POST" action="/community/post">
+                <input type="hidden" name="mood_room" value="{{ current_room }}">
+
+                <div class="form-field">
+                    <label>Your Story Title</label>
+                    <input type="text" name="title" placeholder="e.g. How I found calm after my worst anxiety attack" required maxlength="100">
+                </div>
+
+                <div class="form-field">
+                    <label>Your Story <span style="color:#aaa;font-weight:400">(min. 50 characters)</span></label>
+                    <textarea name="story" id="storyText" placeholder="Share what happened, how you felt, and what helped you find your way back. Be as open as you feel comfortable..." required oninput="updateCount(this)"></textarea>
+                    <div class="char-count" id="charCount">0 characters</div>
+                </div>
+
+                <button type="submit" class="btn-submit">
+                    <i class="fas fa-paper-plane me-2"></i> Submit for Review
+                </button>
+            </form>
+        </div>
+
+        <!-- STORIES FEED -->
+        {% if posts %}
+            {% for post in posts %}
+            <div class="story-card" style="--room-color: {{ rooms.get(post.mood_room, rooms['general']).color }}">
+                <div class="story-header">
+                    <div class="story-animal-badge">{{ post.animal_emoji }}</div>
+                    <div class="story-meta">
+                        <div>
+                            <span class="story-animal-name">{{ post.animal_name }}</span>
+                            <span class="story-room-badge">{{ rooms.get(post.mood_room, rooms['general']).emoji }} {{ rooms.get(post.mood_room, rooms['general']).label }}</span>
+                        </div>
+                        <div class="story-time"><i class="far fa-clock"></i> {{ post.created_at[:16] }}</div>
+                    </div>
+                </div>
+
+                <div class="story-title">{{ post.title }}</div>
+                <div class="story-body collapsed" id="body-{{ post.id }}">{{ post.story }}</div>
+
+                <div class="story-footer">
+                    <form onsubmit="likePost(event, {{ post.id }})">
+                        <button type="submit" class="like-btn {{ 'liked' if post.id in liked_ids }}" id="like-btn-{{ post.id }}">
+                            <i class="fas fa-heart"></i>
+                            <span id="like-count-{{ post.id }}">{{ post.likes }}</span>
+                        </button>
+                    </form>
+                    <button class="read-more-btn" onclick="toggleRead({{ post.id }}, this)">Read more</button>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state">
+                <span class="icon">🌱</span>
+                <p>No stories here yet. Be the first to share your experience in this room!</p>
+            </div>
+        {% endif %}
+
+    </div>
+</div>
+
+<script>
+function updateCount(el) {
+    document.getElementById('charCount').textContent = el.value.length + ' characters';
+}
+
+function toggleRead(id, btn) {
+    const body = document.getElementById('body-' + id);
+    if (body.classList.contains('collapsed')) {
+        body.classList.remove('collapsed');
+        btn.textContent = 'Show less';
+    } else {
+        body.classList.add('collapsed');
+        btn.textContent = 'Read more';
+    }
+}
+
+async function likePost(e, postId) {
+    e.preventDefault();
+    const res  = await fetch('/community/like/' + postId, { method: 'POST' });
+    const data = await res.json();
+    const btn   = document.getElementById('like-btn-' + postId);
+    const count = document.getElementById('like-count-' + postId);
+    btn.classList.toggle('liked', data.liked);
+    count.textContent = parseInt(count.textContent) + (data.liked ? 1 : -1);
+}
+</script>
+</body>
+</html>

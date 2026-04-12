@@ -101,6 +101,54 @@ def init_db() -> None:
                 published  INTEGER DEFAULT 1,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP
             );
+            CREATE TABLE IF NOT EXISTS login_streaks (
+                id            INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id       INTEGER UNIQUE REFERENCES users(id),
+                current_streak INTEGER DEFAULT 0,
+                longest_streak INTEGER DEFAULT 0,
+                last_login_date TEXT,
+                total_logins   INTEGER DEFAULT 0
+            );
+
+            CREATE TABLE IF NOT EXISTS badges (
+                id         INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id    INTEGER REFERENCES users(id),
+                badge_key  TEXT NOT NULL,
+                badge_name TEXT NOT NULL,
+                badge_emoji TEXT NOT NULL,
+                earned_at  DATETIME DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE(user_id, badge_key)
+            );
+
+            CREATE TABLE IF NOT EXISTS feedback (
+                id         INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id    INTEGER REFERENCES users(id),
+                rating     INTEGER,
+                category   TEXT,
+                message    TEXT,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            );
+
+
+                id           INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id      INTEGER REFERENCES users(id),
+                mood_room    TEXT NOT NULL,
+                title        TEXT NOT NULL,
+                story        TEXT NOT NULL,
+                animal_name  TEXT NOT NULL,
+                animal_emoji TEXT NOT NULL,
+                status       TEXT DEFAULT 'pending',
+                likes        INTEGER DEFAULT 0,
+                created_at   DATETIME DEFAULT CURRENT_TIMESTAMP
+            );
+
+            CREATE TABLE IF NOT EXISTS community_likes (
+                id       INTEGER PRIMARY KEY AUTOINCREMENT,
+                post_id  INTEGER REFERENCES community_posts(id),
+                user_id  INTEGER REFERENCES users(id),
+                UNIQUE(post_id, user_id)
+            );
+
             CREATE TABLE IF NOT EXISTS admin_tasks (
                 id          INTEGER PRIMARY KEY AUTOINCREMENT,
                 title       TEXT NOT NULL,
@@ -227,6 +275,15 @@ def login() -> Any:
     session["user_id"]  = user["id"]
     session["username"] = user["username"]
     session["is_admin"] = bool(user["is_admin"])
+
+    # Update login streak
+    if not user["is_admin"]:
+        streak_info = update_login_streak(user["id"])
+        session["streak"]      = streak_info["current_streak"]
+        session["new_badges"]  = streak_info["new_badges"]
+    else:
+        session["streak"]     = 0
+        session["new_badges"] = []
 
     if user["is_admin"] and role == "admin":
         return jsonify({"redirect": url_for("admin_dashboard")}), 200
@@ -592,11 +649,512 @@ def exercises_page() -> Any:
 # ADMIN ROUTES — Admin only sees user data, no mood/task selection for admin
 # ---------------------------------------------------------------------------
 
-@app.route("/exercises")
+
+# ---------------------------------------------------------------------------
+# Streak & Badge System
+# ---------------------------------------------------------------------------
+
+BADGES = [
+    {"key": "first_login",    "name": "First Step",      "emoji": "🌱", "streak": 1,   "quote": "Every journey begins with a single step. Welcome to Solace!"},
+    {"key": "week_warrior",   "name": "Week Warrior",    "emoji": "⭐", "streak": 7,   "quote": "7 days of showing up for yourself. That's not small — that's everything."},
+    {"key": "fortnight",      "name": "Fortnight Focus", "emoji": "🌙", "streak": 14,  "quote": "Two weeks of consistency. Your mind is learning a new rhythm."},
+    {"key": "month_master",   "name": "Month Master",    "emoji": "🏆", "streak": 30,  "quote": "30 days. You have proven to yourself that you can build something lasting. You are stronger than you think."},
+    {"key": "two_months",     "name": "Resilient Soul",  "emoji": "💎", "streak": 60,  "quote": "Two months of choosing yourself every day. This is what transformation looks like — quiet, consistent, and deeply real."},
+    {"key": "hundred_days",   "name": "Century Legend",  "emoji": "🔥", "streak": 100, "quote": "100 days. You are no longer just surviving — you are building a life that feels like yours. This is rare. This is extraordinary."},
+]
+
+
+def update_login_streak(user_id: int) -> dict:
+    """Update streak on login and award badges. Returns streak info + new badges."""
+    today = datetime.now().strftime("%Y-%m-%d")
+    new_badges: list = []
+
+    with get_db() as conn:
+        row = conn.execute(
+            "SELECT * FROM login_streaks WHERE user_id=?", (user_id,)
+        ).fetchone()
+
+        if not row:
+            # First ever login
+            conn.execute("""
+                INSERT INTO login_streaks (user_id, current_streak, longest_streak, last_login_date, total_logins)
+                VALUES (?,1,1,?,1)
+            """, (user_id, today))
+            current_streak = 1
+            total_logins   = 1
+        else:
+            last_date = row["last_login_date"]
+            current   = row["current_streak"]
+            longest   = row["longest_streak"]
+            total     = row["total_logins"]
+
+            if last_date == today:
+                # Already logged in today — no change
+                return {
+                    "current_streak": current,
+                    "longest_streak": longest,
+                    "total_logins":   total,
+                    "new_badges":     [],
+                }
+
+            yesterday = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
+            if last_date == yesterday:
+                current_streak = current + 1
+            else:
+                current_streak = 1  # streak broken
+
+            longest_streak = max(longest, current_streak)
+            total_logins   = total + 1
+
+            conn.execute("""
+                UPDATE login_streaks
+                SET current_streak=?, longest_streak=?, last_login_date=?, total_logins=?
+                WHERE user_id=?
+            """, (current_streak, longest_streak, today, total_logins, user_id))
+
+        # Check and award badges
+        for badge in BADGES:
+            if current_streak >= badge["streak"]:
+                existing = conn.execute(
+                    "SELECT id FROM badges WHERE user_id=? AND badge_key=?",
+                    (user_id, badge["key"])
+                ).fetchone()
+                if not existing:
+                    conn.execute("""
+                        INSERT INTO badges (user_id, badge_key, badge_name, badge_emoji)
+                        VALUES (?,?,?,?)
+                    """, (user_id, badge["key"], badge["name"], badge["emoji"]))
+                    new_badges.append({
+                        "key":   badge["key"],
+                        "name":  badge["name"],
+                        "emoji": badge["emoji"],
+                        "quote": badge["quote"],
+                    })
+
+    return {
+        "current_streak": current_streak,
+        "new_badges":     new_badges,
+    }
+
+
+@app.route("/streaks")
 @login_required
-def exercises() -> Any:
-    mood = session.get("current_mood", "")
-    return render_template("exercises.html", mood=mood, username=session["username"])
+def streaks_page() -> Any:
+    return render_template("streaks.html", username=session["username"])
+
+
+@app.route("/streak_data")
+@login_required
+def streak_data() -> Any:
+    uid = session["user_id"]
+    with get_db() as conn:
+        streak = conn.execute(
+            "SELECT * FROM login_streaks WHERE user_id=?", (uid,)
+        ).fetchone()
+        badges = conn.execute(
+            "SELECT * FROM badges WHERE user_id=? ORDER BY earned_at DESC", (uid,)
+        ).fetchall()
+
+    badge_keys = {b["badge_key"] for b in badges}
+    all_badges = []
+    for b in BADGES:
+        all_badges.append({
+            "key":     b["key"],
+            "name":    b["name"],
+            "emoji":   b["emoji"],
+            "quote":   b["quote"],
+            "streak":  b["streak"],
+            "earned":  b["key"] in badge_keys,
+            "earned_at": next((x["earned_at"] for x in badges if x["badge_key"] == b["key"]), None),
+        })
+
+    return jsonify({
+        "current_streak": streak["current_streak"] if streak else 0,
+        "longest_streak": streak["longest_streak"] if streak else 0,
+        "total_logins":   streak["total_logins"]   if streak else 0,
+        "badges":         all_badges,
+        "new_badges":     session.pop("new_badges", []),
+    })
+
+
+# ---------------------------------------------------------------------------
+# Results Page (only shown after 30+ days)
+# ---------------------------------------------------------------------------
+
+@app.route("/results")
+@login_required
+def results() -> Any:
+    uid = session["user_id"]
+    with get_db() as conn:
+        streak_row = conn.execute(
+            "SELECT * FROM login_streaks WHERE user_id=?", (uid,)
+        ).fetchone()
+        total_logins = streak_row["total_logins"] if streak_row else 0
+
+        mood_logs = conn.execute("""
+            SELECT mood, DATE(timestamp) as date, COUNT(*) as cnt
+            FROM mood_logs WHERE user_id=?
+            GROUP BY mood ORDER BY cnt DESC
+        """, (uid,)).fetchall()
+
+        journal_count = conn.execute(
+            "SELECT COUNT(*) FROM journals WHERE user_id=?", (uid,)
+        ).fetchone()[0]
+
+        task_done = conn.execute(
+            "SELECT COUNT(*) FROM tasks WHERE user_id=? AND status=1", (uid,)
+        ).fetchone()[0]
+
+        task_total = conn.execute(
+            "SELECT COUNT(*) FROM tasks WHERE user_id=?", (uid,)
+        ).fetchone()[0]
+
+        badges = conn.execute(
+            "SELECT * FROM badges WHERE user_id=? ORDER BY earned_at", (uid,)
+        ).fetchall()
+
+        # Mood over last 30 days
+        mood_trend = conn.execute("""
+            SELECT DATE(timestamp) as date, mood FROM mood_logs
+            WHERE user_id=? AND timestamp >= DATE('now','-30 days')
+            ORDER BY date ASC
+        """, (uid,)).fetchall()
+
+    unlocked = total_logins >= 30
+
+    # Build suggestions based on most frequent moods
+    top_moods = [r["mood"] for r in mood_logs[:3]]
+    suggestions = build_suggestions(top_moods, task_done, task_total, journal_count)
+
+    return render_template(
+        "results.html",
+        unlocked=unlocked,
+        total_logins=total_logins,
+        mood_logs=mood_logs,
+        journal_count=journal_count,
+        task_done=task_done,
+        task_total=task_total,
+        badges=[dict(b) for b in badges],
+        mood_trend=[dict(m) for m in mood_trend],
+        suggestions=suggestions,
+        username=session["username"],
+    )
+
+
+def build_suggestions(top_moods: list, task_done: int, task_total: int, journals: int) -> list:
+    """Generate personalised suggestions based on user history."""
+    suggestions = []
+    mood_advice = {
+        "sad":      ("💙", "Your data shows you have had many sad days. Try scheduling one joyful activity per day — even 10 minutes of something you love.", "/exercises"),
+        "anxious":  ("💜", "Anxiety appears frequently in your logs. Daily box breathing (4-4-4-4) has been shown to reduce anxiety by 40% over 30 days.", "/exercises"),
+        "angry":    ("❤️", "Anger has been a recurring theme. Consider a daily 5-minute walk before reacting to triggers — it interrupts the adrenaline cycle.", "/exercises"),
+        "stressed": ("🧡", "Stress is your most common mood. Try the Pomodoro technique and limit screen time after 9pm to improve your baseline stress level.", "/todo"),
+        "tired":    ("🩶", "You are often tired. Prioritise 7-8 hours of sleep and try the 'legs up the wall' pose for 5 minutes before bed.", "/exercises"),
+        "happy":    ("💛", "You have had many happy days! Keep journaling these moments — revisiting them on hard days is scientifically proven to lift mood.", "/journal"),
+        "calm":     ("💚", "Calm is your strength. You are building a healthy emotional baseline. Keep up your current routines — they are working.", "/history"),
+        "Fear":     ("💙", "Fear has shown up often. Practice 'name it to tame it' — labelling fear reduces its intensity by activating the rational brain.", "/exercises"),
+        "swings":   ("🌈", "Your moods vary widely. Tracking them daily (as you are doing) is the best first step. Consider adding a consistent morning ritual.", "/journal"),
+    }
+    for mood in top_moods:
+        if mood in mood_advice:
+            emoji, text, link = mood_advice[mood]
+            suggestions.append({"emoji": emoji, "text": text, "link": link, "mood": mood})
+
+    if task_total > 0 and (task_done / task_total) < 0.5:
+        suggestions.append({"emoji": "✅", "text": "You complete less than 50% of your tasks. Try setting just 1-2 tasks per day instead of many — small wins build momentum.", "link": "/todo", "mood": "tasks"})
+    if journals < 10:
+        suggestions.append({"emoji": "📖", "text": "You have journaled fewer than 10 times. Users who journal 3x per week report 25% lower stress levels after 30 days.", "link": "/journal", "mood": "journal"})
+
+    return suggestions[:5]
+
+
+# ---------------------------------------------------------------------------
+# Feedback
+# ---------------------------------------------------------------------------
+
+@app.route("/feedback")
+@login_required
+def feedback_page() -> Any:
+    return render_template("feedback.html", username=session["username"])
+
+
+@app.route("/submit_feedback", methods=["POST"])
+@login_required
+def submit_feedback() -> Any:
+    rating   = request.form.get("rating", "")
+    category = request.form.get("category", "")
+    message  = request.form.get("message", "").strip()
+
+    if not message:
+        flash("Please write your feedback before submitting.")
+        return redirect(url_for("feedback_page"))
+
+    with get_db() as conn:
+        conn.execute(
+            "INSERT INTO feedback (user_id, rating, category, message) VALUES (?,?,?,?)",
+            (session["user_id"], rating, category, message),
+        )
+    flash("Thank you for your feedback! It helps us make Solace better. 💙")
+    return redirect(url_for("feedback_page"))
+
+
+# ---------------------------------------------------------------------------
+# Static Pages
+# ---------------------------------------------------------------------------
+
+@app.route("/about")
+def about() -> Any:
+    return render_template("static_pages.html", page="about")
+
+@app.route("/contact")
+def contact() -> Any:
+    return render_template("static_pages.html", page="contact")
+
+@app.route("/disclaimer")
+def disclaimer() -> Any:
+    return render_template("static_pages.html", page="disclaimer")
+
+@app.route("/privacy")
+def privacy() -> Any:
+    return render_template("static_pages.html", page="privacy")
+
+@app.route("/terms")
+def terms() -> Any:
+    return render_template("static_pages.html", page="terms")
+
+
+# ---------------------------------------------------------------------------
+# Community — Animal Identity System
+# ---------------------------------------------------------------------------
+
+ANIMALS = [
+    # (name, emoji, traits) — assigned based on user data
+    ("Owl",        "🦉", "wise"),
+    ("Dolphin",    "🐬", "social"),
+    ("Fox",        "🦊", "resilient"),
+    ("Elephant",   "🐘", "empathetic"),
+    ("Butterfly",  "🦋", "transformative"),
+    ("Wolf",       "🐺", "strong"),
+    ("Deer",       "🦌", "gentle"),
+    ("Phoenix",    "🦅", "rising"),
+    ("Turtle",     "🐢", "steady"),
+    ("Panda",      "🐼", "calm"),
+    ("Lion",       "🦁", "brave"),
+    ("Penguin",    "🐧", "resilient"),
+    ("Rabbit",     "🐇", "hopeful"),
+    ("Bear",       "🐻", "grounding"),
+    ("Swan",       "🦢", "graceful"),
+    ("Tiger",      "🐯", "fierce"),
+    ("Koala",      "🐨", "soothing"),
+    ("Crow",       "🐦‍⬛", "perceptive"),
+]
+
+
+def get_user_animal(user_id: int) -> tuple[str, str]:
+    """Assign a consistent animal identity based on user_id + data."""
+    with get_db() as conn:
+        mood_count = conn.execute(
+            "SELECT COUNT(*) FROM mood_logs WHERE user_id=?", (user_id,)
+        ).fetchone()[0]
+        top_mood_row = conn.execute(
+            """SELECT mood FROM mood_logs WHERE user_id=?
+               GROUP BY mood ORDER BY COUNT(*) DESC LIMIT 1""", (user_id,)
+        ).fetchone()
+        journal_count = conn.execute(
+            "SELECT COUNT(*) FROM journals WHERE user_id=?", (user_id,)
+        ).fetchone()[0]
+
+    top_mood = top_mood_row["mood"] if top_mood_row else "calm"
+
+    # Deterministic index from user_id + mood data
+    seed = user_id * 7 + mood_count * 3 + journal_count * 2
+    # Mood-based nudge
+    mood_nudge = {
+        "happy": 0, "calm": 9, "sad": 6, "angry": 5,
+        "anxious": 2, "stressed": 11, "tired": 13,
+        "Fear": 10, "swings": 7,
+    }
+    seed += mood_nudge.get(top_mood, 0)
+    animal = ANIMALS[seed % len(ANIMALS)]
+    return animal[0], animal[1]
+
+
+MOOD_ROOMS = {
+    "happy":    {"label": "Joy Room",         "emoji": "😊", "color": "#FFD700", "bg": "#FFFDE7"},
+    "calm":     {"label": "Peace Corner",     "emoji": "😌", "color": "#66BB6A", "bg": "#F1F8E9"},
+    "sad":      {"label": "Healing Space",    "emoji": "😞", "color": "#4FC3F7", "bg": "#E1F5FE"},
+    "angry":    {"label": "Reset Room",       "emoji": "😡", "color": "#EF5350", "bg": "#FFF5F5"},
+    "anxious":  {"label": "Breathe Zone",     "emoji": "😰", "color": "#AB47BC", "bg": "#F3E5F5"},
+    "stressed": {"label": "Unwind Space",     "emoji": "😫", "color": "#FF7043", "bg": "#FBE9E7"},
+    "tired":    {"label": "Rest Nook",        "emoji": "😴", "color": "#90A4AE", "bg": "#ECEFF1"},
+    "Fear":     {"label": "Courage Circle",   "emoji": "😨", "color": "#5C6BC0", "bg": "#E8EAF6"},
+    "swings":   {"label": "Balance Board",    "emoji": "🎢", "color": "#FF7043", "bg": "#FFF3E0"},
+    "general":  {"label": "General Stories",  "emoji": "🌟", "color": "#7c3aed", "bg": "#F5F3FF"},
+}
+
+
+@app.route("/community")
+@login_required
+def community() -> Any:
+    room = request.args.get("room", "general")
+    if room not in MOOD_ROOMS:
+        room = "general"
+
+    with get_db() as conn:
+        if room == "general":
+            posts = conn.execute("""
+                SELECT cp.*, u.username FROM community_posts cp
+                JOIN users u ON cp.user_id = u.id
+                WHERE cp.status = 'approved'
+                ORDER BY cp.created_at DESC
+            """).fetchall()
+        else:
+            posts = conn.execute("""
+                SELECT cp.*, u.username FROM community_posts cp
+                JOIN users u ON cp.user_id = u.id
+                WHERE cp.status = 'approved' AND cp.mood_room = ?
+                ORDER BY cp.created_at DESC
+            """, (room,)).fetchall()
+
+        # Check which posts current user has liked
+        liked_ids = set()
+        liked_rows = conn.execute(
+            "SELECT post_id FROM community_likes WHERE user_id=?",
+            (session["user_id"],)
+        ).fetchall()
+        liked_ids = {r["post_id"] for r in liked_rows}
+
+    animal_name, animal_emoji = get_user_animal(session["user_id"])
+
+    return render_template(
+        "community.html",
+        posts=posts,
+        rooms=MOOD_ROOMS,
+        current_room=room,
+        animal_name=animal_name,
+        animal_emoji=animal_emoji,
+        liked_ids=liked_ids,
+        username=session["username"],
+    )
+
+
+@app.route("/community/post", methods=["POST"])
+@login_required
+def community_post() -> Any:
+    title    = request.form.get("title", "").strip()
+    story    = request.form.get("story", "").strip()
+    room     = request.form.get("mood_room", "general")
+
+    if not title or not story:
+        flash("Title and story are required.")
+        return redirect(url_for("community", room=room))
+
+    if len(story) < 50:
+        flash("Your story must be at least 50 characters — share a bit more! 💙")
+        return redirect(url_for("community", room=room))
+
+    animal_name, animal_emoji = get_user_animal(session["user_id"])
+
+    with get_db() as conn:
+        conn.execute("""
+            INSERT INTO community_posts
+            (user_id, mood_room, title, story, animal_name, animal_emoji, status)
+            VALUES (?,?,?,?,?,?,'pending')
+        """, (session["user_id"], room, title, story, animal_name, animal_emoji))
+
+    flash("Your story has been submitted for review. It will appear once approved by the admin. 🌟")
+    return redirect(url_for("community", room=room))
+
+
+@app.route("/community/like/<int:post_id>", methods=["POST"])
+@login_required
+def community_like(post_id: int) -> Any:
+    with get_db() as conn:
+        existing = conn.execute(
+            "SELECT id FROM community_likes WHERE post_id=? AND user_id=?",
+            (post_id, session["user_id"])
+        ).fetchone()
+        if existing:
+            conn.execute(
+                "DELETE FROM community_likes WHERE post_id=? AND user_id=?",
+                (post_id, session["user_id"])
+            )
+            conn.execute(
+                "UPDATE community_posts SET likes = likes - 1 WHERE id=?", (post_id,)
+            )
+            liked = False
+        else:
+            conn.execute(
+                "INSERT INTO community_likes (post_id, user_id) VALUES (?,?)",
+                (post_id, session["user_id"])
+            )
+            conn.execute(
+                "UPDATE community_posts SET likes = likes + 1 WHERE id=?", (post_id,)
+            )
+            liked = True
+
+    return jsonify({"liked": liked})
+
+
+# ---------------------------------------------------------------------------
+# Admin — Community moderation
+# ---------------------------------------------------------------------------
+
+@app.route("/admin/community")
+@admin_required
+def admin_community() -> Any:
+    status_filter = request.args.get("status", "pending")
+    with get_db() as conn:
+        posts = conn.execute("""
+            SELECT cp.*, u.username, u.email FROM community_posts cp
+            JOIN users u ON cp.user_id = u.id
+            WHERE cp.status = ?
+            ORDER BY cp.created_at DESC
+        """, (status_filter,)).fetchall()
+        counts = conn.execute("""
+            SELECT status, COUNT(*) as cnt FROM community_posts GROUP BY status
+        """).fetchall()
+
+    count_map = {r["status"]: r["cnt"] for r in counts}
+    return render_template(
+        "admin/community.html",
+        posts=posts,
+        rooms=MOOD_ROOMS,
+        status_filter=status_filter,
+        count_map=count_map,
+    )
+
+
+@app.route("/admin/community/<int:post_id>/approve", methods=["POST"])
+@admin_required
+def approve_community_post(post_id: int) -> Any:
+    with get_db() as conn:
+        conn.execute(
+            "UPDATE community_posts SET status='approved' WHERE id=?", (post_id,)
+        )
+    flash("Post approved and published to the community.")
+    return redirect(url_for("admin_community"))
+
+
+@app.route("/admin/community/<int:post_id>/reject", methods=["POST"])
+@admin_required
+def reject_community_post(post_id: int) -> Any:
+    with get_db() as conn:
+        conn.execute(
+            "UPDATE community_posts SET status='rejected' WHERE id=?", (post_id,)
+        )
+    flash("Post rejected.")
+    return redirect(url_for("admin_community"))
+
+
+@app.route("/admin/community/<int:post_id>/delete", methods=["POST"])
+@admin_required
+def delete_community_post(post_id: int) -> Any:
+    with get_db() as conn:
+        conn.execute("DELETE FROM community_likes WHERE post_id=?", (post_id,))
+        conn.execute("DELETE FROM community_posts WHERE id=?", (post_id,))
+    flash("Post deleted.")
+    return redirect(url_for("admin_community"))
 
 
 @app.route("/admin")

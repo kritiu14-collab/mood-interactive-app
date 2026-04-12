@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solace | {% if page=='about' %}About Us{% elif page=='contact' %}Contact{% elif page=='disclaimer' %}Disclaimer{% elif page=='privacy' %}Privacy Policy{% elif page=='terms' %}Terms and Conditions{% endif %}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        *{box-sizing:border-box;margin:0;padding:0;}
+        body{font-family:'Nunito',sans-serif;background:#f4f1f8;color:#333;min-height:100vh;}
+        .topbar{background:#1e1235;padding:14px 32px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+        .brand{font-size:1.2rem;font-weight:800;color:#c4b5fd;text-decoration:none;}
+        .back-btn{background:rgba(196,181,253,0.15);color:#c4b5fd;border:1px solid rgba(196,181,253,0.25);border-radius:8px;padding:7px 14px;font-size:0.83rem;text-decoration:none;font-weight:600;}
+        .hero{background:linear-gradient(135deg,#7c3aed,#4f46e5);color:white;padding:40px 32px;text-align:center;}
+        .hero h1{font-size:1.8rem;font-weight:800;margin-bottom:6px;}
+        .hero p{opacity:0.8;font-size:0.88rem;}
+        .wrap{max-width:780px;margin:0 auto;padding:32px 20px 60px;}
+        .page-nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px;}
+        .page-nav a{padding:8px 16px;border-radius:20px;border:1.5px solid #e5e7eb;background:white;font-size:0.82rem;font-weight:700;text-decoration:none;color:#555;transition:all 0.2s;}
+        .page-nav a:hover{border-color:#7c3aed;color:#7c3aed;}
+        .page-nav a.active{background:#7c3aed;color:white;border-color:#7c3aed;}
+        .card{background:white;border-radius:18px;box-shadow:0 4px 16px rgba(0,0,0,0.06);padding:32px;}
+        h2{font-size:1.2rem;font-weight:800;color:#1e1235;margin:22px 0 10px;}
+        h2:first-child{margin-top:0;}
+        p{font-size:0.88rem;color:#555;line-height:1.85;margin-bottom:12px;}
+        ul{padding-left:18px;margin-bottom:14px;}
+        ul li{font-size:0.88rem;color:#555;line-height:1.85;margin-bottom:4px;}
+        strong{color:#1e1235;}
+        .highlight{background:#f5f3ff;border-left:3px solid #7c3aed;border-radius:0 10px 10px 0;padding:12px 16px;font-size:0.85rem;color:#5b21b6;margin-bottom:16px;line-height:1.7;}
+        .contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;}
+        .contact-box{background:#f5f3ff;border-radius:12px;padding:16px;text-align:center;}
+        .contact-box i{font-size:1.4rem;color:#7c3aed;margin-bottom:6px;display:block;}
+        .contact-box .cl{font-size:0.7rem;color:#888;text-transform:uppercase;letter-spacing:.5px;}
+        .contact-box .cv{font-weight:700;font-size:0.86rem;color:#1e1235;margin-top:3px;}
+        .updated{font-size:0.73rem;color:#aaa;margin-top:22px;padding-top:14px;border-top:1px solid #f0f0f0;}
+    </style>
+</head>
+<body>
+<div class="topbar">
+    <a href="/" class="brand">✦ solace.</a>
+    <a href="/" class="back-btn"><i class="fas fa-arrow-left"></i> Home</a>
+</div>
+<div class="hero">
+    <h1>{% if page=='about' %}🌿 About Us{% elif page=='contact' %}📬 Contact Us{% elif page=='disclaimer' %}⚠️ Disclaimer{% elif page=='privacy' %}🔒 Privacy Policy{% elif page=='terms' %}📋 Terms and Conditions{% endif %}</h1>
+    <p>Solace · Mental Wellness Web App · BCA Final Year Project 2026</p>
+</div>
+<div class="wrap">
+    <div class="page-nav">
+        <a href="/about"      class="{% if page=='about' %}active{% endif %}">About Us</a>
+        <a href="/contact"    class="{% if page=='contact' %}active{% endif %}">Contact</a>
+        <a href="/disclaimer" class="{% if page=='disclaimer' %}active{% endif %}">Disclaimer</a>
+        <a href="/privacy"    class="{% if page=='privacy' %}active{% endif %}">Privacy Policy</a>
+        <a href="/terms"      class="{% if page=='terms' %}active{% endif %}">Terms and Conditions</a>
+    </div>
+    <div class="card">
+
+{% if page == 'about' %}
+<h2>What is Solace?</h2>
+<p>Solace is a mood-interactive mental wellness web application designed to help students and young adults track, understand, and improve their emotional wellbeing. Built as a BCA Final Year Project in 2026, it combines mood tracking, AI companionship, community storytelling, and science-backed exercises in one compassionate platform.</p>
+<div class="highlight">💡 Solace is not a medical product. It is a wellness companion designed to support emotional awareness and healthy habits.</div>
+<h2>Our Mission</h2>
+<p>We believe mental wellness should be accessible, stigma-free, and human-centred. Solace exists to give every student a safe, private space to check in with themselves — to track how they feel, talk to an AI companion named Eva, and read stories from others who have found their way back from difficult places.</p>
+<h2>Features</h2>
+<ul>
+    <li><strong>Mood Tracker</strong> — Log your mood daily across 9 emotional states</li>
+    <li><strong>Eva AI</strong> — A compassionate AI companion using Gemini, available 24/7</li>
+    <li><strong>Healing Exercises</strong> — Science-backed CBT and mindfulness techniques</li>
+    <li><strong>Community</strong> — Anonymous positive story sharing with animal identities</li>
+    <li><strong>Streak and Badges</strong> — Gamified consistency rewards to keep you motivated</li>
+    <li><strong>30-Day Results</strong> — Personalised insights unlocked after consistent use</li>
+    <li><strong>Mood Music</strong> — Curated Bollywood and international playlists by mood</li>
+    <li><strong>Journal</strong> — Private morning, evening, and night reflection entries</li>
+</ul>
+<h2>Built With</h2>
+<p>Python (Flask) · SQLite · Gemini AI API · Bootstrap 5 · Chart.js · Vanilla JS · HTML / CSS</p>
+<h2>Team</h2>
+<p>Developed by a BCA student as a final year academic project. Designed with empathy, built with code, and driven by the belief that technology can be kind.</p>
+
+{% elif page == 'contact' %}
+<h2>Get In Touch</h2>
+<p>We welcome your questions, feedback, suggestions, or bug reports. Solace is a student project and we genuinely value every message.</p>
+<div class="contact-grid">
+    <div class="contact-box"><i class="fas fa-envelope"></i><div class="cl">Email</div><div class="cv">solace.bca2026@gmail.com</div></div>
+    <div class="contact-box"><i class="fas fa-graduation-cap"></i><div class="cl">Project Type</div><div class="cv">BCA Final Year 2026</div></div>
+    <div class="contact-box"><i class="fas fa-clock"></i><div class="cl">Response Time</div><div class="cv">Within 48 hours</div></div>
+    <div class="contact-box"><i class="fas fa-comment-dots"></i><div class="cl">In-App Feedback</div><div class="cv"><a href="/feedback" style="color:#7c3aed;font-weight:700">Use our form</a></div></div>
+</div>
+<h2 style="margin-top:22px">Crisis Resources</h2>
+<p>If you are experiencing a mental health crisis, please contact a professional immediately. Solace is not a substitute for professional care.</p>
+<ul>
+    <li><strong>iCall (India):</strong> 9152987821</li>
+    <li><strong>Vandrevala Foundation:</strong> 1860-2662-345 (24/7)</li>
+    <li><strong>AASRA:</strong> 9820466627</li>
+</ul>
+
+{% elif page == 'disclaimer' %}
+<div class="highlight">⚠️ Important: Please read this disclaimer carefully before using Solace.</div>
+<h2>Not a Medical Product</h2>
+<p>Solace is an educational and wellness application created as a BCA Final Year Project. It is <strong>not a medical device, clinical tool, or substitute for professional mental health treatment.</strong> All content is for general informational and wellness purposes only.</p>
+<h2>Eva AI Disclaimer</h2>
+<p>Eva is powered by Google Gemini and generates responses based on general wellness principles. <strong>Eva is not a licensed therapist, counsellor, or mental health professional.</strong> Conversations with Eva should not be treated as medical or psychological advice. Eva may produce inaccurate or incomplete responses.</p>
+<h2>Emergency Situations</h2>
+<p>If you or someone you know is in immediate danger, <strong>please contact emergency services or a crisis helpline immediately.</strong> Do not rely on Solace in emergencies.</p>
+<h2>Academic Project</h2>
+<p>Solace was created as an academic project and may contain limitations or bugs. It is not maintained to commercial standards.</p>
+
+{% elif page == 'privacy' %}
+<h2>Data We Collect</h2>
+<ul>
+    <li>Account information: username and email address</li>
+    <li>Mood logs: the moods you select and when</li>
+    <li>Journal entries: what you write privately</li>
+    <li>Chat history: conversations with Eva AI</li>
+    <li>Task data: tasks you create and complete</li>
+    <li>Login dates: to calculate streaks and award badges</li>
+    <li>Community posts: stories you choose to share</li>
+    <li>Feedback: ratings and messages you submit</li>
+</ul>
+<h2>How We Use Your Data</h2>
+<ul>
+    <li>To personalise your mood dashboard and experience</li>
+    <li>To calculate your login streak and award badges</li>
+    <li>To generate your 30-day results and suggestions</li>
+    <li>To power Eva AI with your current mood context</li>
+</ul>
+<div class="highlight">🔒 Your data is stored locally in a SQLite database. We do not sell or share your data with third parties, except that your message and current mood are sent to Google Gemini API to generate Eva's responses.</div>
+<h2>Community Anonymity</h2>
+<p>When you post in the community, your real username is never shown. Only your assigned animal identity is visible to other users. Admin can see your real username for moderation purposes only.</p>
+<h2>Security</h2>
+<p>Passwords are hashed using bcrypt before storage. We do not store plain-text passwords.</p>
+<h2>Your Rights</h2>
+<p>You may request deletion of your account and all associated data by contacting us or asking an admin.</p>
+
+{% elif page == 'terms' %}
+<h2>Acceptance of Terms</h2>
+<p>By accessing and using Solace, you agree to be bound by these Terms. If you do not agree, please do not use the application.</p>
+<h2>Use of the Service</h2>
+<ul>
+    <li>You must be at least 16 years old to use Solace</li>
+    <li>You agree to provide accurate information when registering</li>
+    <li>You are responsible for maintaining the confidentiality of your account</li>
+    <li>You agree not to misuse the service for harmful or illegal purposes</li>
+</ul>
+<h2>Community Guidelines</h2>
+<ul>
+    <li>Community posts must contain only positive recovery experiences</li>
+    <li>Do not share personal identifying information in community posts</li>
+    <li>Do not post content that is harmful, discriminatory, or triggering</li>
+    <li>Admin reserves the right to reject or remove any community post</li>
+</ul>
+<h2>Intellectual Property</h2>
+<p>Solace and its original content are the property of the developer. Third-party services including Google Gemini AI, Bootstrap, Chart.js, and Font Awesome are used under their respective licences.</p>
+<h2>Limitation of Liability</h2>
+<p>Solace is provided as is without warranties. The developer is not liable for any damages arising from use of this application, including decisions made based on Eva AI responses.</p>
+<h2>Termination</h2>
+<p>We reserve the right to suspend or terminate accounts that violate these terms at our sole discretion.</p>
+{% endif %}
+
+        <div class="updated">Last updated: April 2026 · Solace Mental Wellness App · BCA Final Year Project</div>
+    </div>
+</div>
+</body>
+</html>

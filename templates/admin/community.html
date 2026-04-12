@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><title>Admin – Community</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Segoe UI',sans-serif;background:#f0f2f5;color:#333;}
+    .sidebar{width:220px;position:fixed;top:0;left:0;height:100vh;background:#1e2a3a;display:flex;flex-direction:column;}
+    .sidebar .logo{padding:24px 20px;font-size:1.3rem;font-weight:700;color:#fff;border-bottom:1px solid #2e3f52;}
+    .sidebar nav a{display:block;padding:13px 20px;color:#aab8c8;text-decoration:none;font-size:0.9rem;}
+    .sidebar nav a:hover,.sidebar nav a.active{background:#2e3f52;color:#fff;}
+    .sidebar nav .sl{padding:14px 20px 6px;font-size:0.7rem;text-transform:uppercase;letter-spacing:1px;color:#5f7a90;}
+    .sidebar .bot{margin-top:auto;padding:16px 20px;border-top:1px solid #2e3f52;}
+    .sidebar .bot a{color:#f87171;text-decoration:none;font-size:0.88rem;}
+    .main{margin-left:220px;padding:30px;}
+    .page-title{font-size:1.5rem;font-weight:700;margin-bottom:4px;}
+    .page-sub{color:#666;font-size:0.88rem;margin-bottom:22px;}
+    .stats{display:flex;gap:14px;margin-bottom:22px;}
+    .sstat{background:white;border-radius:12px;padding:16px 22px;box-shadow:0 2px 8px rgba(0,0,0,.05);text-align:center;min-width:110px;}
+    .sstat .num{font-size:1.8rem;font-weight:800;}
+    .sstat .lbl{font-size:0.72rem;color:#888;text-transform:uppercase;letter-spacing:.5px;margin-top:2px;}
+    .sstat.pending .num{color:#f59e0b;}
+    .sstat.approved .num{color:#16a34a;}
+    .sstat.rejected .num{color:#dc2626;}
+    .filter-tabs{display:flex;gap:8px;margin-bottom:20px;}
+    .tab-btn{padding:8px 20px;border-radius:20px;border:1.5px solid #e2e8f0;background:white;font-size:0.85rem;font-weight:700;cursor:pointer;text-decoration:none;color:#555;transition:all 0.2s;}
+    .tab-btn.active{background:#1e2a3a;color:white;border-color:#1e2a3a;}
+    .post-card{background:white;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.05);margin-bottom:16px;overflow:hidden;}
+    .post-card-header{padding:16px 20px;display:flex;align-items:center;gap:12px;border-bottom:1px solid #f5f5f5;}
+    .animal-circle{width:44px;height:44px;border-radius:50%;background:#f5f3ff;border:2px solid #ede9fe;display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0;}
+    .post-meta{flex:1;}
+    .post-animal{font-weight:700;font-size:0.9rem;}
+    .post-user{font-size:0.75rem;color:#aaa;margin-top:1px;}
+    .room-badge{display:inline-block;padding:2px 10px;border-radius:12px;font-size:0.7rem;font-weight:700;background:#ede9fe;color:#5b21b6;margin-left:6px;}
+    .post-time{font-size:0.75rem;color:#aaa;}
+    .post-body{padding:16px 20px;}
+    .post-title{font-weight:800;font-size:0.95rem;color:#1e1235;margin-bottom:8px;}
+    .post-story{font-size:0.84rem;color:#555;line-height:1.7;max-height:100px;overflow:hidden;position:relative;}
+    .post-story::after{content:'';position:absolute;bottom:0;left:0;right:0;height:30px;background:linear-gradient(transparent,white);}
+    .post-actions{padding:14px 20px;display:flex;gap:8px;border-top:1px solid #f5f5f5;}
+    .btn{padding:7px 18px;border-radius:8px;border:none;cursor:pointer;font-weight:700;font-size:0.82rem;font-family:inherit;}
+    .btn-approve{background:#d1fae5;color:#065f46;}
+    .btn-approve:hover{background:#6ee7b7;color:#064e3b;}
+    .btn-reject{background:#fee2e2;color:#991b1b;}
+    .btn-reject:hover{background:#fca5a5;color:#7f1d1d;}
+    .btn-delete{background:#f3f4f6;color:#374151;}
+    .btn-delete:hover{background:#d1d5db;}
+    .flash{background:#d1fae5;border-left:4px solid #10b981;padding:11px 16px;border-radius:8px;margin-bottom:18px;font-size:0.86rem;font-weight:600;color:#065f46;}
+    .empty{text-align:center;padding:60px;color:#aaa;}
+    .empty i{font-size:3rem;margin-bottom:14px;display:block;opacity:0.3;}
+    .status-pill{padding:3px 10px;border-radius:12px;font-size:0.72rem;font-weight:700;}
+    .status-pill.pending{background:#fef3c7;color:#92400e;}
+    .status-pill.approved{background:#d1fae5;color:#065f46;}
+    .status-pill.rejected{background:#fee2e2;color:#991b1b;}
+  </style>
+</head>
+<body>
+<div class="sidebar">
+  <div class="logo">⚡ Solace Admin</div>
+  <nav>
+    <div class="sl">Overview</div>
+    <a href="/admin">📊 Dashboard</a>
+    <div class="sl">Manage</div>
+    <a href="/admin/users">👥 Users</a>
+    <a href="/admin/chats">💬 AI Conversations</a>
+    <a href="/admin/community" class="active">🌿 Community</a>
+    <a href="/admin/posts">📝 Posts</a>
+  </nav>
+  <div class="bot"><a href="/logout">🚪 Logout</a></div>
+</div>
+
+<div class="main">
+  <div class="page-title">🌿 Community Moderation</div>
+  <div class="page-sub">Review and approve user stories before they go live in the community.</div>
+
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}{% for m in messages %}<div class="flash">{{ m }}</div>{% endfor %}{% endif %}
+  {% endwith %}
+
+  <!-- Stats -->
+  <div class="stats">
+    <div class="sstat pending">
+      <div class="num">{{ count_map.get('pending', 0) }}</div>
+      <div class="lbl">Pending</div>
+    </div>
+    <div class="sstat approved">
+      <div class="num">{{ count_map.get('approved', 0) }}</div>
+      <div class="lbl">Approved</div>
+    </div>
+    <div class="sstat rejected">
+      <div class="num">{{ count_map.get('rejected', 0) }}</div>
+      <div class="lbl">Rejected</div>
+    </div>
+  </div>
+
+  <!-- Filter tabs -->
+  <div class="filter-tabs">
+    <a href="/admin/community?status=pending"  class="tab-btn {{ 'active' if status_filter == 'pending' }}">⏳ Pending Review</a>
+    <a href="/admin/community?status=approved" class="tab-btn {{ 'active' if status_filter == 'approved' }}">✅ Approved</a>
+    <a href="/admin/community?status=rejected" class="tab-btn {{ 'active' if status_filter == 'rejected' }}">❌ Rejected</a>
+  </div>
+
+  {% if posts %}
+    {% for p in posts %}
+    <div class="post-card">
+      <div class="post-card-header">
+        <div class="animal-circle">{{ p.animal_emoji }}</div>
+        <div class="post-meta">
+          <div class="post-animal">
+            {{ p.animal_name }}
+            <span class="room-badge">{{ rooms.get(p.mood_room, {}).get('emoji','🌟') }} {{ rooms.get(p.mood_room, {}).get('label','General') }}</span>
+            <span class="status-pill {{ p.status }}">{{ p.status.capitalize() }}</span>
+          </div>
+          <div class="post-user">Real user: {{ p.username }} · {{ p.email }}</div>
+        </div>
+        <div class="post-time">{{ p.created_at[:16] }}</div>
+      </div>
+
+      <div class="post-body">
+        <div class="post-title">{{ p.title }}</div>
+        <div class="post-story">{{ p.story }}</div>
+      </div>
+
+      <div class="post-actions">
+        {% if p.status != 'approved' %}
+        <form method="POST" action="/admin/community/{{ p.id }}/approve">
+          <button type="submit" class="btn btn-approve">✅ Approve & Publish</button>
+        </form>
+        {% endif %}
+        {% if p.status != 'rejected' %}
+        <form method="POST" action="/admin/community/{{ p.id }}/reject">
+          <button type="submit" class="btn btn-reject">❌ Reject</button>
+        </form>
+        {% endif %}
+        <form method="POST" action="/admin/community/{{ p.id }}/delete"
+              onsubmit="return confirm('Permanently delete this post?')">
+          <button type="submit" class="btn btn-delete">🗑 Delete</button>
+        </form>
+      </div>
+    </div>
+    {% endfor %}
+  {% else %}
+    <div class="empty">
+      <i class="fas fa-inbox"></i>
+      <p>No {{ status_filter }} posts right now.</p>
+    </div>
+  {% endif %}
+</div>
+</body>
+</html>
