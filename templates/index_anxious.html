@@ -3,238 +3,703 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Solace | Just Breathe 🌿</title>
-    
+    <title>Solace | Anxious 😰</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
     <style>
-        /* Anxiety-Reduction Palette: Soft Lavenders & Mints */
+        /* ── INSIDE OUT: HAPPY = GOLDEN YELLOW ── */
+        :root {
+            --mood-primary:   #80CBC4;
+            --mood-secondary: #26A69A;
+            --mood-light:     #E0F2F1;
+            --mood-dark:      #004d40;
+            --mood-card-bg:   #FFFDF0;
+            --mood-border:    #B2DFDB;
+            --mood-btn:       #FFD700;
+            --mood-btn-text:  #004d40;
+            --mood-hero-from: #80CBC4;
+            --mood-hero-to:   #26A69A;
+            --mood-nav-bg:    #002922;
+            --mood-footer-bg: #002922;
+        }
+
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
         body {
-            font-family: 'Segoe UI', sans-serif;
-            background-color: #f8f7fa; /* Pale Neutral Purple */
-            color: #5a5266;
+            font-family: 'Nunito', 'Segoe UI', sans-serif;
+            background: var(--mood-light);
+            color: var(--mood-dark);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
         }
 
-        /* Hero Section */
-        #heroSection {
-            background: linear-gradient(rgba(243, 240, 247, 0.6), rgba(243, 240, 247, 0.7)), url("static/background.jpeg");
-            background-size: cover;
-            background-position: center;
-            height: 45vh; 
-            color: #4a4453;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            border-bottom: 4px solid #dcd3eb;
+        /* ── NAVBAR ── */
+        .navbar {
+            background: var(--mood-nav-bg) !important;
+            padding: 12px 0;
+            position: sticky; top: 0; z-index: 100;
         }
 
-        .content-feed-container {
-            margin-top: -60px;
-            margin-bottom: 50px;
-        }
-
-        .main-feed-box {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 40px;
-            border: 2px solid #dcd3eb;
-            padding: 45px;
-            box-shadow: 0 15px 35px rgba(155, 137, 179, 0.1);
-            position: relative;
-            backdrop-filter: blur(10px);
-        }
-
-        .feed-label {
-            position: absolute;
-            top: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #dcd3eb;
-            padding: 5px 25px;
-            border-radius: 0 0 20px 20px;
-            font-weight: bold;
-            font-size: 0.8rem;
-            color: #5a5266;
-            letter-spacing: 1px;
-        }
-
-        .feature-card {
-            background: white;
-            border-radius: 30px; 
-            border: 1px solid #e9e4f0;
-            padding: 25px;
-            transition: 0.4s ease;
-            height: 100%;
-        }
-
-        .feature-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(150, 130, 180, 0.1);
-        }
-
-        .icon-box {
-            font-size: 2rem;
-            color: #9b89b3;
-            margin-bottom: 15px;
-        }
-
-        .ai-chat-section {
-            background: white;
-            border-radius: 35px;
-            padding: 30px;
-            border: 2px dashed #dcd3eb;
-            margin-top: 40px;
-        }
-
-        footer {
-            background-color: #2d2a33;
-            color: #dcd3eb;
-            padding: 40px 0;
-            margin-top: auto;
-        }
-
-        .btn-breathe {
-            background-color: #9b89b3;
-            color: white;
-            border-radius: 50px;
-            font-weight: 500;
-            border: none;
-            padding: 10px 25px;
-            text-decoration: none;
-            display: inline-block;
-        }
-
-        .btn-breathe:hover {
-            background-color: #83729d;
-            color: white;
+        .navbar-brand {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--mood-primary) !important;
+            letter-spacing: -0.5px;
         }
 
         .nav-link {
-            color: #5a5266 !important;
-            font-weight: 500;
+            color: rgba(255,255,255,0.75) !important;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+        .nav-link:hover { color: var(--mood-primary) !important; }
+
+        .mood-badge-nav {
+            background: var(--mood-primary);
+            color: var(--mood-btn-text);
+            padding: 5px 14px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        /* ── ACCOUNT BUTTON ── */
+        .account-btn {
+            width: 38px; height: 38px;
+            border-radius: 50%;
+            background: var(--mood-primary);
+            border: none;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.1rem;
+            color: var(--mood-btn-text);
+            position: relative;
+            transition: transform 0.2s;
+        }
+        .account-btn:hover { transform: scale(1.1); }
+
+        /* ── ACCOUNT PANEL (slide-in from right) ── */
+        .account-panel {
+            position: fixed;
+            top: 0; right: -420px;
+            width: 400px; height: 100vh;
+            background: white;
+            box-shadow: -8px 0 40px rgba(0,0,0,0.15);
+            z-index: 9999;
+            transition: right 0.35s cubic-bezier(0.4,0,0.2,1);
+            overflow-y: auto;
+            display: flex; flex-direction: column;
+        }
+        .account-panel.open { right: 0; }
+
+        .panel-overlay {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.4);
+            z-index: 9998;
+            display: none;
+        }
+        .panel-overlay.open { display: block; }
+
+        .panel-header {
+            background: linear-gradient(135deg, var(--mood-hero-from), var(--mood-hero-to));
+            padding: 30px 24px 24px;
+            color: var(--mood-btn-text);
+        }
+
+        .panel-avatar {
+            width: 64px; height: 64px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.8rem;
+            margin-bottom: 12px;
+            border: 3px solid rgba(255,255,255,0.5);
+        }
+
+        .panel-username { font-size: 1.3rem; font-weight: 800; }
+        .panel-email    { font-size: 0.82rem; opacity: 0.75; margin-top: 2px; }
+
+        .panel-close {
+            position: absolute; top: 16px; right: 16px;
+            background: rgba(255,255,255,0.2);
+            border: none; border-radius: 50%;
+            width: 32px; height: 32px;
+            color: var(--mood-btn-text);
+            cursor: pointer; font-size: 1rem;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        .panel-body { padding: 20px 24px; flex: 1; }
+
+        .panel-section-title {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #aaa;
+            font-weight: 700;
+            margin: 18px 0 10px;
+        }
+
+        /* Stats row */
+        .stats-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 6px;
+        }
+
+        .stat-box {
+            background: var(--mood-light);
+            border-radius: 12px;
+            padding: 12px 8px;
+            text-align: center;
+            border: 1px solid var(--mood-border);
+        }
+        .stat-box .num { font-size: 1.4rem; font-weight: 800; color: var(--mood-secondary); }
+        .stat-box .lbl { font-size: 0.7rem; color: #888; margin-top: 2px; }
+
+        /* Mood calendar */
+        .mood-calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+            margin-bottom: 8px;
+        }
+
+        .cal-day {
+            aspect-ratio: 1;
+            border-radius: 6px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.6rem;
+            font-weight: 700;
+            cursor: default;
+            position: relative;
+        }
+
+        .cal-day.has-mood { cursor: pointer; }
+        .cal-day.has-mood:hover::after {
+            content: attr(data-mood);
+            position: absolute;
+            bottom: calc(100% + 4px);
+            left: 50%; transform: translateX(-50%);
+            background: #333; color: white;
+            padding: 3px 7px; border-radius: 5px;
+            font-size: 0.65rem; white-space: nowrap; z-index: 10;
+        }
+
+        /* Mood colors for calendar */
+        .cal-empty  { background: #f5f5f5; }
+        .cal-happy  { background: #FFD700; color: #4a3c00; }
+        .cal-sad    { background: #4FC3F7; color: #01337a; }
+        .cal-angry  { background: #EF5350; color: white; }
+        .cal-anxious{ background: #AB47BC; color: white; }
+        .cal-calm   { background: #66BB6A; color: #1b4332; }
+        .cal-stressed{background: #FF7043; color: white; }
+        .cal-tired  { background: #90A4AE; color: white; }
+        .cal-fear   { background: #5C6BC0; color: white; }
+        .cal-swings { background: linear-gradient(135deg,#FF7043,#AB47BC); color: white; }
+        .cal-none   { background: #eeeeee; color: #bbb; }
+
+        .cal-label-row {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+            margin-bottom: 5px;
+        }
+        .cal-label-row span {
+            text-align: center;
+            font-size: 0.6rem;
+            color: #aaa;
+            font-weight: 700;
+        }
+
+        /* Panel nav links */
+        .panel-nav-link {
+            display: flex; align-items: center; gap: 12px;
+            padding: 11px 14px;
+            border-radius: 10px;
+            text-decoration: none;
+            color: #333;
+            font-weight: 600;
+            font-size: 0.88rem;
+            transition: background 0.15s;
+            margin-bottom: 4px;
+        }
+        .panel-nav-link:hover { background: var(--mood-light); color: var(--mood-secondary); }
+        .panel-nav-link i { width: 20px; text-align: center; color: var(--mood-secondary); }
+
+        .panel-logout {
+            padding: 16px 24px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .btn-logout {
+            width: 100%;
+            padding: 11px;
+            border-radius: 10px;
+            border: 1.5px solid #fee2e2;
+            background: #fff5f5;
+            color: #e53e3e;
+            font-weight: 700;
+            font-size: 0.88rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-logout:hover { background: #fed7d7; }
+
+        /* Progress bar */
+        .progress-bar-mood {
+            height: 8px;
+            border-radius: 4px;
+            background: #f0f0f0;
+            overflow: hidden;
+            margin-bottom: 6px;
+        }
+        .progress-fill-mood {
+            height: 100%;
+            border-radius: 4px;
+            background: linear-gradient(90deg, var(--mood-hero-from), var(--mood-hero-to));
+            transition: width 0.6s ease;
+        }
+
+        /* ── HERO ── */
+        .hero-section {
+            background: linear-gradient(135deg, var(--mood-hero-from), var(--mood-hero-to));
+            padding: 60px 0 80px;
+            text-align: center;
+            color: var(--mood-btn-text);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-section::before {
+            content: '';
+            position: absolute; inset: 0;
+            background: radial-gradient(circle at 70% 50%, rgba(255,255,255,0.15), transparent 60%);
+        }
+
+        .hero-section h1 {
+            font-size: 2.8rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+            position: relative;
+        }
+
+        .hero-section p.lead {
+            font-size: 1.05rem;
+            opacity: 0.85;
+            max-width: 560px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .hero-emoji {
+            font-size: 4rem;
+            margin-bottom: 16px;
+            display: block;
+            animation: bounce 2s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+            0%,100% { transform: translateY(0); }
+            50%      { transform: translateY(-10px); }
+        }
+
+        /* ── FEATURE CARDS ── */
+        .features-section { padding: 50px 0 60px; }
+
+        .feature-card {
+            background: white;
+            border: 1.5px solid var(--mood-border);
+            border-radius: 20px;
+            padding: 28px 22px;
+            height: 100%;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 16px 40px rgba(0,0,0,0.1);
+            border-color: var(--mood-primary);
+        }
+
+        .feature-icon {
+            font-size: 2.4rem;
+            margin-bottom: 14px;
+            display: block;
+        }
+
+        .feature-card h5 {
+            font-weight: 800;
+            font-size: 1rem;
+            margin-bottom: 8px;
+            color: var(--mood-dark);
+        }
+
+        .feature-card p {
+            font-size: 0.82rem;
+            color: #777;
+            margin-bottom: 14px;
+            line-height: 1.5;
+        }
+
+        /* ── BUTTONS ── */
+        .btn-mood {
+            background: var(--mood-btn);
+            color: var(--mood-btn-text);
+            border: none;
+            border-radius: 50px;
+            padding: 9px 22px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-mood:hover { filter: brightness(0.92); transform: scale(1.03); color: var(--mood-btn-text); }
+
+        .btn-mood-outline {
+            background: transparent;
+            color: var(--mood-secondary);
+            border: 2px solid var(--mood-primary);
+            border-radius: 50px;
+            padding: 8px 20px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-mood-outline:hover { background: var(--mood-primary); color: var(--mood-btn-text); }
+
+        /* ── AI SECTION ── */
+        .ai-section {
+            background: linear-gradient(135deg, var(--mood-hero-from)22, var(--mood-hero-to)11);
+            border: 2px solid var(--mood-border);
+            border-radius: 24px;
+            padding: 30px;
+            margin: 10px 0 30px;
+        }
+
+        /* ── QUOTE BOX ── */
+        .quote-box {
+            background: white;
+            border-left: 5px solid var(--mood-primary);
+            border-radius: 0 16px 16px 0;
+            padding: 20px 24px;
+            margin-bottom: 30px;
+            font-style: italic;
+            font-size: 1.05rem;
+            color: #555;
+        }
+
+
+        /* ── EXERCISE WIDGET ── */
+        .exercise-widget {
+            background: white;
+            border: 1.5px solid var(--mood-border);
+            border-radius: 20px;
+            padding: 22px 26px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+        }
+        .ex-widget-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; gap: 12px; }
+        .ex-widget-left  { display: flex; align-items: center; gap: 14px; }
+        .ex-widget-icon  { font-size: 2.2rem; flex-shrink: 0; }
+        .ex-widget-label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--mood-secondary); margin-bottom: 3px; }
+        .ex-widget-title { font-size: 1.05rem; font-weight: 800; color: var(--mood-dark); }
+        .ex-widget-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+        .ex-step-counter { font-size: 0.78rem; color: #aaa; font-weight: 600; }
+        .ex-rotate-btn { width: 40px; height: 40px; border-radius: 50%; background: var(--mood-light); border: 1.5px solid var(--mood-border); color: var(--mood-secondary); font-size: 1.3rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; line-height: 1; }
+        .ex-rotate-btn:hover { background: var(--mood-primary); color: var(--mood-btn-text); transform: rotate(180deg); }
+        .ex-widget-desc { font-size: 0.88rem; color: #555; line-height: 1.7; padding: 12px 16px; background: var(--mood-light); border-radius: 12px; margin-bottom: 14px; min-height: 70px; }
+        .ex-widget-footer { display: flex; align-items: center; justify-content: space-between; }
+        .ex-dots { display: flex; gap: 6px; }
+        .ex-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--mood-border); cursor: pointer; transition: all 0.2s; }
+        .ex-dot.active { background: var(--mood-primary); transform: scale(1.3); }
+        .ex-all-link { font-size: 0.8rem; color: var(--mood-secondary); text-decoration: none; font-weight: 700; }
+        .ex-all-link:hover { opacity: 0.7; }
+
+        /* ── FOOTER ── */
+        footer {
+            background: var(--mood-footer-bg);
+            color: rgba(255,255,255,0.6);
+            padding: 30px 0;
+            margin-top: auto;
+            font-size: 0.82rem;
         }
     </style>
 </head>
 <body>
 
-    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
-        <div class="container">
-            <a class="navbar-brand fw-bold" href="{{ url_for('dashboard') }}" style="color: #9b89b3;">✨ SOLACE</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto align-items-center">
-                    <li class="nav-item"><a class="nav-link px-3" href="{{ url_for('todo_page') }}">Tasks</a></li>
-                    <li class="nav-item"><a class="nav-link px-3" href="{{ url_for('journal_page') }}">Journal</a></li>
-                    <li class="nav-item"><a class="nav-link px-3 text-danger" href="{{ url_for('logout') }}">Logout</a></li>
-                    <li class="nav-item ms-3">
-                        <span class="badge rounded-pill bg-light text-muted border px-3">Peace Mode</span>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+<!-- Account Panel Overlay -->
+<div class="panel-overlay" id="panelOverlay" onclick="closePanel()"></div>
 
-    <section id="heroSection">
-        <div class="container">
-            <h1 class="display-5 fw-bold">One breath at a time.</h1>
-            <p class="lead">“You are safe, you are here, and you are doing enough.”</p>
-        </div>
-    </section>
-
-    <div class="container content-feed-container">
-        <div class="row justify-content-center">
-            <div class="col-lg-10">
-                <div class="main-feed-box text-center">
-                    <div class="feed-label">GENTLE REMINDER</div>
-                    <div class="py-3">
-                        <p id="calmQuote" class="fs-4 italic" style="color: #5a5266; font-family: 'Georgia', serif;">
-                            "You don't have to see the whole staircase, just take the first step."
-                        </p>
-                        <button class="btn btn-outline-secondary btn-sm rounded-pill mt-2" onclick="newCalm()">
-                            Another Thought <i class="fas fa-leaf ms-1"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
+<!-- Account Panel -->
+<div class="account-panel" id="accountPanel">
+    <div class="panel-header">
+        <button class="panel-close" onclick="closePanel()"><i class="fas fa-times"></i></button>
+        <div class="panel-avatar">😊</div>
+        <div class="panel-username" id="panelUsername">Loading...</div>
+        <div class="panel-email"    id="panelEmail">—</div>
     </div>
 
-    <div class="container mb-5">
+    <div class="panel-body">
+
+        <!-- Stats -->
+        <div class="panel-section-title">Your Progress</div>
+        <div class="stats-row">
+            <div class="stat-box">
+                <div class="num" id="statMoods">—</div>
+                <div class="lbl">Mood Logs</div>
+            </div>
+            <div class="stat-box">
+                <div class="num" id="statJournals">—</div>
+                <div class="lbl">Journals</div>
+            </div>
+            <div class="stat-box">
+                <div class="num" id="statDays">—</div>
+                <div class="lbl">Days Active</div>
+            </div>
+        </div>
+
+        <!-- Top mood progress -->
+        <div class="panel-section-title">Top Mood This Week</div>
+        <div style="font-size:0.82rem;color:#555;margin-bottom:6px">
+            <span id="topMoodLabel">—</span>
+        </div>
+        <div class="progress-bar-mood">
+            <div class="progress-fill-mood" id="topMoodBar" style="width:0%"></div>
+        </div>
+
+        <!-- Mood Calendar -->
+        <div class="panel-section-title">Mood Calendar (Last 28 Days)</div>
+        <div class="cal-label-row">
+            <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span>
+            <span>Thu</span><span>Fri</span><span>Sat</span>
+        </div>
+        <div class="mood-calendar" id="moodCalendar">
+            <!-- filled by JS -->
+        </div>
+
+        <!-- Quick links -->
+        <div class="panel-section-title">Quick Links</div>
+        <a href="/history"   class="panel-nav-link"><i class="fas fa-chart-line"></i> Mood History</a>
+        <a href="/journal"   class="panel-nav-link"><i class="fas fa-book-open"></i> My Journal</a>
+        <a href="/todo"      class="panel-nav-link"><i class="fas fa-tasks"></i> My Tasks</a>
+        <a href="/tracker"   class="panel-nav-link"><i class="fas fa-sync-alt"></i> Change Mood</a>
+        <a href="/music"     class="panel-nav-link"><i class="fas fa-music"></i> Mood Music</a>
+    </div>
+
+    <div class="panel-logout">
+        <button class="btn-logout" onclick="window.location.href='/logout'">
+            <i class="fas fa-sign-out-alt me-2"></i> Log Out
+        </button>
+    </div>
+</div>
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg">
+    <div class="container">
+        <a class="navbar-brand" href="/tracker">😰 solace.</a>
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+            <i class="fas fa-bars text-white"></i>
+        </button>
+        <div class="collapse navbar-collapse" id="navMenu">
+            <ul class="navbar-nav ms-auto align-items-center gap-1">
+                <li class="nav-item"><a class="nav-link" href="/ai_chat"><i class="fas fa-robot me-1"></i>AI Chat</a></li>
+                <li class="nav-item"><a class="nav-link" href="/todo"><i class="fas fa-tasks me-1"></i>Tasks</a></li>
+                <li class="nav-item"><a class="nav-link" href="/journal"><i class="fas fa-book me-1"></i>Journal</a></li>
+                <li class="nav-item"><a class="nav-link" href="/music"><i class="fas fa-music me-1"></i>Music</a></li>
+                <li class="nav-item"><a class="nav-link" href="/history"><i class="fas fa-chart-line me-1"></i>History</a></li>
+                <li class="nav-item ms-2"><span class="mood-badge-nav">😰 Calming</span></li>
+                <li class="nav-item ms-2">
+                    <button class="account-btn" onclick="openPanel()" title="My Account">
+                        <i class="fas fa-user"></i>
+                    </button>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero-section">
+    <div class="container">
+        <span class="hero-emoji">😰</span>
+        <h1>You are safe. You are here., {{ username }}!</h1>
+        <p class="lead">"Breathe. You have survived every difficult moment so far."</p>
+    </div>
+</section>
+
+<!-- QUOTE -->
+<div class="container mt-4">
+    <div class="quote-box" id="quoteBox">
+        "You don't have to see the whole staircase, just take the first step."
+    </div>
+    <div class="text-end mb-4">
+        <button class="btn-mood-outline btn-sm" onclick="newQuote()">
+            <i class="fas fa-sync-alt me-1"></i> New Quote
+        </button>
+    </div>
+</div>
+
+<!-- FEATURES -->
+<section class="features-section">
+    <div class="container">
         <div class="row g-4">
+
             
-            <div class="col-md-4">
-                <div class="feature-card text-center">
-                    <div class="icon-box"><i class="fas fa-spa"></i></div>
-                    <h5 class="fw-bold">Quiet Audio</h5>
-                    <p class="small text-muted">Binaural beats to help quiet the mind.</p>
-                    <button class="btn btn-breathe btn-sm w-100">Play Calm</button>
-                </div>
-            </div>
+            <div class="col-md-4 col-sm-6"><div class="feature-card"><span class="feature-icon">🤖</span><h5>Gentle Guide AI</h5><p>Worrying about a What If? Let's break it down into facts.</p><a href="/ai_chat" class="btn-mood w-100">Start Chat</a></div></div>
+            <div class="col-md-4 col-sm-6"><div class="feature-card"><span class="feature-icon">🎵</span><h5>Calm Frequencies</h5><p>Soft mint vibes — binaural beats tuned to ease anxiety.</p><a href="/music" class="btn-mood w-100">Play Music</a></div></div>
+            <div class="col-md-4 col-sm-6"><div class="feature-card"><span class="feature-icon">✅</span><h5>Small Steps</h5><p>Focus on just one thing right now. The rest can wait.</p><a href="/todo" class="btn-mood w-100">View Tasks</a></div></div>
+            <div class="col-md-4 col-sm-6"><div class="feature-card"><span class="feature-icon">📖</span><h5>Brain Dump</h5><p>Write every worry down — then sort what's real vs imagined.</p><a href="/journal" class="btn-mood w-100">Open Journal</a></div></div>
+            <div class="col-md-4 col-sm-6"><div class="feature-card"><span class="feature-icon">📊</span><h5>Peace Tracker</h5><p>Track how often you reach calm. Progress is real.</p><a href="/history" class="btn-mood w-100">View History</a></div></div>
+            <div class="col-md-4 col-sm-6"><div class="feature-card"><span class="feature-icon">🔄</span><h5>Change Mood</h5><p>Feeling steadier? Update your mood anytime.</p><a href="/tracker" class="btn-mood w-100">Update Mood</a></div></div>
 
-            <div class="col-md-4">
-                <div class="feature-card text-center">
-                    <div class="icon-box"><i class="fas fa-feather"></i></div>
-                    <h5 class="fw-bold">Small Steps</h5>
-                    <p class="small text-muted">Focus on just one thing right now.</p>
-                    <div class="p-2 bg-light rounded-pill small mb-2">Current: Drink Water</div>
-                    <a href="{{ url_for('todo_page') }}" class="btn btn-outline-secondary btn-sm w-100 rounded-pill">View Tasks</a>
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="feature-card text-center">
-                    <div class="icon-box"><i class="fas fa-wave-square"></i></div>
-                    <h5 class="fw-bold">Peace Tracker</h5>
-                    <p class="small text-muted">Viewing your weekly balance.</p>
-                    <a href="{{ url_for('tracker') }}" class="btn btn-outline-secondary btn-sm rounded-pill w-100">View Logs</a>
-                </div>
-            </div>
-
-            <div class="col-12">
-                <div class="ai-chat-section shadow-sm">
-                    <div class="row align-items-center">
-                        <div class="col-md-2 text-center">
-                            <i class="fas fa-hand-holding-heart fa-4x" style="color: #9b89b3;"></i>
-                        </div>
-                        <div class="col-md-7">
-                            <h4 class="fw-bold">Solace Gentle Guide</h4>
-                            <p class="text-muted mb-0">"Are you worrying about a 'What If'? Let's break that assumption down into facts together."</p>
-                        </div>
-                        <div class="col-md-3">
-                            <a href="{{ url_for('ai_chat_page') }}" class="btn btn-breathe w-100 py-2">
-                                Begin Conversation
-                            </a>
-                        </div>
+        <!-- EXERCISE WIDGET -->
+        <div class="exercise-widget mt-4">
+            <div class="ex-widget-header">
+                <div class="ex-widget-left">
+                    <span class="ex-widget-icon" id="exIconanxious">5️⃣</span>
+                    <div>
+                        <div class="ex-widget-label">Exercise for your mood</div>
+                        <div class="ex-widget-title" id="exTitleanxious">5-4-3-2-1 Grounding</div>
                     </div>
                 </div>
+                <div class="ex-widget-right">
+                    <span class="ex-step-counter" id="exCtranxious">1 / 6</span>
+                    <button class="ex-rotate-btn" onclick="rotateExanxious()" title="Next exercise">&#x27F3;</button>
+                </div>
+            </div>
+            <div class="ex-widget-desc" id="exDescanxious">Name 5 things you SEE, 4 you TOUCH, 3 you HEAR, 2 you SMELL, 1 you TASTE. Grounds you in the present instantly.</div>
+            <div class="ex-widget-footer">
+                <div class="ex-dots" id="exDotsanxious"><div class="ex-dot  active" onclick="goToExanxious(0)"></div><div class="ex-dot" onclick="goToExanxious(1)"></div><div class="ex-dot" onclick="goToExanxious(2)"></div><div class="ex-dot" onclick="goToExanxious(3)"></div><div class="ex-dot" onclick="goToExanxious(4)"></div><div class="ex-dot" onclick="goToExanxious(5)"></div></div>
+                <a href="/exercises" class="ex-all-link">See all exercises &#8594;</a>
             </div>
         </div>
+        <script>
+        (function(){
+            const steps=[{"icon":"5️⃣","title":"5-4-3-2-1 Grounding","desc":"Name 5 things you SEE, 4 you TOUCH, 3 you HEAR, 2 you SMELL, 1 you TASTE. Grounds you in the present instantly."},{"icon":"📦","title":"Box Breathing","desc":"Breathe IN 4 sec, HOLD 4 sec, OUT 4 sec, HOLD 4 sec. Used by Navy SEALs under pressure. Do 4 rounds slowly."},{"icon":"📝","title":"Worry Fact-Check","desc":"Write your top 3 worries. Next to each: Is this definitely true? Most anxious thoughts do not survive this question."},{"icon":"🤲","title":"Hand on Heart","desc":"Place one hand on your chest. Say: I am safe. This feeling will pass. Repeat 5 times slowly. Releases oxytocin."},{"icon":"🌊","title":"Cold Splash Reset","desc":"Splash cold water on your face for 30 seconds. Triggers the dive reflex — a biological override that calms panic fast."},{"icon":"🧘","title":"Body Scan","desc":"Close your eyes and scan from head to toe noticing tension without judging. Awareness itself reduces anxiety."}];
+            let cur=0;
+            function upd(){
+                document.getElementById('exIconanxious').textContent=steps[cur].icon;
+                document.getElementById('exTitleanxious').textContent=steps[cur].title;
+                document.getElementById('exDescanxious').textContent=steps[cur].desc;
+                document.getElementById('exCtranxious').textContent=(cur+1)+' / '+steps.length;
+                document.querySelectorAll('#exDotsanxious .ex-dot').forEach((d,i)=>d.classList.toggle('active',i===cur));
+            }
+            window['rotateExanxious']=function(){cur=(cur+1)%steps.length;upd();};
+            window['goToExanxious']=function(i){cur=i;upd();};
+        })();
+        </script>
+
     </div>
+</section>
 
-    <footer>
-        <div class="container text-center">
-            <p class="small mb-0 fst-italic">"Healing is not linear. Take your time."</p>
-            <p class="small mt-2">&copy; 2026 Solace Project - Kriti Upadhyay (BCA)</p>
-        </div>
-    </footer>
+<footer>
+    <div class="container text-center">
+        <p class="mb-0">solace. · Your Mood-Interactive Sanctuary &copy; 2026</p>
+    </div>
+</footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        function newCalm() {
-            const quotes = [
-                "Your only job right now is to breathe.",
-                "It's okay to take a break. Productivity is not your value.",
-                "Slow down. The world will wait for you.",
-                "Feel the ground beneath your feet. You are safe."
-            ];
-            document.getElementById('calmQuote').innerText = `"${quotes[Math.floor(Math.random()*quotes.length)]}"`;
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// ── QUOTES ──
+const quotes = [
+    "You don't have to see the whole staircase, just take the first step.",
+    "Your only job right now is to breathe.",
+    "Feel the ground beneath your feet. You are safe.",
+    "This feeling is temporary. You have gotten through this before."
+];
+function newQuote() {
+    document.getElementById('quoteBox').textContent =
+        '"' + quotes[Math.floor(Math.random() * quotes.length)] + '"';
+}
+
+// ── ACCOUNT PANEL ──
+function openPanel() {
+    document.getElementById('accountPanel').classList.add('open');
+    document.getElementById('panelOverlay').classList.add('open');
+    loadAccountData();
+}
+function closePanel() {
+    document.getElementById('accountPanel').classList.remove('open');
+    document.getElementById('panelOverlay').classList.remove('open');
+}
+
+async function loadAccountData() {
+    try {
+        const res  = await fetch('/account_data');
+        const data = await res.json();
+
+        document.getElementById('panelUsername').textContent = data.username  || '—';
+        document.getElementById('panelEmail').textContent    = data.email     || '—';
+        document.getElementById('statMoods').textContent     = data.mood_count   ?? '—';
+        document.getElementById('statJournals').textContent  = data.journal_count ?? '—';
+        document.getElementById('statDays').textContent      = data.days_active  ?? '—';
+
+        if (data.top_mood) {
+            document.getElementById('topMoodLabel').textContent =
+                `${data.top_mood} (${data.top_mood_pct}% of logs)`;
+            document.getElementById('topMoodBar').style.width = data.top_mood_pct + '%';
         }
-    </script>
+
+        buildCalendar(data.calendar || []);
+    } catch(e) {
+        console.error('Account data error:', e);
+    }
+}
+
+const MOOD_COLORS = {
+    happy:'cal-happy', sad:'cal-sad', angry:'cal-angry',
+    anxious:'cal-anxious', calm:'cal-calm', stressed:'cal-stressed',
+    tired:'cal-tired', Fear:'cal-fear', swings:'cal-swings'
+};
+
+function buildCalendar(calData) {
+    const cal     = document.getElementById('moodCalendar');
+    cal.innerHTML = '';
+
+    // Build a map of date → mood
+    const moodMap = {};
+    calData.forEach(d => { moodMap[d.date] = d.mood; });
+
+    // Last 28 days
+    const today  = new Date();
+    const start  = new Date(today);
+    start.setDate(today.getDate() - 27);
+
+    // Pad to Sunday
+    const startDay = start.getDay(); // 0=Sun
+    for (let p = 0; p < startDay; p++) {
+        const blank = document.createElement('div');
+        blank.className = 'cal-day';
+        cal.appendChild(blank);
+    }
+
+    for (let i = 0; i < 28; i++) {
+        const d    = new Date(start);
+        d.setDate(start.getDate() + i);
+        const key  = d.toISOString().split('T')[0];
+        const mood = moodMap[key];
+        const div  = document.createElement('div');
+        div.className = 'cal-day ' + (mood ? (MOOD_COLORS[mood] || 'cal-none') : 'cal-none');
+        div.textContent = d.getDate();
+        if (mood) {
+            div.classList.add('has-mood');
+            div.dataset.mood = mood;
+            div.title = mood;
+        }
+        cal.appendChild(div);
+    }
+}
+</script>
 </body>
 </html>

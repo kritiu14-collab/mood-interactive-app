@@ -3,24 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Solace | Angry 😡</title>
+    <title>Solace | Fear 😨</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         /* ── INSIDE OUT: HAPPY = GOLDEN YELLOW ── */
         :root {
-            --mood-primary:   #74C69D;
-            --mood-secondary: #40916C;
-            --mood-light:     #F0FFF4;
-            --mood-dark:      #1b4332;
+            --mood-primary:   #FFD166;
+            --mood-secondary: #F4A261;
+            --mood-light:     #FFFBEC;
+            --mood-dark:      #3d2800;
             --mood-card-bg:   #FFFDF0;
-            --mood-border:    #B7E4C7;
+            --mood-border:    #FFE9A0;
             --mood-btn:       #FFD700;
-            --mood-btn-text:  #1b4332;
-            --mood-hero-from: #74C69D;
-            --mood-hero-to:   #40916C;
-            --mood-nav-bg:    #0d2818;
-            --mood-footer-bg: #0d2818;
+            --mood-btn-text:  #3d2800;
+            --mood-hero-from: #FFD166;
+            --mood-hero-to:   #F4A261;
+            --mood-nav-bg:    #2b1d00;
+            --mood-footer-bg: #2b1d00;
         }
 
         @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
@@ -507,7 +507,7 @@
 <!-- NAVBAR -->
 <nav class="navbar navbar-expand-lg">
     <div class="container">
-        <a class="navbar-brand" href="/tracker">😡 solace.</a>
+        <a class="navbar-brand" href="/tracker">😨 solace.</a>
         <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
             <i class="fas fa-bars text-white"></i>
         </button>
@@ -518,7 +518,7 @@
                 <li class="nav-item"><a class="nav-link" href="/journal"><i class="fas fa-book me-1"></i>Journal</a></li>
                 <li class="nav-item"><a class="nav-link" href="/music"><i class="fas fa-music me-1"></i>Music</a></li>
                 <li class="nav-item"><a class="nav-link" href="/history"><i class="fas fa-chart-line me-1"></i>History</a></li>
-                <li class="nav-item ms-2"><span class="mood-badge-nav">😡 Grounding</span></li>
+                <li class="nav-item ms-2"><span class="mood-badge-nav">😨 Brave</span></li>
                 <li class="nav-item ms-2">
                     <button class="account-btn" onclick="openPanel()" title="My Account">
                         <i class="fas fa-user"></i>
@@ -532,16 +532,16 @@
 <!-- HERO -->
 <section class="hero-section">
     <div class="container">
-        <span class="hero-emoji">😡</span>
-        <h1>Let nature cool you down., {{ username }}!</h1>
-        <p class="lead">"Between stimulus and response there is a space. In that space is your power."</p>
+        <span class="hero-emoji">😨</span>
+        <h1>You are braver than you believe., {{ username }}!</h1>
+        <p class="lead">"Courage is not the absence of fear — it is acting in spite of it."</p>
     </div>
 </section>
 
 <!-- QUOTE -->
 <div class="container mt-4">
     <div class="quote-box" id="quoteBox">
-        "Between stimulus and response there is a space. In that space is your power."
+        "Courage is not the absence of fear — it is acting in spite of it."
     </div>
     <div class="text-end mb-4">
         <button class="btn-mood-outline btn-sm" onclick="newQuote()">
@@ -556,47 +556,47 @@
         <div class="row g-4">
 
             
-            <div class="col-md-4 col-sm-6"><div class="feature-card"><span class="feature-icon">🤖</span><h5>De-stress AI</h5><p>Let's look at the facts together and cool things down.</p><a href="/ai_chat" class="btn-mood w-100">Talk It Out</a></div></div>
-            <div class="col-md-4 col-sm-6"><div class="feature-card"><span class="feature-icon">🎵</span><h5>Nature Sounds</h5><p>Forest rain and birdsong — sounds that naturally reduce tension.</p><a href="/music" class="btn-mood w-100">Play Music</a></div></div>
-            <div class="col-md-4 col-sm-6"><div class="feature-card"><span class="feature-icon">✅</span><h5>Grounding Tasks</h5><p>4-7-8 breathing. Walk 5 mins. Drink cold water.</p><a href="/todo" class="btn-mood w-100">View Tasks</a></div></div>
-            <div class="col-md-4 col-sm-6"><div class="feature-card"><span class="feature-icon">📖</span><h5>Release Journal</h5><p>Write the unfiltered version. No judgment. Just release.</p><a href="/journal" class="btn-mood w-100">Open Journal</a></div></div>
-            <div class="col-md-4 col-sm-6"><div class="feature-card"><span class="feature-icon">📊</span><h5>Mood Patterns</h5><p>Is this a recurring trigger? Your history might reveal it.</p><a href="/history" class="btn-mood w-100">View History</a></div></div>
-            <div class="col-md-4 col-sm-6"><div class="feature-card"><span class="feature-icon">🔄</span><h5>Change Mood</h5><p>Feeling calmer? Update your mood.</p><a href="/tracker" class="btn-mood w-100">Update Mood</a></div></div>
+            <div class="col-md-4 col-sm-6"><div class="feature-card"><span class="feature-icon">🤖</span><h5>Courage AI</h5><p>What's scaring you? Let's look at it together rationally.</p><a href="/ai_chat" class="btn-mood w-100">Talk It Out</a></div></div>
+            <div class="col-md-4 col-sm-6"><div class="feature-card"><span class="feature-icon">🎵</span><h5>Empowering Music</h5><p>Bright uplifting tracks to remind you of your strength.</p><a href="/music" class="btn-mood w-100">Play Music</a></div></div>
+            <div class="col-md-4 col-sm-6"><div class="feature-card"><span class="feature-icon">✅</span><h5>Brave Tasks</h5><p>Name one small thing you can do despite the fear. Start there.</p><a href="/todo" class="btn-mood w-100">View Tasks</a></div></div>
+            <div class="col-md-4 col-sm-6"><div class="feature-card"><span class="feature-icon">📖</span><h5>Fear Journal</h5><p>Write what scares you — then write what you know to be true.</p><a href="/journal" class="btn-mood w-100">Open Journal</a></div></div>
+            <div class="col-md-4 col-sm-6"><div class="feature-card"><span class="feature-icon">📊</span><h5>Progress Check</h5><p>See how many hard moments you have already gotten through.</p><a href="/history" class="btn-mood w-100">View History</a></div></div>
+            <div class="col-md-4 col-sm-6"><div class="feature-card"><span class="feature-icon">🔄</span><h5>Change Mood</h5><p>Feeling steadier? Update your mood anytime.</p><a href="/tracker" class="btn-mood w-100">Update Mood</a></div></div>
 
         <!-- EXERCISE WIDGET -->
         <div class="exercise-widget mt-4">
             <div class="ex-widget-header">
                 <div class="ex-widget-left">
-                    <span class="ex-widget-icon" id="exIconangry">🌬️</span>
+                    <span class="ex-widget-icon" id="exIconFear">🔍</span>
                     <div>
                         <div class="ex-widget-label">Exercise for your mood</div>
-                        <div class="ex-widget-title" id="exTitleangry">4-7-8 Breathing</div>
+                        <div class="ex-widget-title" id="exTitleFear">Name It to Tame It</div>
                     </div>
                 </div>
                 <div class="ex-widget-right">
-                    <span class="ex-step-counter" id="exCtrangry">1 / 6</span>
-                    <button class="ex-rotate-btn" onclick="rotateExangry()" title="Next exercise">&#x27F3;</button>
+                    <span class="ex-step-counter" id="exCtrFear">1 / 6</span>
+                    <button class="ex-rotate-btn" onclick="rotateExFear()" title="Next exercise">&#x27F3;</button>
                 </div>
             </div>
-            <div class="ex-widget-desc" id="exDescangry">Inhale 4 sec, Hold 7 sec, Exhale 8 sec. Repeat 4 times. Activates your parasympathetic nervous system and slows your heart rate.</div>
+            <div class="ex-widget-desc" id="exDescFear">Say out loud: I am feeling fear. Naming an emotion activates the prefrontal cortex and reduces the amygdala alarm response.</div>
             <div class="ex-widget-footer">
-                <div class="ex-dots" id="exDotsangry"><div class="ex-dot  active" onclick="goToExangry(0)"></div><div class="ex-dot" onclick="goToExangry(1)"></div><div class="ex-dot" onclick="goToExangry(2)"></div><div class="ex-dot" onclick="goToExangry(3)"></div><div class="ex-dot" onclick="goToExangry(4)"></div><div class="ex-dot" onclick="goToExangry(5)"></div></div>
+                <div class="ex-dots" id="exDotsFear"><div class="ex-dot  active" onclick="goToExFear(0)"></div><div class="ex-dot" onclick="goToExFear(1)"></div><div class="ex-dot" onclick="goToExFear(2)"></div><div class="ex-dot" onclick="goToExFear(3)"></div><div class="ex-dot" onclick="goToExFear(4)"></div><div class="ex-dot" onclick="goToExFear(5)"></div></div>
                 <a href="/exercises" class="ex-all-link">See all exercises &#8594;</a>
             </div>
         </div>
         <script>
         (function(){
-            const steps=[{"icon":"🌬️","title":"4-7-8 Breathing","desc":"Inhale 4 sec, Hold 7 sec, Exhale 8 sec. Repeat 4 times. Activates your parasympathetic nervous system and slows your heart rate."},{"icon":"🚶","title":"5-Minute Walk","desc":"Step outside and walk briskly for 5 minutes. Movement burns off adrenaline — the chemical making you feel tense right now."},{"icon":"💧","title":"Cold Water Technique","desc":"Splash cold water on your face for 30 seconds. Activates the dive reflex and instantly lowers your heart rate."},{"icon":"✍️","title":"Anger Dump","desc":"Write everything you are angry about — uncensored. Then tear or delete the paper. Gets it out of your head completely."},{"icon":"🧘","title":"Progressive Muscle Relax","desc":"Tense each muscle group for 5 seconds then release. Start from feet up to jaw. Releases physical tension from anger."},{"icon":"🎵","title":"Music Reset","desc":"Put on music matching your energy first, then switch to calmer tracks. Ease your nervous system into calm gradually."}];
+            const steps=[{"icon":"🔍","title":"Name It to Tame It","desc":"Say out loud: I am feeling fear. Naming an emotion activates the prefrontal cortex and reduces the amygdala alarm response."},{"icon":"📊","title":"Fear Fact-Check","desc":"Write your fear. Then: What is the realistic worst case? Best case? Most likely? Fear shrinks when examined with facts."},{"icon":"🐢","title":"Slow Exhale Technique","desc":"Inhale normally, then exhale TWICE as long. Long exhales activate the vagus nerve and signal safety to your brain."},{"icon":"🦁","title":"Courage Anchor","desc":"Think of one moment you were brave. Hold that memory for 30 seconds. Your brain cannot feel fear and pride at once."},{"icon":"🚶","title":"Move Through It","desc":"Walk around your space for 2 minutes. Fear is stored as physical tension. Movement tells your body the threat is not real."},{"icon":"✍️","title":"Best Case Journaling","desc":"Write what your life looks like if the feared thing goes WELL. Your brain responds to what you vividly imagine."}];
             let cur=0;
             function upd(){
-                document.getElementById('exIconangry').textContent=steps[cur].icon;
-                document.getElementById('exTitleangry').textContent=steps[cur].title;
-                document.getElementById('exDescangry').textContent=steps[cur].desc;
-                document.getElementById('exCtrangry').textContent=(cur+1)+' / '+steps.length;
-                document.querySelectorAll('#exDotsangry .ex-dot').forEach((d,i)=>d.classList.toggle('active',i===cur));
+                document.getElementById('exIconFear').textContent=steps[cur].icon;
+                document.getElementById('exTitleFear').textContent=steps[cur].title;
+                document.getElementById('exDescFear').textContent=steps[cur].desc;
+                document.getElementById('exCtrFear').textContent=(cur+1)+' / '+steps.length;
+                document.querySelectorAll('#exDotsFear .ex-dot').forEach((d,i)=>d.classList.toggle('active',i===cur));
             }
-            window['rotateExangry']=function(){cur=(cur+1)%steps.length;upd();};
-            window['goToExangry']=function(i){cur=i;upd();};
+            window['rotateExFear']=function(){cur=(cur+1)%steps.length;upd();};
+            window['goToExFear']=function(i){cur=i;upd();};
         })();
         </script>
 
@@ -613,10 +613,10 @@
 <script>
 // ── QUOTES ──
 const quotes = [
-    "Between stimulus and response there is a space. In that space is your power.",
-    "The greatest remedy for anger is delay — breathe first.",
-    "Nature does not hurry, yet everything is accomplished.",
-    "You are not your anger. You are the one who notices it."
+    "Courage is not the absence of fear — it is acting in spite of it.",
+    "Everything you want is on the other side of fear.",
+    "You have survived every difficult moment so far.",
+    "The sun shines even on cloudy days. So do you."
 ];
 function newQuote() {
     document.getElementById('quoteBox').textContent =

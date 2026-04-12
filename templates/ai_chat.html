@@ -3,283 +3,287 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Solace AI | Galaxy Mode 🌌</title>
-
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600&display=swap" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Eva | Solace AI 🌌</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-
     <style>
-        :root {
-            --deep-space: #0a0a12;
-            --gemini-purple: #9b72cb;
-            --gemini-blue: #4285f4;
-            --glass-white: rgba(255, 255, 255, 0.1);
-            --text-main: #ffffff;
-        }
-
-        body { 
-            background: radial-gradient(circle at bottom right, #1a1a2e, #0a0a12, #05050a);
+        :root { --purple:#9b72cb; --blue:#4285f4; --pink:#d96570; --bg:#07070f; }
+        * { box-sizing:border-box; margin:0; padding:0; }
+        body {
+            background: radial-gradient(ellipse at 80% 20%, #1a0a2e 0%, #07070f 50%, #040408 100%);
             background-attachment: fixed;
-            color: var(--text-main);
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            height: 100vh;
-            margin: 0;
-            display: flex;
-            overflow: hidden;
+            color:#fff;
+            font-family:'Plus Jakarta Sans',sans-serif;
+            height:100vh; display:flex; overflow:hidden;
         }
-
+        /* SIDEBAR */
         .sidebar {
-            width: 280px;
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(25px);
-            padding: 25px;
-            border-right: 1px solid rgba(255, 255, 255, 0.15);
-            display: flex;
-            flex-direction: column;
+            width:265px; background:rgba(0,0,0,0.55);
+            backdrop-filter:blur(30px);
+            border-right:1px solid rgba(255,255,255,0.07);
+            display:flex; flex-direction:column; padding:22px 16px; flex-shrink:0;
         }
+        .sidebar-brand { display:flex; align-items:center; gap:10px; margin-bottom:16px; }
+        .eva-logo {
+            width:36px; height:36px; border-radius:50%;
+            background:linear-gradient(135deg,var(--blue),var(--purple),var(--pink));
+            display:flex; align-items:center; justify-content:center; font-size:1rem;
+            box-shadow:0 0 16px rgba(155,114,203,0.4);
+            animation:pulse-logo 3s ease-in-out infinite;
+        }
+        @keyframes pulse-logo { 0%,100%{box-shadow:0 0 16px rgba(155,114,203,0.4);} 50%{box-shadow:0 0 28px rgba(155,114,203,0.7);} }
+        .brand-name { font-size:1.05rem; font-weight:700; }
+        .brand-name .e{color:var(--blue);} .brand-name .v{color:var(--purple);} .brand-name .a{color:var(--pink);}
+        .brand-sub { font-size:0.72rem; color:rgba(255,255,255,0.3); font-weight:400; }
+        .mood-pill {
+            background:rgba(66,133,244,0.1); border:1px solid rgba(66,133,244,0.2);
+            color:#8ab4f8; padding:5px 12px; border-radius:20px; font-size:0.73rem;
+            font-weight:500; margin-bottom:14px; display:inline-block;
+        }
+        .btn-new {
+            width:100%; padding:9px; background:linear-gradient(90deg,var(--blue),var(--purple));
+            border:none; border-radius:11px; color:white; font-family:inherit;
+            font-weight:600; font-size:0.85rem; cursor:pointer; margin-bottom:18px;
+            text-decoration:none; display:block; text-align:center; transition:opacity 0.2s;
+        }
+        .btn-new:hover { opacity:0.85; color:white; }
+        .snav a {
+            display:flex; align-items:center; gap:9px;
+            color:rgba(255,255,255,0.5); text-decoration:none;
+            font-size:0.85rem; padding:8px 9px; border-radius:9px; margin-bottom:2px; transition:all 0.2s;
+        }
+        .snav a:hover { background:rgba(255,255,255,0.06); color:white; }
+        .snav a i { width:15px; text-align:center; }
+        .hlabel {
+            font-size:0.65rem; text-transform:uppercase; letter-spacing:1.5px;
+            color:rgba(255,255,255,0.22); padding:12px 9px 7px; font-weight:700;
+        }
+        .hscroll { flex:1; overflow-y:auto; }
+        .hscroll::-webkit-scrollbar { width:3px; }
+        .hscroll::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.08); border-radius:3px; }
+        .chat-item { display:flex; align-items:center; padding:8px 9px; border-radius:9px; margin-bottom:3px; border:1px solid transparent; transition:all 0.2s; }
+        .chat-item:hover { background:rgba(155,114,203,0.08); border-color:rgba(155,114,203,0.18); }
+        .chat-link { flex:1; min-width:0; text-decoration:none; color:rgba(255,255,255,0.55); font-size:0.8rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .chat-del { color:rgba(255,80,80,0.4); font-size:0.72rem; padding:3px 6px; border-radius:5px; text-decoration:none; transition:all 0.2s; flex-shrink:0; }
+        .chat-del:hover { color:#ff5050; background:rgba(255,80,80,0.08); }
+        .sfooter { padding-top:14px; border-top:1px solid rgba(255,255,255,0.06); margin-top:6px; }
+        .sfooter a { display:flex; align-items:center; gap:8px; color:rgba(255,100,100,0.65); text-decoration:none; font-size:0.83rem; padding:7px 9px; border-radius:9px; transition:all 0.2s; }
+        .sfooter a:hover { background:rgba(255,80,80,0.07); color:#ff6b6b; }
 
-        .main-content {
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            position: relative;
-        }
+        /* MAIN */
+        .main { flex:1; display:flex; flex-direction:column; position:relative; overflow:hidden; }
+        .stars { position:absolute; inset:0; pointer-events:none; z-index:0; overflow:hidden; }
+        .star { position:absolute; background:white; border-radius:50%; animation:twinkle var(--d) ease-in-out infinite var(--delay); opacity:0; }
+        @keyframes twinkle { 0%,100%{opacity:0;transform:scale(0.5);} 50%{opacity:0.7;transform:scale(1);} }
 
-        .chat-scroll {
-            flex-grow: 1;
-            overflow-y: auto;
-            padding: 80px 15% 180px 15%;
-            scroll-behavior: smooth;
-        }
+        .chat-scroll { flex:1; overflow-y:auto; padding:36px 14% 200px; scroll-behavior:smooth; position:relative; z-index:1; }
+        .chat-scroll::-webkit-scrollbar { width:4px; }
+        .chat-scroll::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.08); border-radius:4px; }
 
-        /* Recent Chats Section */
-        .recent-chats-container {
-            margin-top: 20px;
-            flex-grow: 1;
-            overflow-y: auto;
+        /* MESSAGES */
+        .msg-row { display:flex; align-items:flex-start; margin-bottom:26px; animation:fadeUp 0.28s ease forwards; }
+        .msg-row.user { justify-content:flex-end; }
+        @keyframes fadeUp { from{opacity:0;transform:translateY(8px);} to{opacity:1;transform:translateY(0);} }
+        .ai-av {
+            width:32px; height:32px; border-radius:50%;
+            background:linear-gradient(135deg,var(--blue),var(--purple),var(--pink));
+            display:flex; align-items:center; justify-content:center;
+            font-size:0.85rem; margin-right:11px; flex-shrink:0;
+            box-shadow:0 0 10px rgba(155,114,203,0.25);
         }
-        
-        .recent-chat-item {
-            padding: 12px;
-            border-radius: 12px;
-            background: rgba(255, 255, 255, 0.05);
-            margin-bottom: 10px;
-            font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            transition: 0.3s;
+        .bubble { max-width:70%; font-size:0.93rem; line-height:1.65; }
+        .bubble.ai { color:rgba(255,255,255,0.9); white-space:pre-wrap; }
+        .bubble.user {
+            background:rgba(66,133,244,0.16); border:1px solid rgba(66,133,244,0.28);
+            padding:11px 17px; border-radius:18px 18px 4px 18px; color:white; font-weight:500;
         }
-        
-        .recent-chat-item:hover {
-            background: rgba(155, 114, 203, 0.15);
-            border-color: var(--gemini-purple);
-        }
+        .typing-dots { display:flex; gap:5px; align-items:center; padding:6px 0; }
+        .typing-dots span { width:7px; height:7px; background:var(--purple); border-radius:50%; animation:dot 1.2s ease-in-out infinite; }
+        .typing-dots span:nth-child(2){animation-delay:0.2s;} .typing-dots span:nth-child(3){animation-delay:0.4s;}
+        @keyframes dot { 0%,80%,100%{transform:scale(0.6);opacity:0.4;} 40%{transform:scale(1);opacity:1;} }
 
-        .chat-link {
-            text-decoration: none;
-            color: #e0e0e0;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            flex-grow: 1;
-        }
+        /* EVA INTRO */
+        .eva-intro { background:rgba(255,255,255,0.025); border:1px solid rgba(255,255,255,0.07); border-radius:20px; padding:28px; margin-bottom:30px; text-align:center; }
+        .big-av { width:58px; height:58px; border-radius:50%; background:linear-gradient(135deg,var(--blue),var(--purple),var(--pink)); display:flex; align-items:center; justify-content:center; font-size:1.5rem; margin:0 auto 14px; box-shadow:0 0 28px rgba(155,114,203,0.35); }
+        .eva-intro h3 { font-size:1.15rem; font-weight:700; margin-bottom:6px; }
+        .eva-intro p { font-size:0.82rem; color:rgba(255,255,255,0.45); line-height:1.6; }
+        .chips { display:flex; flex-wrap:wrap; gap:7px; justify-content:center; margin-top:16px; }
+        .chip { background:rgba(155,114,203,0.1); border:1px solid rgba(155,114,203,0.22); color:rgba(255,255,255,0.65); padding:6px 13px; border-radius:20px; font-size:0.75rem; cursor:pointer; transition:all 0.2s; }
+        .chip:hover { background:rgba(155,114,203,0.2); color:white; border-color:var(--purple); }
 
-        .delete-btn {
-            color: #ff4d4d;
-            opacity: 0.6;
-            transition: 0.3s;
-            padding-left: 10px;
-        }
-
-        .delete-btn:hover { opacity: 1; transform: scale(1.1); }
-
-        .message-row { display: flex; margin-bottom: 30px; align-items: flex-start; }
-        
-        .avatar {
-            width: 35px; height: 35px; border-radius: 50%;
-            margin-right: 15px; display: flex; align-items: center; justify-content: center;
-            flex-shrink: 0;
-        }
-        
-        .ai-avatar { 
-            background: linear-gradient(45deg, #4285f4, #9b72cb, #d96570);
-            box-shadow: 0 0 10px rgba(155, 114, 203, 0.3);
-        }
-
-        .content { font-size: 1.05rem; line-height: 1.6; max-width: 80%; }
-        .ai-text { color: #ffffff; white-space: pre-wrap; }
-        .user-text { 
-            color: #ffffff; 
-            font-weight: 600; 
-            background: rgba(66, 133, 244, 0.2); 
-            border: 1px solid rgba(66, 133, 244, 0.3);
-            padding: 12px 20px; 
-            border-radius: 18px; 
-        }
-
-        .input-wrapper {
-            position: absolute; bottom: 30px; left: 0; right: 0;
-            padding: 0 15%;
-        }
-
-        .input-box {
-            background: #1e1e26;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 24px;
-            padding: 8px 20px;
-            display: flex; align-items: center;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
-        }
-
-        #user-msg { border: none; outline: none; width: 100%; background: transparent; color: white; padding: 10px; }
-
-        .sidebar-link {
-            color: #e0e0e0; text-decoration: none; margin-bottom: 12px; 
-            font-size: 0.95rem; transition: 0.3s; display: block;
-        }
-        .sidebar-link:hover { color: white; transform: translateX(5px); }
-
-        /* Scrollbar */
-        ::-webkit-scrollbar { width: 5px; }
-        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
+        /* INPUT */
+        .input-area { position:absolute; bottom:0; left:0; right:0; padding:18px 14%; background:linear-gradient(to top,#07070f 60%,transparent); z-index:10; }
+        .input-box { background:rgba(18,18,30,0.97); border:1px solid rgba(255,255,255,0.1); border-radius:18px; padding:5px 7px 5px 18px; display:flex; align-items:center; gap:8px; box-shadow:0 8px 32px rgba(0,0,0,0.5); }
+        #user-msg { flex:1; border:none; outline:none; background:transparent; color:white; font-family:'Plus Jakarta Sans',sans-serif; font-size:0.92rem; padding:9px 4px; resize:none; max-height:110px; }
+        #user-msg::placeholder { color:rgba(255,255,255,0.25); }
+        .send-btn { width:36px; height:36px; border-radius:11px; background:linear-gradient(135deg,var(--blue),var(--purple)); border:none; color:white; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:0.85rem; transition:all 0.2s; flex-shrink:0; }
+        .send-btn:hover { transform:scale(1.08); } .send-btn:disabled { opacity:0.35; cursor:not-allowed; }
+        .input-hint { text-align:center; font-size:0.67rem; color:rgba(255,255,255,0.15); margin-top:7px; }
     </style>
 </head>
 <body>
 
 <aside class="sidebar">
-    <div class="mb-4">
-        <h4 class="fw-bold"><span style="color: #4285f4;">Solace</span> <span style="color: #9b72cb;">AI</span></h4>
-        <small class="text-muted">Mood: <span class="text-info" style="color:#8ab4f8 !important;">{{ session.get('current_mood', 'Neutral')|capitalize }}</span></small>
+    <div class="sidebar-brand">
+        <div class="eva-logo">✦</div>
+        <div>
+            <div class="brand-name"><span class="e">E</span><span class="v">v</span><span class="a">a</span> <span class="brand-sub">by Solace</span></div>
+        </div>
     </div>
-    
-    <a href="/new_chat" class="btn btn-primary btn-sm rounded-pill mb-4 w-100" style="background: linear-gradient(45deg, #4285f4, #9b72cb); border: none;">
-        <i class="fas fa-plus me-2"></i> New Chat
-    </a>
 
-    <nav>
-        <a href="/dashboard" class="sidebar-link"><i class="fas fa-th-large me-2"></i> Dashboard</a>
-        <a href="/todo" class="sidebar-link"><i class="fas fa-tasks me-2"></i> Tasks</a>
-        <a href="/journal" class="sidebar-link"><i class="fas fa-pen-nib me-2"></i> Journal</a>
-    </nav>
+    <div class="mood-pill">
+        <i class="fas fa-circle-dot me-1" style="font-size:0.55rem"></i>
+        Mood: {{ session.get('current_mood', 'Neutral')|capitalize }}
+    </div>
 
-    <div class="recent-chats-container">
-        <h6 class="text-uppercase small fw-bold text-muted mb-3" style="letter-spacing: 1px; color: #adadad !important;">History</h6>
+    <a href="/new_chat" class="btn-new"><i class="fas fa-plus me-2"></i>New Conversation</a>
+
+    <div class="snav">
+        <a href="/dashboard"><i class="fas fa-th-large"></i> Dashboard</a>
+        <a href="/tracker"><i class="fas fa-sync-alt"></i> Change Mood</a>
+        <a href="/todo"><i class="fas fa-tasks"></i> Tasks</a>
+        <a href="/journal"><i class="fas fa-pen-nib"></i> Journal</a>
+        <a href="/music"><i class="fas fa-music"></i> Music</a>
+        <a href="/history"><i class="fas fa-chart-line"></i> History</a>
+    </div>
+
+    <div class="hlabel">Recent Chats</div>
+    <div class="hscroll">
         {% if chat_history %}
             {% for chat in chat_history %}
-            <div class="recent-chat-item">
+            <div class="chat-item">
                 <a href="/load_chat/{{ chat.session_id }}" class="chat-link">
-                    <i class="far fa-comment-alt me-2"></i> {{ chat.user_message[:18] }}...
+                    <i class="far fa-comment-alt me-2" style="opacity:0.35"></i>{{ chat.user_message[:22] }}...
                 </a>
-                <a href="/delete_chat/{{ chat.session_id }}" class="delete-btn" title="Delete Chat">
-                    <i class="fas fa-trash-alt"></i>
-                </a>
+                <a href="/delete_chat/{{ chat.session_id }}" class="chat-del"><i class="fas fa-trash"></i></a>
             </div>
             {% endfor %}
         {% else %}
-            <p class="small text-muted">No history found.</p>
+            <p style="font-size:0.76rem;color:rgba(255,255,255,0.22);padding:7px 9px">No chats yet.</p>
         {% endif %}
     </div>
 
-    <div class="mt-auto">
-        <a href="/logout" class="sidebar-link text-danger"><i class="fas fa-sign-out-alt me-2"></i> Logout</a>
+    <div class="sfooter">
+        <a href="/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
     </div>
 </aside>
 
-<main class="main-content">
-    <div class="chat-scroll" id="chat-display">
-        <div class="message-row">
-            <div class="avatar ai-avatar"><i class="fas fa-sparkles text-white"></i></div>
-            <div class="content ai-text">Hello {{ session['user'] }}. How can I support your {{ session.get('current_mood', 'neutral') }} mood?</div>
+<main class="main">
+    <div class="stars" id="stars"></div>
+
+    <div class="chat-scroll" id="chatDisplay">
+        <div class="eva-intro">
+            <div class="big-av">✦</div>
+            <h3>Hi {{ username }}, I'm Eva.</h3>
+            <p>Your compassionate AI companion — here to listen, help you reframe your thoughts,<br>and support your emotional wellness one conversation at a time.</p>
+            <div class="chips">
+                <div class="chip" onclick="sendChip(this)">I'm feeling overwhelmed today</div>
+                <div class="chip" onclick="sendChip(this)">Help me think through something</div>
+                <div class="chip" onclick="sendChip(this)">I need some motivation</div>
+                <div class="chip" onclick="sendChip(this)">I want to vent about my day</div>
+            </div>
         </div>
 
         {% if active_messages %}
             {% for chat in active_messages %}
-                <div class="message-row justify-content-end">
-                    <div class="content user-text">{{ chat.user_message }}</div>
+                <div class="msg-row user">
+                    <div class="bubble user">{{ chat.user_message }}</div>
                 </div>
-                <div class="message-row">
-                    <div class="avatar ai-avatar"><i class="fas fa-sparkles text-white"></i></div>
-                    <div class="content ai-text">{{ chat.ai_response }}</div>
+                <div class="msg-row">
+                    <div class="ai-av">✦</div>
+                    <div class="bubble ai">{{ chat.ai_response }}</div>
                 </div>
             {% endfor %}
         {% endif %}
     </div>
 
-    <div class="input-wrapper">
+    <div class="input-area">
         <div class="input-box">
-            <input type="text" id="user-msg" placeholder="Type your message..." autocomplete="off">
-            <button class="btn p-0 ms-2" style="color: #9b72cb;" onclick="sendToAI()">
-                <i class="fas fa-paper-plane fa-lg"></i>
+            <textarea id="user-msg" placeholder="Tell Eva what's on your mind..." rows="1"
+                      oninput="autoResize(this)" onkeydown="handleKey(event)"></textarea>
+            <button class="send-btn" id="sendBtn" onclick="sendMsg()">
+                <i class="fas fa-paper-plane"></i>
             </button>
         </div>
+        <div class="input-hint">Eva uses Gemini AI · Your conversations are saved privately</div>
     </div>
 </main>
 
 <script>
-    const chatDisplay = document.getElementById('chat-display');
-    const userInput = document.getElementById('user-msg');
-    chatDisplay.scrollTop = chatDisplay.scrollHeight;
-
-    function appendMessage(role, text) {
-        const row = document.createElement('div');
-        row.className = `message-row ${role === 'user' ? 'justify-content-end' : ''}`;
-        if (role === 'ai') {
-            row.innerHTML = `<div class="avatar ai-avatar"><i class="fas fa-sparkles text-white"></i></div><div class="content ai-text"></div>`;
-        } else {
-            row.innerHTML = `<div class="content user-text">${text}</div>`;
-        }
-        chatDisplay.appendChild(row);
-        chatDisplay.scrollTop = chatDisplay.scrollHeight;
-        return row.querySelector('.content');
+// Stars
+(function(){
+    const c = document.getElementById('stars');
+    for(let i=0;i<80;i++){
+        const s=document.createElement('div'); s.className='star';
+        const sz=Math.random()*2.5+0.5;
+        s.style.cssText=`width:${sz}px;height:${sz}px;left:${Math.random()*100}%;top:${Math.random()*100}%;--d:${(Math.random()*3+2).toFixed(1)}s;--delay:-${(Math.random()*4).toFixed(1)}s;`;
+        c.appendChild(s);
     }
+})();
 
-    function showTyping() {
-        const row = document.createElement('div');
-        row.className = 'message-row'; row.id = 'temp-typing';
-        row.innerHTML = `<div class="avatar ai-avatar"><i class="fas fa-sparkles text-white"></i></div>
-                         <div class="content typing-indicator"><span></span><span></span><span></span></div>`;
-        chatDisplay.appendChild(row);
-        chatDisplay.scrollTop = chatDisplay.scrollHeight;
+const display = document.getElementById('chatDisplay');
+const input   = document.getElementById('user-msg');
+const btn     = document.getElementById('sendBtn');
+
+function scrollBot(){ display.scrollTop = display.scrollHeight; }
+scrollBot();
+
+function autoResize(el){ el.style.height='auto'; el.style.height=Math.min(el.scrollHeight,110)+'px'; }
+function handleKey(e){ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); sendMsg(); } }
+function sendChip(el){ input.value=el.textContent; sendMsg(); }
+
+function esc(t){ return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function addMsg(role, text){
+    const row=document.createElement('div');
+    row.className='msg-row'+(role==='user'?' user':'');
+    if(role==='ai'){
+        row.innerHTML=`<div class="ai-av">✦</div><div class="bubble ai"></div>`;
+    } else {
+        row.innerHTML=`<div class="bubble user">${esc(text)}</div>`;
     }
+    display.appendChild(row);
+    scrollBot();
+    return row.querySelector('.bubble');
+}
 
-    async function sendToAI() {
-        const msg = userInput.value.trim();
-        if (!msg) return;
-        appendMessage('user', msg);
-        userInput.value = '';
-        showTyping();
-        try {
-            const response = await fetch('/get_ai_response', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ message: msg })
-            });
-            const data = await response.json();
-            document.getElementById('temp-typing').remove();
-            const aiBox = appendMessage('ai', '');
-            typeWriter(data.reply, aiBox);
-        } catch (e) {
-            document.getElementById('temp-typing').remove();
-            appendMessage('ai', "Connection error. Please try again.");
-        }
+function showTyping(){
+    const row=document.createElement('div');
+    row.className='msg-row'; row.id='typing';
+    row.innerHTML=`<div class="ai-av">✦</div><div class="bubble ai"><div class="typing-dots"><span></span><span></span><span></span></div></div>`;
+    display.appendChild(row); scrollBot();
+}
+
+function rmTyping(){ const el=document.getElementById('typing'); if(el) el.remove(); }
+
+function typeWrite(text, el){
+    let i=0;
+    (function tick(){ if(i<text.length){ el.textContent+=text[i++]; scrollBot(); setTimeout(tick,11); } })();
+}
+
+async function sendMsg(){
+    const msg=input.value.trim();
+    if(!msg) return;
+    addMsg('user', msg);
+    input.value=''; input.style.height='auto';
+    btn.disabled=true; showTyping();
+
+    try {
+        const res  = await fetch('/get_ai_response',{
+            method:'POST', headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({message:msg})
+        });
+        const data = await res.json();
+        rmTyping();
+        const bubble = addMsg('ai','');
+        typeWrite(data.reply || 'Something went wrong. Please try again.', bubble);
+    } catch(e){
+        rmTyping();
+        addMsg('ai','⚠️ Connection issue. Please check your internet and try again.');
+    } finally {
+        btn.disabled=false; input.focus();
     }
-
-    function typeWriter(text, element) {
-        let i = 0;
-        function type() {
-            if (i < text.length) {
-                element.innerHTML += text.charAt(i); i++;
-                chatDisplay.scrollTop = chatDisplay.scrollHeight;
-                setTimeout(type, 15);
-            }
-        }
-        type();
-    }
-
-    userInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendToAI(); });
+}
 </script>
 </body>
 </html>
