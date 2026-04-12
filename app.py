@@ -53,9 +53,6 @@ def init_db() -> None:
                 email      TEXT NOT NULL,
                 password   TEXT NOT NULL,
                 is_admin   INTEGER DEFAULT 0,
-                gender     TEXT DEFAULT '',
-                age        INTEGER DEFAULT 0,
-                age_group  TEXT DEFAULT '',
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP
             );
             CREATE TABLE IF NOT EXISTS mood_logs (
@@ -269,34 +266,18 @@ def signup() -> Any:
     username = data.get("username", "").strip()
     email    = data.get("email", "").strip()
     password = data.get("password", "")
-    gender   = data.get("gender", "").strip()
-    age      = int(data.get("age", 0) or 0)
 
     if not username or not email or not password:
         return jsonify({"error": "All fields are required."}), 400
     if len(password) < 8:
         return jsonify({"error": "Password must be at least 8 characters."}), 400
-    if age < 10 or age > 100:
-        return jsonify({"error": "Please enter a valid age (10–100)."}), 400
-
-    # Assign age group
-    if 10 <= age <= 19:
-        age_group = "Teen"
-    elif 20 <= age <= 29:
-        age_group = "Young Adult"
-    elif 30 <= age <= 39:
-        age_group = "Adult"
-    elif 40 <= age <= 59:
-        age_group = "Mature Adult"
-    else:
-        age_group = "Senior"
 
     hashed = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
     try:
         with get_db() as conn:
             conn.execute(
-                "INSERT INTO users (username, email, password, gender, age, age_group) VALUES (?,?,?,?,?,?)",
-                (username, email, hashed, gender, age, age_group),
+                "INSERT INTO users (username, email, password) VALUES (?,?,?)",
+                (username, email, hashed),
             )
         return jsonify({"message": "Account created! Please log in."}), 201
     except sqlite3.IntegrityError:
@@ -350,19 +331,17 @@ def logout() -> Any:
 @app.route("/request-otp", methods=["POST"])
 def request_otp() -> Any:
     data  = request.json or {}
-    email = data.get("email", "").strip().lower()
-
-    if not email:
-        return jsonify({"error": "Please enter your email address."}), 400
+    uname = data.get("username", "").strip()
 
     with get_db() as conn:
-        user = conn.execute("SELECT id, email FROM users WHERE LOWER(email)=?", (email,)).fetchone()
+        user = conn.execute("SELECT email FROM users WHERE username=?", (uname,)).fetchone()
 
     if not user:
-        return jsonify({"error": "No account found with that email address."}), 404
+        return jsonify({"error": "No account found with that username."}), 404
 
     otp     = str(random.randint(100000, 999999))
     expires = (datetime.now() + timedelta(minutes=10)).strftime("%Y-%m-%d %H:%M:%S")
+    email   = user["email"]
 
     with get_db() as conn:
         conn.execute("DELETE FROM otp_store WHERE email=?", (email,))
@@ -370,52 +349,43 @@ def request_otp() -> Any:
                      (email, otp, expires))
 
     ok = send_otp_email(email, otp)
-    masked = email[:2] + "***" + email[email.index("@"):]
-
+    masked = email[:3] + "***" + email[email.index("@"):]
     if not ok:
-        print(f"[OTP] Dev fallback — OTP for {email} is {otp}")
-        return jsonify({
-            "message": f"OTP sent to {masked}",
-            "dev_otp": otp  # only shown in terminal, not to user
-        }), 200
+        # Dev fallback — remove before going live
+        return jsonify({"message": f"(Dev) OTP is {otp} — email failed.", "email": masked}), 200
     return jsonify({"message": f"OTP sent to {masked}"}), 200
 
 
 @app.route("/verify-otp", methods=["POST"])
 def verify_otp() -> Any:
     data     = request.json or {}
-    email    = data.get("email", "").strip().lower()
+    username = data.get("username", "").strip()
     otp      = data.get("otp", "").strip()
     new_pass = data.get("new_password", "")
 
-    if not email:
-        return jsonify({"error": "Email is required."}), 400
     if len(new_pass) < 8:
         return jsonify({"error": "Password must be at least 8 characters."}), 400
 
     with get_db() as conn:
-        user = conn.execute(
-            "SELECT id, username FROM users WHERE LOWER(email)=?", (email,)
-        ).fetchone()
+        user = conn.execute("SELECT email FROM users WHERE username=?", (username,)).fetchone()
         if not user:
-            return jsonify({"error": "No account found with that email."}), 404
+            return jsonify({"error": "User not found."}), 404
 
         record = conn.execute(
-            "SELECT * FROM otp_store WHERE email=? AND otp=?", (email, otp)
+            "SELECT * FROM otp_store WHERE email=? AND otp=?", (user["email"], otp)
         ).fetchone()
 
         if not record:
-            return jsonify({"error": "Invalid OTP. Please check and try again."}), 400
-
+            return jsonify({"error": "Invalid OTP."}), 400
         if datetime.now() > datetime.strptime(record["expires_at"], "%Y-%m-%d %H:%M:%S"):
-            conn.execute("DELETE FROM otp_store WHERE email=?", (email,))
-            return jsonify({"error": "OTP has expired. Please request a new one."}), 400
+            conn.execute("DELETE FROM otp_store WHERE email=?", (user["email"],))
+            return jsonify({"error": "OTP expired. Please request a new one."}), 400
 
         hashed = bcrypt.hashpw(new_pass.encode(), bcrypt.gensalt()).decode()
-        conn.execute("UPDATE users SET password=? WHERE id=?", (hashed, user["id"]))
-        conn.execute("DELETE FROM otp_store WHERE email=?", (email,))
+        conn.execute("UPDATE users SET password=? WHERE username=?", (hashed, username))
+        conn.execute("DELETE FROM otp_store WHERE email=?", (user["email"],))
 
-    return jsonify({"message": "Password reset successfully! Please log in."}), 200
+    return jsonify({"message": "Password reset! Please log in."}), 200
 
 
 # ---------------------------------------------------------------------------
@@ -1969,7 +1939,7 @@ def account_data() -> Any:
     uid = session["user_id"]
     with get_db() as conn:
         user = conn.execute(
-            "SELECT username, email, created_at, gender, age, age_group FROM users WHERE id=?", (uid,)
+            "SELECT username, email, created_at FROM users WHERE id=?", (uid,)
         ).fetchone()
         mood_count    = conn.execute("SELECT COUNT(*) FROM mood_logs WHERE user_id=?", (uid,)).fetchone()[0]
         journal_count = conn.execute("SELECT COUNT(*) FROM journals  WHERE user_id=?", (uid,)).fetchone()[0]
@@ -1998,9 +1968,6 @@ def account_data() -> Any:
         "username":      user["username"],
         "email":         user["email"],
         "member_since":  (user["created_at"] or "")[:10],
-        "gender":        user["gender"] or "",
-        "age":           user["age"] or 0,
-        "age_group":     user["age_group"] or "",
         "mood_count":    mood_count,
         "journal_count": journal_count,
         "task_count":    task_count,

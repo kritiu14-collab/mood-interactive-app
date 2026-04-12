@@ -310,18 +310,6 @@
             <label>Confirm Password</label>
             <input type="password" id="signupConfirm" placeholder="••••••••">
 
-            <label>Age</label>
-            <input type="number" id="signupAge" placeholder="Your age" min="10" max="100">
-
-            <label>Gender</label>
-            <select id="signupGender" style="width:100%;padding:11px 14px;border:1.5px solid rgba(255,255,255,0.1);border-radius:10px;background:rgba(255,255,255,0.05);color:white;font-family:inherit;font-size:0.9rem;margin-bottom:14px;">
-                <option value="" style="background:#1a1a2e">Select gender</option>
-                <option value="Male" style="background:#1a1a2e">Male</option>
-                <option value="Female" style="background:#1a1a2e">Female</option>
-                <option value="Non-binary" style="background:#1a1a2e">Non-binary</option>
-                <option value="Prefer not to say" style="background:#1a1a2e">Prefer not to say</option>
-            </select>
-
             <div id="signupError"   class="msg-error"></div>
             <div id="signupSuccess" class="msg-success"></div>
 
@@ -331,33 +319,32 @@
         <!-- ── RESET PASSWORD ── -->
         <div id="resetSection" class="form-section">
 
-            <!-- Step 1: Enter email -->
+            <!-- Step 1: Enter username -->
             <div id="resetStep1">
                 <h2>Reset password</h2>
-                <p class="subtitle">Enter your registered email — we will send you a 6-digit OTP.</p>
+                <p class="subtitle">We'll send a 6-digit OTP to your registered email.</p>
 
-                <label>Email Address</label>
-                <input type="email" id="resetEmail" placeholder="your@email.com">
+                <label>Username</label>
+                <input type="text" id="resetUsername" placeholder="Your username">
 
                 <div id="resetError1"   class="msg-error"></div>
                 <div id="resetSuccess1" class="msg-success"></div>
 
-                <button class="btn-primary" onclick="requestOTP()">
-                    <i class="fas fa-paper-plane" style="margin-right:6px"></i>Send OTP
-                </button>
+                <button class="btn-primary" onclick="requestOTP()">Send OTP</button>
             </div>
 
             <!-- Step 2: Enter OTP + new password -->
             <div id="resetStep2" style="display:none">
                 <h2>Enter OTP</h2>
-                <p class="subtitle" id="otpHint">Check your email for the 6-digit code. It expires in 10 minutes.</p>
+                <p class="subtitle" id="otpHint">Check your email for the 6-digit code.</p>
 
-                <label>6-Digit OTP</label>
-                <input type="text" id="otpCode" placeholder="123456" maxlength="6"
-                       style="letter-spacing:6px;font-size:1.4rem;text-align:center;font-weight:700;">
+                <label>OTP Code</label>
+                <div class="otp-input-row">
+                    <input type="text" id="otpCode" placeholder="123456" maxlength="6">
+                </div>
 
-                <label>New Password <span style="color:#aaa;font-weight:400">(min. 8 characters)</span></label>
-                <input type="password" id="newPassword" placeholder="New password">
+                <label>New Password</label>
+                <input type="password" id="newPassword" placeholder="Min. 8 characters">
 
                 <label>Confirm New Password</label>
                 <input type="password" id="confirmNewPassword" placeholder="••••••••">
@@ -365,11 +352,9 @@
                 <div id="resetError2"   class="msg-error"></div>
                 <div id="resetSuccess2" class="msg-success"></div>
 
-                <button class="btn-primary" onclick="verifyOTP()">
-                    <i class="fas fa-check-circle" style="margin-right:6px"></i>Reset Password
-                </button>
+                <button class="btn-primary" onclick="verifyOTP()">Reset Password</button>
                 <div style="margin-top:12px;text-align:center">
-                    <button class="link-btn" onclick="backToStep1()">← Use different email</button>
+                    <button class="link-btn" onclick="backToStep1()">← Try different username</button>
                 </div>
             </div>
         </div>
@@ -435,103 +420,76 @@
         const email    = document.getElementById('signupEmail').value.trim();
         const password = document.getElementById('signupPassword').value;
         const confirm  = document.getElementById('signupConfirm').value;
-        const age      = parseInt(document.getElementById('signupAge').value) || 0;
-        const gender   = document.getElementById('signupGender').value;
 
         if (!username || !email || !password) { showMsg('signupError', 'All fields are required.', 'error'); return; }
         if (password.length < 8)              { showMsg('signupError', 'Password must be at least 8 characters.', 'error'); return; }
         if (password !== confirm)             { showMsg('signupError', 'Passwords do not match.', 'error'); return; }
-        if (!age || age < 10 || age > 100)    { showMsg('signupError', 'Please enter a valid age (10–100).', 'error'); return; }
-        if (!gender)                          { showMsg('signupError', 'Please select your gender.', 'error'); return; }
 
         const res  = await fetch('/signup', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, email, password, age, gender })
+            body: JSON.stringify({ username, email, password })
         });
         const data = await res.json();
         if (res.ok) {
             showMsg('signupSuccess', data.message, 'success');
             setTimeout(() => switchTab('login'), 2200);
         } else {
+            // 409 = username already exists
             showMsg('signupError', data.error, 'error');
         }
     }
 
-    // ── OTP Step 1 — Request OTP via email ──
+    // ── OTP Step 1 ──
     async function requestOTP() {
         hideMsg('resetError1', 'resetSuccess1');
-        const email = document.getElementById('resetEmail').value.trim();
-        if (!email) { showMsg('resetError1', 'Please enter your email address.', 'error'); return; }
-        if (!email.includes('@')) { showMsg('resetError1', 'Please enter a valid email address.', 'error'); return; }
+        const username = document.getElementById('resetUsername').value.trim();
+        if (!username) { showMsg('resetError1', 'Please enter your username.', 'error'); return; }
 
-        const btn = document.querySelector('#resetStep1 .btn-primary');
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
-        btn.disabled = true;
-
-        try {
-            const res  = await fetch('/request-otp', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email })
-            });
-            const data = await res.json();
-            if (res.ok) {
-                showMsg('resetSuccess1', data.message, 'success');
-                document.getElementById('otpHint').textContent = data.message;
-                setTimeout(() => {
-                    document.getElementById('resetStep1').style.display = 'none';
-                    document.getElementById('resetStep2').style.display = 'block';
-                    document.getElementById('otpCode').focus();
-                }, 1200);
-            } else {
-                showMsg('resetError1', data.error, 'error');
-            }
-        } catch(e) {
-            showMsg('resetError1', 'Connection error. Please try again.', 'error');
-        } finally {
-            btn.innerHTML = '<i class="fas fa-paper-plane"></i> Send OTP';
-            btn.disabled = false;
+        const res  = await fetch('/request-otp', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username })
+        });
+        const data = await res.json();
+        if (res.ok) {
+            showMsg('resetSuccess1', data.message, 'success');
+            document.getElementById('otpHint').textContent = data.message;
+            setTimeout(() => {
+                document.getElementById('resetStep1').style.display = 'none';
+                document.getElementById('resetStep2').style.display = 'block';
+            }, 1000);
+        } else {
+            showMsg('resetError1', data.error, 'error');
         }
     }
 
-    // ── OTP Step 2 — Verify OTP and reset password ──
+    // ── OTP Step 2 ──
     async function verifyOTP() {
         hideMsg('resetError2', 'resetSuccess2');
-        const email       = document.getElementById('resetEmail').value.trim();
+        const username    = document.getElementById('resetUsername').value.trim();
         const otp         = document.getElementById('otpCode').value.trim();
         const newPassword = document.getElementById('newPassword').value;
         const confirm     = document.getElementById('confirmNewPassword').value;
 
-        if (!otp || otp.length < 6)     { showMsg('resetError2', 'Enter the 6-digit OTP from your email.', 'error'); return; }
+        if (!otp)                       { showMsg('resetError2', 'Enter the OTP.', 'error'); return; }
         if (newPassword.length < 8)     { showMsg('resetError2', 'Password must be at least 8 characters.', 'error'); return; }
         if (newPassword !== confirm)    { showMsg('resetError2', 'Passwords do not match.', 'error'); return; }
 
-        const btn = document.querySelector('#resetStep2 .btn-primary');
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Resetting...';
-        btn.disabled = true;
-
-        try {
-            const res  = await fetch('/verify-otp', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, otp, new_password: newPassword })
-            });
-            const data = await res.json();
-            if (res.ok) {
-                showMsg('resetSuccess2', '✅ ' + data.message, 'success');
-                setTimeout(() => {
-                    backToStep1();
-                    switchTab('login');
-                }, 2500);
-            } else {
-                showMsg('resetError2', data.error, 'error');
-            }
-        } catch(e) {
-            showMsg('resetError2', 'Connection error. Please try again.', 'error');
-        } finally {
-            btn.innerHTML = '<i class="fas fa-check-circle"></i> Reset Password';
-            btn.disabled = false;
+        const res  = await fetch('/verify-otp', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, otp, new_password: newPassword })
+        });
+        const data = await res.json();
+        if (res.ok) {
+            showMsg('resetSuccess2', data.message, 'success');
+            setTimeout(() => {
+                backToStep1();
+                switchTab('login');
+            }, 2000);
+        } else {
+            showMsg('resetError2', data.error, 'error');
         }
     }
 
