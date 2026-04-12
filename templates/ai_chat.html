@@ -133,7 +133,7 @@
 
     <div class="mood-pill">
         <i class="fas fa-circle-dot me-1" style="font-size:0.55rem"></i>
-        Mood: {{ session.get('current_mood', 'Neutral')|capitalize }}
+        Mood: {{ current_mood|capitalize }}
     </div>
 
     <a href="/new_chat" class="btn-new"><i class="fas fa-plus me-2"></i>New Conversation</a>
@@ -175,12 +175,16 @@
         <div class="eva-intro">
             <div class="big-av">✦</div>
             <h3>Hi {{ username }}, I'm Eva.</h3>
-            <p>Your compassionate AI companion — here to listen, help you reframe your thoughts,<br>and support your emotional wellness one conversation at a time.</p>
+            <p>I'm here to listen — without judgment, without rush.<br>You can share anything. I'll walk with you through it.</p>
             <div class="chips">
                 <div class="chip" onclick="sendChip(this)">I'm feeling overwhelmed today</div>
-                <div class="chip" onclick="sendChip(this)">Help me think through something</div>
-                <div class="chip" onclick="sendChip(this)">I need some motivation</div>
+                <div class="chip" onclick="sendChip(this)">I've been really anxious lately</div>
+                <div class="chip" onclick="sendChip(this)">I feel like nobody understands me</div>
+                <div class="chip" onclick="sendChip(this)">I need some motivation right now</div>
                 <div class="chip" onclick="sendChip(this)">I want to vent about my day</div>
+                <div class="chip" onclick="sendChip(this)">I'm struggling to find hope</div>
+                <div class="chip" onclick="sendChip(this)">Help me think through something</div>
+                <div class="chip" onclick="sendChip(this)">I haven't been sleeping well</div>
             </div>
         </div>
 
@@ -230,7 +234,10 @@ scrollBot();
 
 function autoResize(el){ el.style.height='auto'; el.style.height=Math.min(el.scrollHeight,110)+'px'; }
 function handleKey(e){ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); sendMsg(); } }
-function sendChip(el){ input.value=el.textContent; sendMsg(); }
+function sendChip(el){ 
+    input.value=el.textContent; 
+    sendMsg(); 
+}
 
 function esc(t){ return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
@@ -261,17 +268,49 @@ function typeWrite(text, el){
     (function tick(){ if(i<text.length){ el.textContent+=text[i++]; scrollBot(); setTimeout(tick,11); } })();
 }
 
+const CRISIS_WORDS = ['suicide','kill myself','end my life','want to die','self harm','hurt myself','not worth living','no reason to live'];
+
+function checkCrisis(msg){
+    const lower = msg.toLowerCase();
+    return CRISIS_WORDS.some(w => lower.includes(w));
+}
+
+function showCrisisCard(){
+    const row = document.createElement('div');
+    row.className = 'msg-row';
+    row.innerHTML = `<div class="ai-av">✦</div>
+        <div class="bubble ai" style="background:rgba(217,101,112,0.1);border:1px solid rgba(217,101,112,0.3);padding:14px 18px;border-radius:14px;">
+            <div style="font-weight:600;margin-bottom:8px;color:#f4a4ab">💙 You're not alone — help is available right now</div>
+            <div style="font-size:0.82rem;color:rgba(255,255,255,0.75);line-height:1.7">
+                iCall (India): <strong>9152987821</strong><br>
+                Vandrevala Foundation: <strong>1860-2662-345</strong> (24/7)<br>
+                AASRA: <strong>9820466627</strong><br><br>
+                <em>Please reach out to someone you trust or call one of these numbers. I'm here with you.</em>
+            </div>
+        </div>`;
+    display.appendChild(row);
+    scrollBot();
+}
+
 async function sendMsg(){
-    const msg=input.value.trim();
+    const msg = input.value.trim();
     if(!msg) return;
+
     addMsg('user', msg);
-    input.value=''; input.style.height='auto';
-    btn.disabled=true; showTyping();
+    input.value = ''; input.style.height = 'auto';
+    btn.disabled = true; showTyping();
+
+    // Show crisis resources immediately if detected
+    if(checkCrisis(msg)){
+        rmTyping();
+        showCrisisCard();
+        showTyping();
+    }
 
     try {
         const res  = await fetch('/get_ai_response',{
             method:'POST', headers:{'Content-Type':'application/json'},
-            body: JSON.stringify({message:msg})
+            body: JSON.stringify({message: msg})
         });
         const data = await res.json();
         rmTyping();
@@ -281,7 +320,7 @@ async function sendMsg(){
         rmTyping();
         addMsg('ai','⚠️ Connection issue. Please check your internet and try again.');
     } finally {
-        btn.disabled=false; input.focus();
+        btn.disabled = false; input.focus();
     }
 }
 </script>
