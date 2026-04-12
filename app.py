@@ -35,7 +35,11 @@ MAIL_PASSWORD  = os.getenv("MAIL_PASSWORD", "")
 # ---------------------------------------------------------------------------
 
 def get_db() -> sqlite3.Connection:
-    conn = sqlite3.connect("database.db")
+    # Uses database.db in the same folder as app.py
+    # For multi-device access: both devices must point to the SAME database file
+    # (e.g. on a shared drive, or run the server on one machine and access via IP)
+    db_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "database.db")
+    conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
     return conn
 
@@ -1292,7 +1296,9 @@ def admin_chats() -> Any:
     )
 
 
-
+@app.route("/admin/tasks")
+@admin_required
+def admin_tasks() -> Any:
     with get_db() as conn:
         tasks = conn.execute("""
             SELECT t.*, u.username AS assignee
@@ -1433,4 +1439,6 @@ def account_data() -> Any:
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    # host='0.0.0.0' makes the server accessible from other devices on the same WiFi
+    # Your friend can access via: http://YOUR_IP:5000 (find your IP with 'ipconfig')
+    app.run(debug=True, host='0.0.0.0', port=5000)

@@ -251,69 +251,6 @@
         .song-open:hover { background: #1db954; color: black; }
 
         /* Player bar */
-        .player-bar {
-            position: fixed;
-            bottom: 0; left: 0; right: 0;
-            background: rgba(10,10,18,0.95);
-            backdrop-filter: blur(20px);
-            border-top: 1px solid rgba(255,255,255,0.06);
-            padding: 12px 32px;
-            display: flex; align-items: center; gap: 20px;
-            z-index: 50;
-        }
-
-        .now-playing { display: flex; align-items: center; gap: 12px; width: 220px; }
-        .now-playing .thumb {
-            width: 40px; height: 40px; border-radius: 8px;
-            background: linear-gradient(135deg, #6c5ce7, #a29bfe);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1rem;
-        }
-        .now-playing .info .track { font-size: 0.86rem; font-weight: 500; }
-        .now-playing .info .artist { font-size: 0.75rem; color: rgba(255,255,255,0.4); }
-
-        .controls-center {
-            flex: 1;
-            display: flex; flex-direction: column; align-items: center; gap: 8px;
-        }
-
-        .ctrl-btns { display: flex; align-items: center; gap: 20px; }
-        .ctrl-btn {
-            background: none; border: none; color: rgba(255,255,255,0.5);
-            font-size: 16px; cursor: pointer; transition: color 0.2s;
-        }
-        .ctrl-btn:hover { color: white; }
-        .ctrl-btn.play {
-            width: 36px; height: 36px;
-            background: white; color: #0d0d14;
-            border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            font-size: 14px;
-        }
-        .ctrl-btn.play:hover { transform: scale(1.08); }
-
-        .progress-row { display: flex; align-items: center; gap: 8px; width: 100%; max-width: 500px; }
-        .time { font-size: 0.72rem; color: rgba(255,255,255,0.35); width: 35px; }
-        .time.right { text-align: right; }
-
-        .progress-track {
-            flex: 1; height: 4px; background: rgba(255,255,255,0.1);
-            border-radius: 2px; cursor: pointer; position: relative;
-        }
-        .progress-fill {
-            height: 100%; background: #1db954; border-radius: 2px;
-            width: 0%; transition: width 0.3s;
-        }
-
-        .volume-side { display: flex; align-items: center; gap: 8px; width: 160px; justify-content: flex-end; }
-        .volume-side i { color: rgba(255,255,255,0.4); font-size: 0.9rem; }
-        input[type=range] {
-            width: 80px; -webkit-appearance: none; appearance: none; height: 3px;
-            background: rgba(255,255,255,0.2); border-radius: 2px; cursor: pointer;
-        }
-        input[type=range]::-webkit-slider-thumb {
-            -webkit-appearance: none; appearance: none; width: 12px; height: 12px;
-            background: white; border-radius: 50%;
-        }
     </style>
 </head>
 <body>
@@ -376,37 +313,7 @@
 </div>
 
 <!-- Player bar -->
-<div class="player-bar">
-    <div class="now-playing">
-        <div class="thumb" id="nowThumb">🎵</div>
-        <div class="info">
-            <div class="track"  id="nowTrack">No song selected</div>
-            <div class="artist" id="nowArtist">Solace Music</div>
-        </div>
-    </div>
 
-    <div class="controls-center">
-        <div class="ctrl-btns">
-            <button class="ctrl-btn" id="prevBtn"><i class="fas fa-backward-step"></i></button>
-            <button class="ctrl-btn play" id="playBtn"><i class="fas fa-play"></i></button>
-            <button class="ctrl-btn" id="nextBtn"><i class="fas fa-forward-step"></i></button>
-        </div>
-        <div class="progress-row">
-            <span class="time" id="curTime">0:00</span>
-            <div class="progress-track" id="progressTrack">
-                <div class="progress-fill" id="progressFill"></div>
-            </div>
-            <span class="time right" id="durTime">0:00</span>
-        </div>
-    </div>
-
-    <div class="volume-side">
-        <i class="fas fa-volume-high"></i>
-        <input type="range" id="volSlider" min="0" max="100" value="80">
-    </div>
-</div>
-
-<audio id="audioEl"></audio>
 
 <script>
 // ─────────────────────────────────────────────
@@ -670,7 +577,6 @@ const SESSION_MOOD = "{{ mood }}";
 let currentMood  = null;
 let currentSong  = null;
 let currentIndex = 0;
-const audio = document.getElementById('audioEl');
 
 // Build mood sidebar
 const moodNav = document.getElementById('moodNav');

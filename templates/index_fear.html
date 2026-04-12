@@ -493,11 +493,15 @@
         <a href="/history"   class="panel-nav-link"><i class="fas fa-chart-line"></i> Mood History</a>
         <a href="/journal"   class="panel-nav-link"><i class="fas fa-book-open"></i> My Journal</a>
         <a href="/todo"      class="panel-nav-link"><i class="fas fa-tasks"></i> My Tasks</a>
+        <a href="/streaks"   class="panel-nav-link"><i class="fas fa-fire"></i> My Streak &amp; Badges</a>
+        <a href="/results"   class="panel-nav-link"><i class="fas fa-chart-pie"></i> My Results</a>
+        <a href="/community" class="panel-nav-link"><i class="fas fa-users"></i> Community</a>
         <a href="/tracker"   class="panel-nav-link"><i class="fas fa-sync-alt"></i> Change Mood</a>
         <a href="/music"     class="panel-nav-link"><i class="fas fa-music"></i> Mood Music</a>
-   	<a href="{{ url_for('about') }}">About</a>
-	<a href="{{ url_for('feedback_page') }}">Feedback</a> 
- </div>
+        <a href="/ai_chat"   class="panel-nav-link"><i class="fas fa-robot"></i> Eva AI</a>
+        <a href="/feedback"  class="panel-nav-link"><i class="fas fa-comment-dots"></i> Feedback</a>
+<a href="/about" class="panel-nav-link"><i class="fas fa-info-circle"></i> About Solace</a>
+    </div>
 
     <div class="panel-logout">
         <button class="btn-logout" onclick="window.location.href='/logout'">
@@ -520,7 +524,6 @@
                 <li class="nav-item"><a class="nav-link" href="/journal"><i class="fas fa-book me-1"></i>Journal</a></li>
                 <li class="nav-item"><a class="nav-link" href="/music"><i class="fas fa-music me-1"></i>Music</a></li>
                 <li class="nav-item"><a class="nav-link" href="/history"><i class="fas fa-chart-line me-1"></i>History</a></li>
-		<li class="nav-item"><a class="nav-link" href="/community"><i class="fas fa-users me-1"></i>Community</a></li>
                 <li class="nav-item ms-2"><span class="mood-badge-nav">😨 Brave</span></li>
                 <li class="nav-item ms-2">
                     <button class="account-btn" onclick="openPanel()" title="My Account">
@@ -565,6 +568,8 @@
             <div class="col-md-4 col-sm-6"><div class="feature-card"><span class="feature-icon">📖</span><h5>Fear Journal</h5><p>Write what scares you — then write what you know to be true.</p><a href="/journal" class="btn-mood w-100">Open Journal</a></div></div>
             <div class="col-md-4 col-sm-6"><div class="feature-card"><span class="feature-icon">📊</span><h5>Progress Check</h5><p>See how many hard moments you have already gotten through.</p><a href="/history" class="btn-mood w-100">View History</a></div></div>
             <div class="col-md-4 col-sm-6"><div class="feature-card"><span class="feature-icon">🔄</span><h5>Change Mood</h5><p>Feeling steadier? Update your mood anytime.</p><a href="/tracker" class="btn-mood w-100">Update Mood</a></div></div>
+
+        </div><!-- end row -->
 
         <!-- EXERCISE WIDGET -->
         <div class="exercise-widget mt-4">
