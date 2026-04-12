@@ -479,7 +479,9 @@
         <a href="/tracker"   class="panel-nav-link"><i class="fas fa-sync-alt"></i> Change Mood</a>
         <a href="/music"     class="panel-nav-link"><i class="fas fa-music"></i> Mood Music</a>
         <a href="/ai_chat"   class="panel-nav-link"><i class="fas fa-robot"></i> Eva AI</a>
-    </div>
+	<a href="{{ url_for('about') }}">About</a>
+	<a href="{{ url_for('feedback_page') }}">Feedback</a>    
+ </div>
 
     <div class="panel-logout">
         <button class="btn-logout" onclick="window.location.href='/logout'">
