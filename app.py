@@ -1430,41 +1430,7 @@ def account_data() -> Any:
         "calendar":      [{"date": r["date"], "mood": r["mood"]} for r in calendar],
         "recent_moods":  [{"mood": r["mood"], "time": r["timestamp"]} for r in recent],
     })
-from flask import render_template, session # Ensure these are imported
 
-# ... your existing routes ...
-
-@app.route('/results')
-def results():
-    # You'll need to pass the data your Results.html expects
-    # For now, we'll use dummy data so it loads without error
-    return render_template('Results.html', 
-                           unlocked=False, 
-                           total_logins=5, 
-                           username=session.get('username', 'User'))
-
-@app.route('/feedback')
-def feedback():
-    return render_template('Feedback.html', username=session.get('username', 'User'))
-
-@app.route('/community')
-def community():
-    # Ensure this matches the file name you have (community.html)
-    return render_template('community.html')
-
-@app.route('/about')
-def about():
-    return render_template('about.html')
-
-@app.route('/contact')
-def contact():
-    return render_template('contact.html')
-
-@app.route('/privacy')
-def privacy():
-    return render_template('privacy.html')
-
-# Repeat this pattern for Disclaimer, Terms, and Streaks
 
 if __name__ == "__main__":
     app.run(debug=True)
