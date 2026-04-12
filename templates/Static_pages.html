@@ -10,6 +10,9 @@
         body{font-family:'Nunito',sans-serif;background:#f4f1f8;color:#333;min-height:100vh;}
         .topbar{background:#1e1235;padding:14px 32px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
         .brand{font-size:1.2rem;font-weight:800;color:#c4b5fd;text-decoration:none;}
+        .topnav-link{color:rgba(196,181,253,0.7);text-decoration:none;font-size:0.8rem;font-weight:600;padding:5px 10px;border-radius:6px;transition:0.2s;}
+        .topnav-link:hover{color:#c4b5fd;background:rgba(196,181,253,0.1);}
+        .topnav-active{color:#c4b5fd !important;background:rgba(196,181,253,0.15);}
         .back-btn{background:rgba(196,181,253,0.15);color:#c4b5fd;border:1px solid rgba(196,181,253,0.25);border-radius:8px;padding:7px 14px;font-size:0.83rem;text-decoration:none;font-weight:600;}
         .hero{background:linear-gradient(135deg,#7c3aed,#4f46e5);color:white;padding:40px 32px;text-align:center;}
         .hero h1{font-size:1.8rem;font-weight:800;margin-bottom:6px;}
@@ -38,7 +41,14 @@
 <body>
 <div class="topbar">
     <a href="/" class="brand">✦ solace.</a>
-    <a href="/" class="back-btn"><i class="fas fa-arrow-left"></i> Home</a>
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+        <a href="/about"      class="topnav-link {% if page=='about' %}topnav-active{% endif %}">About</a>
+        <a href="/contact"    class="topnav-link {% if page=='contact' %}topnav-active{% endif %}">Contact</a>
+        <a href="/disclaimer" class="topnav-link {% if page=='disclaimer' %}topnav-active{% endif %}">Disclaimer</a>
+        <a href="/privacy"    class="topnav-link {% if page=='privacy' %}topnav-active{% endif %}">Privacy</a>
+        <a href="/terms"      class="topnav-link {% if page=='terms' %}topnav-active{% endif %}">Terms</a>
+        <a href="/dashboard"  class="back-btn" style="margin-left:8px;"><i class="fas fa-home"></i> Dashboard</a>
+    </div>
 </div>
 <div class="hero">
     <h1>{% if page=='about' %}🌿 About Us{% elif page=='contact' %}📬 Contact Us{% elif page=='disclaimer' %}⚠️ Disclaimer{% elif page=='privacy' %}🔒 Privacy Policy{% elif page=='terms' %}📋 Terms and Conditions{% endif %}</h1>
@@ -156,4 +166,8 @@
 <p>We reserve the right to suspend or terminate accounts that violate these terms at our sole discretion.</p>
 {% endif %}
 
-        <div class="upd
+        <div class="upd">Last updated: April 2026 · Solace BCA Final Year Project</div>
+    </div>
+    </div>
+</body>
+</html>
