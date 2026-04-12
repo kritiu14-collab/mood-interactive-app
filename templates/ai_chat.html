@@ -119,6 +119,173 @@
         .send-btn { width:36px; height:36px; border-radius:11px; background:linear-gradient(135deg,var(--blue),var(--purple)); border:none; color:white; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:0.85rem; transition:all 0.2s; flex-shrink:0; }
         .send-btn:hover { transform:scale(1.08); } .send-btn:disabled { opacity:0.35; cursor:not-allowed; }
         .input-hint { text-align:center; font-size:0.67rem; color:rgba(255,255,255,0.15); margin-top:7px; }
+
+
+
+        /* ── FORTUNE COOKIE POPCORN ── */
+        .cookie-overlay {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.88);
+            backdrop-filter: blur(14px);
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .cookie-overlay.show { display: flex; }
+        .cookie-title {
+            font-size: 1.1rem; font-weight: 700;
+            color: rgba(255,255,255,0.9);
+            text-align: center;
+        }
+        .cookie-sub {
+            font-size: 0.78rem;
+            color: rgba(255,255,255,0.35);
+            margin-top: -12px;
+            text-align: center;
+        }
+
+        /* The box + popping cookies scene */
+        .cookie-scene {
+            position: relative;
+            width: 320px;
+            height: 360px;
+        }
+
+        /* Brown box */
+        .cookie-box {
+            position: absolute;
+            bottom: 0; left: 50%;
+            transform: translateX(-50%);
+            width: 180px; height: 160px;
+            background: linear-gradient(160deg, #8B4513, #5C2E00);
+            border-radius: 12px 12px 18px 18px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5), inset 0 2px 8px rgba(255,200,100,0.15);
+            overflow: visible;
+        }
+        .cookie-box::before {
+            content: '';
+            position: absolute;
+            top: -18px; left: -6px; right: -6px;
+            height: 28px;
+            background: linear-gradient(160deg, #A0522D, #6B3210);
+            border-radius: 8px 8px 0 0;
+            box-shadow: inset 0 2px 6px rgba(255,200,100,0.1);
+        }
+        .cookie-box::after {
+            content: '🥠';
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%,-50%);
+            font-size: 2.8rem;
+            opacity: 0.25;
+        }
+        .box-label {
+            position: absolute;
+            bottom: 18px; left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.68rem;
+            font-weight: 700;
+            color: rgba(255,220,150,0.6);
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        /* Floating cookies that pop up */
+        .pop-cookie {
+            position: absolute;
+            font-size: 2.2rem;
+            opacity: 0;
+            pointer-events: none;
+            animation: none;
+        }
+        .pop-cookie.popping {
+            animation: cookiePop var(--dur) cubic-bezier(0.2,0.8,0.4,1) forwards;
+            animation-delay: var(--delay);
+        }
+        @keyframes cookiePop {
+            0%   { opacity:0; transform: translate(0,0) rotate(0deg) scale(0.3); }
+            20%  { opacity:1; transform: translate(var(--tx), var(--ty1)) rotate(var(--rot1)) scale(1.1); }
+            70%  { opacity:1; transform: translate(var(--tx), var(--ty2)) rotate(var(--rot2)) scale(0.95); }
+            100% { opacity:0.8; transform: translate(var(--tx), var(--ty2)) rotate(var(--rot2)) scale(0.9); }
+        }
+
+        /* Click a cookie */
+        .clickable-cookie {
+            position: absolute;
+            font-size: 2.4rem;
+            cursor: pointer;
+            opacity: 0;
+            transition: transform 0.15s;
+            user-select: none;
+        }
+        .clickable-cookie.landed {
+            opacity: 1;
+            animation: wobble 1.8s ease-in-out infinite;
+        }
+        .clickable-cookie:hover { transform: scale(1.25) rotate(10deg) !important; }
+        @keyframes wobble {
+            0%,100% { transform: rotate(-8deg) scale(1); }
+            50%     { transform: rotate(8deg) scale(1.08); }
+        }
+
+        .cookie-hint {
+            font-size: 0.8rem;
+            color: rgba(255,220,150,0.7);
+            text-align: center;
+            animation: pulse-hint 1.5s ease-in-out infinite;
+        }
+        @keyframes pulse-hint { 0%,100%{opacity:0.7;} 50%{opacity:1;} }
+
+        /* Quote popup */
+        .quote-popup {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.92);
+            backdrop-filter: blur(18px);
+            z-index: 10000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 30px;
+        }
+        .quote-popup.show { display: flex; }
+        .quote-card {
+            background: linear-gradient(135deg, rgba(139,69,19,0.3), rgba(92,46,0,0.4));
+            border: 1px solid rgba(255,200,100,0.25);
+            border-radius: 24px;
+            padding: 36px 40px;
+            max-width: 460px;
+            text-align: center;
+            animation: popIn 0.5s cubic-bezier(0.34,1.56,0.64,1);
+        }
+        @keyframes popIn { from{opacity:0;transform:scale(0.6) rotate(-5deg);} to{opacity:1;transform:scale(1) rotate(0deg);} }
+        .quote-cookie-big { font-size: 3.5rem; margin-bottom: 14px; display: block; animation: spin-slow 4s linear infinite; }
+        @keyframes spin-slow { from{transform:rotate(0deg);} to{transform:rotate(360deg);} }
+        .quote-text {
+            font-size: 1rem; line-height: 1.75;
+            color: rgba(255,255,255,0.92);
+            font-style: italic;
+            margin-bottom: 14px;
+        }
+        .quote-author {
+            font-size: 0.76rem;
+            color: rgba(255,200,120,0.6);
+            margin-bottom: 24px;
+        }
+        .quote-close {
+            padding: 11px 30px;
+            background: linear-gradient(90deg, #8B4513, #c17f24);
+            border: none; border-radius: 20px;
+            color: white; font-family: inherit;
+            font-weight: 700; font-size: 0.85rem;
+            cursor: pointer; transition: opacity 0.2s;
+        }
+        .quote-close:hover { opacity: 0.85; }
+        .quote-bye { font-size: 0.76rem; color: rgba(255,255,255,0.3); margin-top: 12px; }
+
     </style>
 </head>
 <body>
@@ -175,7 +342,11 @@
         <div class="eva-intro">
             <div class="big-av">✦</div>
             <h3>Hi {{ username }}, I'm Eva.</h3>
+            {% if eva_memory %}
+            <p style="color:rgba(255,255,255,0.7);font-size:0.85rem;margin-bottom:10px;font-style:italic">{{ eva_memory }}</p>
+            {% else %}
             <p>I'm here to listen — without judgment, without rush.<br>You can share anything. I'll walk with you through it.</p>
+            {% endif %}
             <div class="chips">
                 <div class="chip" onclick="sendChip(this)">I'm feeling overwhelmed today</div>
                 <div class="chip" onclick="sendChip(this)">I've been really anxious lately</div>
@@ -292,6 +463,7 @@ function showCrisisCard(){
     scrollBot();
 }
 
+
 async function sendMsg(){
     const msg = input.value.trim();
     if(!msg) return;
@@ -300,7 +472,6 @@ async function sendMsg(){
     input.value = ''; input.style.height = 'auto';
     btn.disabled = true; showTyping();
 
-    // Show crisis resources immediately if detected
     if(checkCrisis(msg)){
         rmTyping();
         showCrisisCard();
@@ -314,8 +485,14 @@ async function sendMsg(){
         });
         const data = await res.json();
         rmTyping();
-        const bubble = addMsg('ai','');
-        typeWrite(data.reply || 'Something went wrong. Please try again.', bubble);
+
+        if(data.reply === 'goodbye_wheel'){
+            addMsg('ai', 'Take care of yourself 💙 Before you go — Eva has a little surprise for you...');
+            setTimeout(openCookieBox, 1400);
+        } else {
+            const bubble = addMsg('ai','');
+            typeWrite(data.reply || 'Something went wrong. Please try again.', bubble);
+        }
     } catch(e){
         rmTyping();
         addMsg('ai','⚠️ Connection issue. Please check your internet and try again.');
@@ -323,6 +500,121 @@ async function sendMsg(){
         btn.disabled = false; input.focus();
     }
 }
+
 </script>
+
+
+<!-- FORTUNE COOKIE SCENE -->
+<div class="cookie-overlay" id="cookieOverlay">
+    <div class="cookie-title">🥠 Eva's Fortune Cookies</div>
+    <div class="cookie-sub">Click any cookie that pops out!</div>
+
+    <div class="cookie-scene" id="cookieScene">
+        <!-- Brown box -->
+        <div class="cookie-box">
+            <div class="box-label">Eva's Cookies</div>
+        </div>
+        <!-- Cookies generated by JS -->
+    </div>
+
+    <div class="cookie-hint" id="cookieHint" style="display:none">✨ Tap a cookie to open your fortune!</div>
+</div>
+
+<!-- QUOTE POPUP -->
+<div class="quote-popup" id="quotePopup">
+    <div class="quote-card">
+        <span class="quote-cookie-big">🥠</span>
+        <div class="quote-text" id="quoteText"></div>
+        <div class="quote-author" id="quoteAuthor"></div>
+        <button class="quote-close" onclick="closeQuote()">Carry this with me 💙</button>
+        <div class="quote-bye">See you next time — take good care of yourself.</div>
+    </div>
+</div>
+
+<script>
+// ── FORTUNE COOKIES ──────────────────────────────────────────
+const QUOTES = [
+    { text: "You have survived 100% of your worst days. You're doing better than you think.", author: "— Unknown" },
+    { text: "You are braver than you believe, stronger than you seem, and smarter than you think.", author: "— A.A. Milne" },
+    { text: "Just when the caterpillar thought the world was over, it became a butterfly.", author: "— Unknown" },
+    { text: "Stars can't shine without darkness. Your struggles are making you brighter.", author: "— Unknown" },
+    { text: "You are enough. You always have been. Don't let anyone make you feel otherwise.", author: "— Unknown" },
+    { text: "Even the darkest night will end and the sun will rise again.", author: "— Victor Hugo" },
+    { text: "Be gentle with yourself. You are a child of the universe, no less than the trees and the stars.", author: "— Max Ehrmann" },
+    { text: "Every day is a new beginning. Take a deep breath and start again.", author: "— Unknown" },
+    { text: "You don't have to be perfect to be amazing. Your flaws make you real.", author: "— Unknown" },
+    { text: "The secret of getting ahead is getting started. One small step today.", author: "— Mark Twain" },
+    { text: "After every storm there is a rainbow. After every pain there is calm.", author: "— Unknown" },
+    { text: "Peace begins with a smile. Start with being kind to yourself.", author: "— Mother Teresa" },
+];
+
+// Cookie positions that pop out (relative to box center at 160,200)
+const COOKIE_SPOTS = [
+    { x: 160, finalY: 80,  tx: 0,    rot: 15,  delay: 0.0, dur: 0.7 },
+    { x: 90,  finalY: 60,  tx:-70,   rot:-20,  delay: 0.15,dur: 0.75 },
+    { x: 230, finalY: 65,  tx: 70,   rot: 25,  delay: 0.1, dur: 0.72 },
+    { x: 55,  finalY: 110, tx:-105,  rot:-30,  delay: 0.25,dur: 0.8 },
+    { x: 265, finalY: 105, tx: 105,  rot: 35,  delay: 0.2, dur: 0.78 },
+    { x: 120, finalY: 40,  tx:-40,   rot: 10,  delay: 0.3, dur: 0.65 },
+    { x: 200, finalY: 45,  tx: 40,   rot:-15,  delay: 0.35,dur: 0.68 },
+    { x: 40,  finalY: 155, tx:-120,  rot: 40,  delay: 0.4, dur: 0.85 },
+    { x: 280, finalY: 150, tx: 120,  rot:-40,  delay: 0.38,dur: 0.82 },
+];
+
+let selectedQuote = null;
+
+function openCookieBox() {
+    document.getElementById('cookieOverlay').classList.add('show');
+    const scene = document.getElementById('cookieScene');
+
+    // Remove old cookies
+    scene.querySelectorAll('.clickable-cookie,.pop-cookie').forEach(e => e.remove());
+
+    // Shuffle quotes
+    const shuffled = [...QUOTES].sort(() => Math.random() - 0.5);
+
+    COOKIE_SPOTS.forEach((spot, i) => {
+        const cookie = document.createElement('div');
+        cookie.className = 'clickable-cookie';
+        cookie.textContent = '🥠';
+        cookie.style.left = '160px';
+        cookie.style.top  = '185px';
+        cookie.style.transition = 'none';
+        cookie.dataset.quote = i;
+        scene.appendChild(cookie);
+
+        // Animate pop
+        setTimeout(() => {
+            cookie.style.transition = `left ${spot.dur}s cubic-bezier(0.2,0.8,0.4,1), top ${spot.dur}s cubic-bezier(0.2,0.8,0.4,1), transform ${spot.dur}s, opacity 0.3s`;
+            cookie.style.opacity = '1';
+            cookie.style.left    = spot.x + 'px';
+            cookie.style.top     = spot.finalY + 'px';
+            cookie.style.transform = `rotate(${spot.rot}deg)`;
+
+            setTimeout(() => {
+                cookie.classList.add('landed');
+                cookie.onclick = () => openQuote(shuffled[i % shuffled.length]);
+            }, spot.dur * 1000 + 100);
+
+        }, spot.delay * 1000 + 300);
+    });
+
+    setTimeout(() => {
+        document.getElementById('cookieHint').style.display = 'block';
+    }, 1500);
+}
+
+function openQuote(q) {
+    document.getElementById('quoteText').textContent   = q.text;
+    document.getElementById('quoteAuthor').textContent = q.author;
+    document.getElementById('quotePopup').classList.add('show');
+}
+
+function closeQuote() {
+    document.getElementById('quotePopup').classList.remove('show');
+    document.getElementById('cookieOverlay').classList.remove('show');
+    setTimeout(() => { window.location.href = '/dashboard'; }, 500);
+}
+</script>
+
 </body>
-</html>

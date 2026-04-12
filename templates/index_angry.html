@@ -426,6 +426,77 @@
         .ex-all-link { font-size: 0.8rem; color: var(--mood-secondary); text-decoration: none; font-weight: 700; }
         .ex-all-link:hover { opacity: 0.7; }
 
+
+        /* ── ENGAGEMENT WIDGETS ── */
+        .milestone-banner {
+            background: linear-gradient(90deg, var(--mood-primary), var(--mood-secondary));
+            border-radius: 14px; padding: 14px 20px; margin-bottom: 12px;
+            text-align: center;
+        }
+        .milestone-text { font-weight: 800; color: var(--mood-btn-text); font-size: 0.95rem; }
+
+        .challenge-card {
+            background: white; border: 1.5px solid var(--mood-border);
+            border-radius: 16px; padding: 16px 20px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+        }
+        .challenge-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+        .challenge-label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+                           letter-spacing: 1px; color: var(--mood-secondary); margin-bottom: 4px; }
+        .challenge-text { font-size: 0.88rem; color: #444; line-height: 1.6; }
+        .challenge-btn { background: var(--mood-primary); color: var(--mood-btn-text);
+                         border: none; border-radius: 20px; padding: 7px 16px;
+                         font-weight: 700; font-size: 0.78rem; cursor: pointer;
+                         white-space: nowrap; transition: opacity 0.2s; }
+        .challenge-btn:hover { opacity: 0.85; }
+        .challenge-done { color: #16a34a; font-weight: 700; font-size: 0.85rem; white-space: nowrap; }
+
+        .pulse-card {
+            background: var(--mood-light); border: 1px solid var(--mood-border);
+            border-radius: 14px; padding: 12px 18px;
+            font-size: 0.82rem; color: #555; display: flex; align-items: center; gap: 10px;
+        }
+        .pulse-dot {
+            width: 10px; height: 10px; border-radius: 50%;
+            background: var(--mood-primary); flex-shrink: 0;
+            animation: pulse-anim 1.5s ease-in-out infinite;
+        }
+        @keyframes pulse-anim { 0%,100%{transform:scale(1);opacity:1;} 50%{transform:scale(1.4);opacity:0.6;} }
+
+        .story-card {
+            background: white; border: 1.5px solid var(--mood-border);
+            border-radius: 16px; padding: 16px 20px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+        }
+        .story-label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+                       letter-spacing: 1px; color: var(--mood-secondary); margin-bottom: 6px; }
+        .story-animal { font-size: 0.8rem; color: #888; margin-bottom: 4px; }
+        .story-title-text { font-weight: 800; font-size: 0.9rem; color: var(--mood-dark); margin-bottom: 6px; }
+        .story-preview { font-size: 0.82rem; color: #666; line-height: 1.6; margin-bottom: 8px; }
+        .story-link { font-size: 0.78rem; color: var(--mood-secondary); font-weight: 700; text-decoration: none; }
+
+        .prompt-card {
+            background: var(--mood-light); border-left: 3px solid var(--mood-primary);
+            border-radius: 0 14px 14px 0; padding: 14px 18px;
+        }
+        .prompt-label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+                        letter-spacing: 1px; color: var(--mood-secondary); margin-bottom: 6px; }
+        .prompt-text { font-size: 0.88rem; color: #444; line-height: 1.6;
+                       font-style: italic; margin-bottom: 8px; }
+        .prompt-link { font-size: 0.78rem; color: var(--mood-secondary); font-weight: 700; text-decoration: none; }
+
+        .letter-card {
+            background: linear-gradient(135deg, var(--mood-light), white);
+            border: 1.5px solid var(--mood-border); border-radius: 16px;
+            padding: 16px 20px; display: flex; align-items: center; gap: 14px;
+        }
+        .letter-emoji { font-size: 1.8rem; flex-shrink: 0; }
+        .letter-title { font-weight: 800; font-size: 0.9rem; color: var(--mood-dark); margin-bottom: 3px; }
+        .letter-sub   { font-size: 0.78rem; color: #888; }
+        .letter-btn   { margin-left: auto; background: var(--mood-primary); color: var(--mood-btn-text);
+                        border-radius: 20px; padding: 8px 18px; text-decoration: none;
+                        font-weight: 700; font-size: 0.8rem; white-space: nowrap; }
+
         /* ── FOOTER ── */
         footer {
             background: var(--mood-footer-bg);
@@ -500,7 +571,6 @@
         <a href="/music"     class="panel-nav-link"><i class="fas fa-music"></i> Mood Music</a>
         <a href="/ai_chat"   class="panel-nav-link"><i class="fas fa-robot"></i> Eva AI</a>
         <a href="/feedback"  class="panel-nav-link"><i class="fas fa-comment-dots"></i> Feedback</a>
-	<a href="/about" class="panel-nav-link"><i class="fas fa-info-circle"></i> About Solace</a>
     </div>
 
     <div class="panel-logout">
@@ -607,6 +677,74 @@
             window['goToExangry']=function(i){cur=i;upd();};
         })();
         </script>
+
+
+        <!-- ═══ ENGAGEMENT SECTION ═══ -->
+
+        <!-- STREAK MILESTONE BANNER -->
+        {% if milestone_msg %}
+        <div class="milestone-banner">
+            <span class="milestone-text">🎉 {{ milestone_msg }}</span>
+        </div>
+        {% endif %}
+
+        <!-- DAILY CHALLENGE -->
+        {% if challenge %}
+        <div class="challenge-card mt-3" id="challengeCard">
+            <div class="challenge-header">
+                <div>
+                    <div class="challenge-label">⚡ Today's Challenge</div>
+                    <div class="challenge-text">{{ challenge.challenge }}</div>
+                </div>
+                {% if challenge.completed %}
+                <div class="challenge-done">✅ Done!</div>
+                {% else %}
+                <button class="challenge-btn" onclick="completeChallenge()">Mark Done</button>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- COMMUNITY PULSE -->
+        {% if pulse and pulse.total > 0 %}
+        <div class="pulse-card mt-3">
+            <span class="pulse-dot"></span>
+            Right now <strong>{{ pulse.total }}</strong> people in Solace are feeling things too —
+            {{ pulse.top_count }} are feeling <strong>{{ pulse.top_mood }}</strong>. You are not alone.
+        </div>
+        {% endif %}
+
+        <!-- STORY OF THE DAY -->
+        {% if story %}
+        <div class="story-card mt-3">
+            <div class="story-label">📖 Story of the Day</div>
+            <div class="story-animal">{{ story.animal_emoji }} {{ story.animal_name }}</div>
+            <div class="story-title-text">{{ story.title }}</div>
+            <div class="story-preview">{{ story.story[:120] }}...</div>
+            <a href="/community" class="story-link">Read full story →</a>
+        </div>
+        {% endif %}
+
+        <!-- JOURNAL PROMPT -->
+        {% if journal_prompt %}
+        <div class="prompt-card mt-3">
+            <div class="prompt-label">✍️ Eva's Journal Prompt for You</div>
+            <div class="prompt-text">{{ journal_prompt }}</div>
+            <a href="/journal" class="prompt-link">Open Journal →</a>
+        </div>
+        {% endif %}
+
+        <!-- WEEKLY LETTER CTA -->
+        {% if show_letter %}
+        <div class="letter-card mt-3">
+            <span class="letter-emoji">💌</span>
+            <div>
+                <div class="letter-title">Your Weekly Letter from Eva is Ready</div>
+                <div class="letter-sub">A personal note about your week — written just for you.</div>
+            </div>
+            <a href="/weekly_letter" class="letter-btn">Read It →</a>
+        </div>
+        {% endif %}
 
     </div>
 </section>

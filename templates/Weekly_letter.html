@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Weekly Letter from Eva</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Lora:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+    <style>
+        *{box-sizing:border-box;margin:0;padding:0;}
+        body{font-family:'Nunito',sans-serif;background:#f4f1f8;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;}
+        .letter-wrap{max-width:620px;width:100%;}
+        .back{display:inline-flex;align-items:center;gap:6px;color:#7c3aed;text-decoration:none;font-weight:700;font-size:0.85rem;margin-bottom:20px;}
+        .envelope{background:white;border-radius:24px;box-shadow:0 8px 40px rgba(124,58,237,0.12);overflow:hidden;}
+        .env-top{background:linear-gradient(135deg,#7c3aed,#4f46e5);padding:32px 36px;text-align:center;position:relative;}
+        .eva-seal{width:64px;height:64px;border-radius:50%;background:rgba(255,255,255,0.15);border:3px solid rgba(255,255,255,0.3);display:flex;align-items:center;justify-content:center;font-size:1.8rem;margin:0 auto 14px;}
+        .env-top h1{color:white;font-size:1.4rem;font-weight:800;margin-bottom:4px;}
+        .env-top p{color:rgba(255,255,255,0.7);font-size:0.82rem;}
+        .letter-body{padding:36px;}
+        .letter-date{font-size:0.75rem;color:#aaa;margin-bottom:20px;text-transform:uppercase;letter-spacing:1px;}
+        .letter-text{font-family:'Lora',serif;font-size:0.97rem;color:#333;line-height:1.9;margin-bottom:18px;}
+        .letter-text strong{font-family:'Nunito',sans-serif;color:#1e1235;}
+        .stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:24px 0;}
+        .stat-box{background:#f5f3ff;border-radius:14px;padding:16px;text-align:center;}
+        .stat-num{font-size:1.8rem;font-weight:800;color:#7c3aed;}
+        .stat-lbl{font-size:0.72rem;color:#888;text-transform:uppercase;letter-spacing:.5px;margin-top:3px;}
+        .letter-sign{font-family:'Lora',serif;font-style:italic;color:#7c3aed;font-size:1.05rem;margin-top:24px;}
+        .letter-footer{background:#f8f5ff;padding:20px 36px;border-top:1px solid #ede9fe;display:flex;align-items:center;justify-content:space-between;gap:12px;}
+        .footer-cta{background:linear-gradient(135deg,#7c3aed,#4f46e5);color:white;border:none;border-radius:20px;padding:10px 24px;font-family:'Nunito',sans-serif;font-weight:700;font-size:0.85rem;cursor:pointer;text-decoration:none;display:inline-block;}
+        .badge-chips{display:flex;gap:8px;flex-wrap:wrap;}
+        .badge-chip{background:#ede9fe;color:#5b21b6;padding:5px 12px;border-radius:12px;font-size:0.78rem;font-weight:700;}
+        .highlight-box{background:linear-gradient(135deg,#faf5ff,#ede9fe);border-left:3px solid #7c3aed;border-radius:0 12px 12px 0;padding:14px 18px;margin:18px 0;font-size:0.88rem;color:#5b21b6;line-height:1.7;}
+    </style>
+</head>
+<body>
+<div class="letter-wrap">
+    <a href="/dashboard" class="back">← Back to Dashboard</a>
+
+    <div class="envelope">
+        <div class="env-top">
+            <div class="eva-seal">💌</div>
+            <h1>Your Weekly Letter</h1>
+            <p>From Eva, with care — written just for you</p>
+        </div>
+
+        <div class="letter-body">
+            <div class="letter-date">Week of {{ moment().strftime('%B %d, %Y') if moment else 'This Week' }}</div>
+
+            <p class="letter-text">
+                Dear <strong>{{ username }}</strong>,
+            </p>
+
+            <p class="letter-text">
+                I wanted to take a moment to write to you — not as an app, but as someone who has been paying attention to your journey this week.
+            </p>
+
+            {% if week_logins >= 5 %}
+            <p class="letter-text">
+                You showed up <strong>{{ week_logins }} times</strong> this week. That might not sound like much, but in a world that pulls your attention in a hundred directions, choosing to check in with yourself is an act of courage. I noticed.
+            </p>
+            {% elif week_logins >= 2 %}
+            <p class="letter-text">
+                You came back <strong>{{ week_logins }} times</strong> this week. Some weeks are harder than others — and showing up even twice when life is heavy says something real about who you are.
+            </p>
+            {% else %}
+            <p class="letter-text">
+                This week was quieter between us — and that's okay. Life gets full sometimes. Whenever you're ready to come back, I'll be here.
+            </p>
+            {% endif %}
+
+            <div class="stats-row">
+                <div class="stat-box">
+                    <div class="stat-num">{{ week_logins }}</div>
+                    <div class="stat-lbl">Days Active</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-num">{{ journals_week }}</div>
+                    <div class="stat-lbl">Journal Entries</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-num">{{ tasks_done }}</div>
+                    <div class="stat-lbl">Tasks Done</div>
+                </div>
+            </div>
+
+            {% if mood_word %}
+            <p class="letter-text">
+                Your most common feeling this week was <strong>{{ mood_word }}</strong>. I want you to know — whatever you felt was valid. There are no wrong emotions, only information your heart is trying to give you.
+            </p>
+            {% endif %}
+
+            {% if journals_week >= 3 %}
+            <div class="highlight-box">
+                ✍️ You journaled {{ journals_week }} times this week. Research shows that people who write about their feelings process emotions 30% faster. You are actively healing yourself — that matters more than you know.
+            </div>
+            {% endif %}
+
+            {% if challenges_done >= 1 %}
+            <p class="letter-text">
+                You completed <strong>{{ challenges_done }} daily challenge{{ 's' if challenges_done > 1 else '' }}</strong> this week. Every small act of self-care adds up — you are building something real.
+            </p>
+            {% endif %}
+
+            {% if streak >= 7 %}
+            <p class="letter-text">
+                Your current streak is <strong>{{ streak }} days</strong>. That is not an accident — that is a decision you made, repeated, every single day. I'm proud of you.
+            </p>
+            {% endif %}
+
+            <p class="letter-text">
+                As you go into next week, I want you to carry one thing with you: <strong>you are doing better than you think.</strong> Progress is rarely loud. Most of the time it looks exactly like what you've been doing — showing up, trying, resting, and trying again.
+            </p>
+
+            <p class="letter-text">
+                I'll be here whenever you need to talk.
+            </p>
+
+            <p class="letter-sign">With warmth,<br>Eva ✦</p>
+        </div>
+
+        <div class="letter-footer">
+            <div class="badge-chips">
+                {% if streak >= 7 %}<div class="badge-chip">⭐ {{ streak }} Day Streak</div>{% endif %}
+                {% if journals_week >= 2 %}<div class="badge-chip">📖 Active Journaler</div>{% endif %}
+                {% if tasks_done >= 3 %}<div class="badge-chip">✅ Task Champion</div>{% endif %}
+            </div>
+            <a href="/ai_chat" class="footer-cta">Talk to Eva →</a>
+        </div>
+    </div>
+</div>
+</body>
+</html>

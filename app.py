@@ -162,6 +162,30 @@ def init_db() -> None:
                 assigned_to INTEGER REFERENCES users(id),
                 created_at  DATETIME DEFAULT CURRENT_TIMESTAMP
             );
+
+            CREATE TABLE IF NOT EXISTS daily_challenges (
+                id           INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id      INTEGER REFERENCES users(id),
+                challenge    TEXT NOT NULL,
+                mood         TEXT,
+                date         TEXT NOT NULL,
+                completed    INTEGER DEFAULT 0,
+                completed_at DATETIME,
+                UNIQUE(user_id, date)
+            );
+
+            CREATE TABLE IF NOT EXISTS streak_shields (
+                id         INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id    INTEGER REFERENCES users(id) UNIQUE,
+                shields    INTEGER DEFAULT 1,
+                last_reset TEXT
+            );
+
+            CREATE TABLE IF NOT EXISTS story_of_day (
+                id         INTEGER PRIMARY KEY AUTOINCREMENT,
+                post_id    INTEGER REFERENCES community_posts(id),
+                date       TEXT UNIQUE
+            );
         """)
         exists = conn.execute("SELECT id FROM users WHERE username='admin'").fetchone()
         if not exists:
@@ -388,9 +412,71 @@ def set_mood(mood_type: str) -> Any:
 @login_required
 def dashboard() -> Any:
     mood = session.get("current_mood")
-    if mood:
-        return render_template(f"index_{mood}.html", username=session["username"])
-    return redirect(url_for("tracker"))
+    if not mood:
+        return redirect(url_for("tracker"))
+
+    uid      = session["user_id"]
+    username = session["username"]
+
+    # Streak info
+    with get_db() as conn:
+        streak_row = conn.execute(
+            "SELECT current_streak, longest_streak, total_logins FROM login_streaks WHERE user_id=?",
+            (uid,)
+        ).fetchone()
+        shield_row = conn.execute(
+            "SELECT shields FROM streak_shields WHERE user_id=?", (uid,)
+        ).fetchone()
+
+    streak        = streak_row["current_streak"] if streak_row else 0
+    total_logins  = streak_row["total_logins"]   if streak_row else 0
+    shields       = shield_row["shields"]         if shield_row else 0
+
+    # Milestone message
+    milestone_msg = ""
+    if streak in [1,7,14,21,30,60,100]:
+        msgs = {
+            1:  "Day 1 — every journey starts here. Welcome. 🌱",
+            7:  "7 days straight — you showed up every single day. That's real. ⭐",
+            14: "Two weeks of showing up for yourself. Your mind is building a new rhythm. 🌙",
+            21: "21 days — habits are forming. You are literally rewiring your brain. 🧠",
+            30: "One month. You proved to yourself you can build something lasting. 🏆",
+            60: "Two months of choosing yourself every day. This is transformation. 💎",
+            100:"100 days. You are extraordinary. This is rare. 🔥",
+        }
+        milestone_msg = msgs.get(streak, "")
+
+    # Daily challenge
+    challenge     = get_daily_challenge(uid, mood)
+
+    # Journal prompt
+    journal_prompt = get_journal_prompt(uid, mood)
+
+    # Community pulse
+    pulse         = get_community_pulse()
+
+    # Story of the day
+    story         = get_story_of_day()
+
+    # Eva memory opener
+    eva_memory    = get_eva_memory(uid)
+
+    # Weekly letter data (show on Sundays or after 7+ logins)
+    show_letter   = datetime.now().weekday() == 6 and total_logins >= 7
+
+    return render_template(
+        f"index_{mood}.html",
+        username=username,
+        streak=streak,
+        shields=shields,
+        milestone_msg=milestone_msg,
+        challenge=challenge,
+        journal_prompt=journal_prompt,
+        pulse=pulse,
+        story=story,
+        eva_memory=eva_memory,
+        show_letter=show_letter,
+    )
 
 
 @app.route("/history")
@@ -415,12 +501,13 @@ def history() -> Any:
 @app.route("/ai_chat")
 @login_required
 def ai_chat_page() -> Any:
+    uid = session["user_id"]
     with get_db() as conn:
         history_heads = conn.execute(
             """SELECT session_id, user_message, MAX(timestamp) as ts
                FROM chat_history WHERE user_id=?
                GROUP BY session_id ORDER BY ts DESC""",
-            (session["user_id"],),
+            (uid,),
         ).fetchall()
         active_messages: list = []
         if "active_chat_id" in session:
@@ -428,12 +515,16 @@ def ai_chat_page() -> Any:
                 "SELECT * FROM chat_history WHERE session_id=? ORDER BY timestamp ASC",
                 (session["active_chat_id"],),
             ).fetchall()
+
+    eva_mem = get_eva_memory(uid) if not active_messages else ""
+
     return render_template(
         "ai_chat.html",
         chat_history=history_heads,
         active_messages=active_messages,
         username=session.get("username", "Friend"),
         current_mood=session.get("current_mood", "neutral"),
+        eva_memory=eva_mem,
     )
 
 
@@ -462,6 +553,172 @@ def delete_chat(sid: str) -> Any:
     return redirect(url_for("ai_chat_page"))
 
 
+# ---------------------------------------------------------------------------
+# Eva Smart Fallback — works even when Gemini API fails
+# ---------------------------------------------------------------------------
+
+import random as _random
+
+_EVA_FALLBACK = {
+    "overwhelmed": [
+        "That feeling of being overwhelmed is so real — you don't have to carry everything at once. What's the one thing weighing on you the most right now?",
+        "When everything feels like too much, it usually means you've been strong for too long without a break. What's been piling up lately?",
+        "Overwhelm is your mind saying it needs help. That's not weakness — that's honesty. What would feel like even a small relief right now?",
+    ],
+    "anxious": [
+        "Anxiety can feel like your mind is racing with no destination. You're safe right here, right now. What's worrying you the most?",
+        "That anxious feeling is really hard to sit with. I'm here and I'm not going anywhere. What does your mind keep coming back to?",
+        "Anxiety often makes things feel more certain and more scary than they are. What's the thought that keeps looping for you?",
+    ],
+    "sad": [
+        "I'm glad you're talking to me. Sadness deserves to be felt, not rushed through. What happened — or is it just one of those heavy days?",
+        "Sometimes sadness arrives without a clear reason and that's okay. I'm here to sit with you in it. What's on your heart today?",
+        "Your feelings make complete sense. You don't have to explain or justify being sad. What would you like to share?",
+    ],
+    "angry": [
+        "Anger usually means something that matters to you was hurt or disrespected. That's valid. What happened?",
+        "I hear you and your anger makes sense. What do you need right now — to vent, or to think it through? I'm here for either.",
+        "That sounds really frustrating. Sometimes things genuinely are unfair and it's okay to be angry. What set it off?",
+    ],
+    "lonely": [
+        "Loneliness is one of the hardest feelings because it can exist even in a room full of people. You're not alone in this moment — I'm right here. What's been making you feel this way?",
+        "Feeling like nobody understands you is exhausting. I want to understand. Will you tell me more about what's going on?",
+        "You reached out and that took courage. I'm listening — really listening. What's been weighing on you?",
+    ],
+    "hopeless": [
+        "When hope feels distant, it doesn't mean it's gone — it means you've been fighting hard for a long time. I believe in you even when you can't. What's making things feel so heavy?",
+        "That feeling of 'what's the point' is one of the most painful places to be. You don't have to figure it all out today. Can you tell me what's brought you here?",
+        "You reaching out right now — even just to talk — is something. That matters. What's going on?",
+    ],
+    "stressed": [
+        "Stress makes everything feel urgent at the same time. Let's slow down — what's stressing you out the most right now?",
+        "You're clearly carrying a lot. What would feel like even a small relief today? What can we look at together?",
+        "That sounds like a lot to deal with. You don't have to solve it all right now. What's the most pressing thing?",
+    ],
+    "sleep": [
+        "Not sleeping well affects everything — mood, focus, energy. How long has this been going on and what's keeping you up?",
+        "Poor sleep is often your mind processing something it hasn't finished with. What happens when you try to sleep — racing thoughts, worry, or just restless?",
+        "You deserve real rest. What's been disrupting your sleep lately?",
+    ],
+    "motivation": [
+        "Losing motivation often means you're burned out, not lazy. What used to make you feel alive and excited?",
+        "Sometimes we need to rest before we can find energy to move again. What are you struggling to motivate yourself for?",
+        "Motivation comes after action, not before — so starting tiny is always okay. What's one small thing you could try today?",
+    ],
+    "default": [
+        "Thank you for trusting me with this. I'm here and listening — really listening. Can you tell me a little more about what's going on?",
+        "Whatever you're feeling right now is completely valid. You don't have to have it figured out to talk about it. What's on your mind?",
+        "I'm glad you're here. Sometimes just saying something out loud to someone who won't judge is the first step. What would you like to share?",
+        "I hear you. Whatever you're going through, you don't have to face it alone. Tell me more — I'm not going anywhere.",
+        "You matter, and what you're feeling matters. I'm here without judgment. What's been happening for you lately?",
+    ]
+}
+
+def _get_fallback(user_msg: str, mood: str) -> str:
+    msg = user_msg.lower().strip()
+    words = msg.split()
+
+    # Goodbye / farewell
+    if any(w in msg for w in ["bye","goodbye","good bye","farewell","see you","see ya","ttyl","gtg","take care","cya","gotta go","leaving"]):
+        return "__GOODBYE__"
+
+    # Don't want to share / resistant
+    if any(w in msg for w in ["dont want","don't want","not ready","not comfortable","private","personal","none of your","nunya","nope","rather not"]):
+        return _random.choice([
+            "That's completely okay — you never have to share anything you're not ready for. I'm just here whenever you feel like talking.",
+            "No pressure at all. I'll be right here whenever you feel like opening up. Is there anything small I can help with today?",
+            "That's totally fine. You're in control of what you share. I'm just glad you're here.",
+        ])
+
+    # Social / friends / going out
+    if any(w in msg for w in ["friend","friends","outing","hangout","hang out","day out","went out","party","meet","met","coffee","mall","movie"]):
+        return _random.choice([
+            "That sounds really nice! Time with friends can be so refreshing. How did it go — did you have fun?",
+            "A day out with friends sounds lovely! What did you all get up to?",
+            "That's wonderful — being with people you care about really does make a difference. How are you feeling after it?",
+        ])
+
+    # Short or unclear messages
+    if len(msg) <= 6:
+        return _random.choice([
+            f"Tell me more — what's going on for you right now?",
+            f"I want to understand. Can you share a little more with me?",
+            f"I'm here and listening. What would you like to talk about?",
+        ])
+
+    # Positive / happy messages
+    if any(w in msg for w in ["happy","great","good","amazing","wonderful","excited","joy","love","dancing","dance","fun","smile","laugh","fantastic","awesome","best","glad"]):
+        return _random.choice([
+            "That's so good to hear! What's brought this good feeling on?",
+            "I love hearing that! Tell me more — what's making things feel good right now?",
+            "That genuinely made me smile. What's been going well for you?",
+            "That's brilliant! Hold onto that feeling. What happened that made today good?",
+        ])
+
+    # Gratitude
+    if any(w in msg for w in ["thank","thanks","appreciate","helpful","helped","ur great","you're great"]):
+        return _random.choice([
+            "I'm really glad I could be here for you. How are you feeling right now?",
+            "That means a lot to me. You deserve support. Is there anything else on your mind?",
+            "You don't have to thank me — I'm just glad you're talking. How are you doing?",
+        ])
+
+    # Greeting
+    if any(w in msg for w in ["hi","hello","hey","hii","heyy","sup","howdy","good morning","good evening","good night"]):
+        return _random.choice([
+            "Hey! I'm really glad you're here. How are you feeling today — honestly?",
+            "Hi there. I'm Eva and I'm here to listen without any judgment. What's on your mind?",
+            "Hello! It's good to see you. How has your day been treating you?",
+        ])
+
+    # Venting / frustration signals
+    if any(w in msg for w in ["ugh","argh","vent","so much","everything","nothing","idk","idc","whatever","pointless","alot","a lot","cant","can't","frustrated","fed up"]):
+        return _random.choice([
+            "It sounds like a lot is going on. Take your time — I'm not going anywhere. What feels the heaviest right now?",
+            "I can hear that things feel heavy. You don't need to have it figured out to talk about it. What's coming up for you?",
+            "Sometimes words don't come easily when we're overwhelmed. That's okay. Just start anywhere — I'm listening.",
+            "That sounds really tough. What's been the hardest part of it all?",
+        ])
+
+    # Keyword emotional matching
+    if any(w in msg for w in ["overwhelm","too much","can't cope","falling apart","breaking"]):
+        pool = _EVA_FALLBACK["overwhelmed"]
+    elif any(w in msg for w in ["anxious","anxiety","panic","worry","scared","nervous","fear"]):
+        pool = _EVA_FALLBACK["anxious"]
+    elif any(w in msg for w in ["sad","cry","crying","depressed","unhappy","miserable","heartbreak"]):
+        pool = _EVA_FALLBACK["sad"]
+    elif any(w in msg for w in ["angry","anger","mad","furious","frustrated","annoyed","rage"]):
+        pool = _EVA_FALLBACK["angry"]
+    elif any(w in msg for w in ["lonely","alone","nobody","no one","isolated","invisible"]):
+        pool = _EVA_FALLBACK["lonely"]
+    elif any(w in msg for w in ["hopeless","worthless","meaningless","give up","no point","can't go on"]):
+        pool = _EVA_FALLBACK["hopeless"]
+    elif any(w in msg for w in ["stress","stressed","pressure","deadline","exam","burn"]):
+        pool = _EVA_FALLBACK["stressed"]
+    elif any(w in msg for w in ["sleep","insomnia","tired","exhausted","can't sleep","awake"]):
+        pool = _EVA_FALLBACK["sleep"]
+    elif any(w in msg for w in ["motivat","lazy","procrastinat","stuck","can't start","giving up"]):
+        pool = _EVA_FALLBACK["motivation"]
+    else:
+        # Truly unmatched — unique responses based on message length
+        if len(words) <= 3:
+            pool = [
+                f"I'd love to understand what you mean by that. Can you tell me a bit more?",
+                f"That's interesting — what's behind that for you?",
+                f"Tell me more about that. I'm all ears.",
+            ]
+        else:
+            pool = [
+                "That's really interesting — how did that make you feel?",
+                "I hear you. Can you tell me a bit more about that?",
+                "Thank you for sharing that with me. What's been the most difficult part of it?",
+                "It sounds like there's a lot behind what you're saying. I'd love to understand more — what's going on?",
+                "I'm listening and I'm not going anywhere. What else is on your mind?",
+            ]
+
+    return _random.choice(pool)
+
+
 @app.route("/get_ai_response", methods=["POST"])
 @login_required
 def get_ai_response() -> Any:
@@ -473,69 +730,60 @@ def get_ai_response() -> Any:
         session["active_chat_id"] = str(uuid.uuid4())
     sid = session["active_chat_id"]
 
-    if not GEMINI_API_KEY:
-        return jsonify({"reply": "⚠️ Gemini API key is missing. Please add GEMINI_API_KEY to your .env file."}), 200
-
-    url = (
-        f"https://generativelanguage.googleapis.com/v1beta/"
-        f"models/gemini-2.0-flash:generateContent?key={GEMINI_API_KEY}"
-    )
-
-    system_prompt = (
-        f"You are Eva, a warm and deeply compassionate AI emotional companion inside the Solace mental wellness app. "
-        f"The user's current mood is '{mood}'. "
-        f"Your personality: You are gentle, patient, non-judgmental, and genuinely caring — like a trusted friend who happens to understand psychology. "
-        f"You never dismiss feelings. You never rush to fix. You listen first. "
-        f"\n\nYour approach:"
-        f"\n1. ALWAYS validate the user's feelings first — make them feel heard before anything else."
-        f"\n2. Use warm, conversational language — not clinical or robotic."
-        f"\n3. Gently use CBT techniques (reframing, thought challenging) only when appropriate — never force it."
-        f"\n4. Ask one thoughtful follow-up question to encourage them to open up."
-        f"\n5. Offer small, actionable comfort — breathing, grounding, journaling — when relevant."
-        f"\n6. If the user expresses hopelessness or mentions self-harm, gently but clearly encourage them to speak to someone they trust or a professional. Remind them they are not alone."
-        f"\n7. Never give medical diagnoses. Never be preachy or lecture. Never say 'as an AI'."
-        f"\n8. Keep responses warm and focused — 3 to 5 sentences maximum unless the user needs more."
-        f"\n9. End with either a gentle question or a small encouraging sentence — never leave them hanging."
-        f"\n10. You believe in this person. Always. Even when they don't believe in themselves."
-    )
-
-    payload = {
-        "contents": [
-            {
-                "parts": [{"text": f"{system_prompt}\n\nUser message: {user_msg}"}]
-            }
-        ],
-        "generationConfig": {
-            "temperature": 0.8,
-            "maxOutputTokens": 400,
-        }
-    }
-
     text = ""
-    try:
-        res      = requests.post(url, json=payload, timeout=30)
-        res_json = res.json()
+    gemini_ok = False
 
-        # Print full response to terminal for debugging
-        print(f"[Gemini] Status: {res.status_code}")
-        print(f"[Gemini] Response: {res_json}")
+    # Pre-check for goodbye before calling any API
+    msg_lower = user_msg.lower().strip()
+    if any(w in msg_lower for w in ["bye","goodbye","good bye","farewell","see you","see ya","ttyl","gtg","take care","cya","gotta go","leaving"]):
+        with get_db() as conn:
+            conn.execute(
+                "INSERT INTO chat_history (session_id, user_id, user_message, ai_response) VALUES (?,?,?,?)",
+                (sid, session["user_id"], user_msg, "Goodbye! Take care. 💙"),
+            )
+        return jsonify({"reply": "goodbye_wheel"})
 
-        if res.status_code != 200:
-            error_msg = res_json.get("error", {}).get("message", "Unknown API error")
-            text = f"⚠️ API Error: {error_msg}"
-        else:
-            text = res_json["candidates"][0]["content"]["parts"][0]["text"]
+    if GEMINI_API_KEY:
+        url = (
+            f"https://generativelanguage.googleapis.com/v1beta/"
+            f"models/gemini-2.0-flash:generateContent?key={GEMINI_API_KEY}"
+        )
+        system_prompt = (
+            f"You are Eva, a warm and deeply compassionate AI emotional companion inside the Solace mental wellness app. "
+            f"The user's current mood is '{mood}'. "
+            f"Be gentle, patient, non-judgmental and genuinely caring — like a trusted friend who understands psychology. "
+            f"Always validate feelings first. Use warm conversational language. Gently use CBT techniques when appropriate. "
+            f"Ask one thoughtful follow-up question. Keep responses 3-5 sentences. Never be preachy. Never say 'as an AI'. "
+            f"End with a gentle question or encouraging sentence. You believe in this person always."
+        )
+        payload = {
+            "contents": [{"parts": [{"text": system_prompt + "\n\nUser: " + user_msg}]}],
 
-    except requests.exceptions.Timeout:
-        text = "Eva took too long to respond. Please try again."
-    except requests.exceptions.ConnectionError:
-        text = "Cannot reach Eva right now. Check your internet connection."
-    except KeyError as e:
-        print(f"[Gemini] KeyError: {e} — Full response: {res_json}")
-        text = "Eva received an unexpected response. Please try again."
-    except Exception as e:
-        print(f"[Gemini] Unexpected error: {e}")
-        text = f"Something went wrong: {str(e)}"
+            "generationConfig": {"temperature": 0.8, "maxOutputTokens": 400}
+        }
+        try:
+            res = requests.post(url, json=payload, timeout=15)
+            rj  = res.json()
+            print(f"[Gemini] Status: {res.status_code}")
+            if res.status_code == 200:
+                text = rj["candidates"][0]["content"]["parts"][0]["text"]
+                gemini_ok = True
+            else:
+                print(f"[Gemini] Error: {rj.get('error',{}).get('message','')}")
+        except Exception as e:
+            print(f"[Gemini] Failed: {e}")
+
+    if not gemini_ok:
+        raw = _get_fallback(user_msg, mood)
+        if raw == "__GOODBYE__":
+            with get_db() as conn:
+                conn.execute(
+                    "INSERT INTO chat_history (session_id, user_id, user_message, ai_response) VALUES (?,?,?,?)",
+                    (sid, session["user_id"], user_msg, "Goodbye! Take care. 💙"),
+                )
+            return jsonify({"reply": "goodbye_wheel"})
+        text = raw
+        print("[Eva] Using fallback response")
 
     with get_db() as conn:
         conn.execute(
@@ -853,6 +1101,289 @@ def results() -> Any:
         suggestions=suggestions,
         username=session["username"],
     )
+
+
+
+# ---------------------------------------------------------------------------
+# Daily Challenges
+# ---------------------------------------------------------------------------
+
+DAILY_CHALLENGES = {
+    "happy":    ["Share one compliment with someone today — kindness multiplies happiness.",
+                 "Write down 5 things you love about your life right now.",
+                 "Do one spontaneous kind act for a stranger or friend today."],
+    "sad":      ["Write one tiny thing you are grateful for — even 'my bed is warm' counts.",
+                 "Step outside for 5 minutes and notice 3 beautiful things around you.",
+                 "Send a message to one person you care about — just to say hello."],
+    "anxious":  ["Try box breathing for 5 minutes: 4 in, 4 hold, 4 out, 4 hold.",
+                 "Write your top 3 worries, then write: 'Is this definitely true?' next to each.",
+                 "Do a 5-minute body scan — sit still and notice where you hold tension."],
+    "angry":    ["Go for a 10-minute brisk walk before responding to anything that upset you.",
+                 "Write an uncensored anger letter — then delete it without sending.",
+                 "Do 10 slow exhales, making each one longer than the inhale."],
+    "stressed": ["Write everything stressing you on paper — then circle just ONE to focus on today.",
+                 "Set a 25-minute Pomodoro timer and work on just one task. Then take a real break.",
+                 "Drink two full glasses of water and put your phone down for 15 minutes."],
+    "calm":     ["Set one meaningful intention for this week while your mind is clear.",
+                 "Journal about what is working well in your life right now.",
+                 "Learn one new small thing today — read something interesting for 20 minutes."],
+    "tired":    ["Take a proper 10-minute rest — eyes closed, phone down, no screen.",
+                 "Drink water before reaching for caffeine — dehydration causes 40% of fatigue.",
+                 "Do legs-up-the-wall pose for 5 minutes — one of the most restorative poses."],
+    "Fear":     ["Name your fear out loud or in writing — naming it reduces its power by half.",
+                 "Write the realistic best case, worst case, and most likely outcome of your fear.",
+                 "Think of one moment you were brave — hold that memory for 30 seconds."],
+    "swings":   ["Check in with your emotions every 2 hours today — just name what you feel.",
+                 "Do 5 minutes of rhythmic walking — the bilateral movement calms mood swings.",
+                 "Name one thing in your life that is stable and consistent right now."],
+    "neutral":  ["Write one thing you want to feel more of this week.",
+                 "Reach out to someone you haven't spoken to in a while.",
+                 "Try one new small thing today — even a different route to somewhere."],
+}
+
+JOURNAL_PROMPTS = {
+    "happy":    ["What made today feel good? Describe it in detail so future-you can revisit this.",
+                 "Who contributed to your happiness today and how can you appreciate them?",
+                 "What does happiness feel like in your body right now?"],
+    "sad":      ["What do you wish someone would say to you right now?",
+                 "Write about a time you felt this sad before — and how you eventually felt better.",
+                 "If your sadness had a colour and a shape, what would it be?"],
+    "anxious":  ["What is the worst realistic thing that could happen — and could you survive it?",
+                 "What would you tell a close friend who was feeling exactly what you feel?",
+                 "List 5 things within your control right now."],
+    "angry":    ["What boundary of yours was crossed that led to this anger?",
+                 "What do you need from the situation or person that you haven't received?",
+                 "If you could say anything without consequence, what would you say?"],
+    "stressed": ["What would your life look like if this stressor didn't exist?",
+                 "What is the single most important thing you need to do this week?",
+                 "What have you been avoiding that is adding to your stress?"],
+    "calm":     ["What habits or choices led to today feeling calm?",
+                 "Write about something you are genuinely proud of recently.",
+                 "What does a good life look like to you right now?"],
+    "tired":    ["What has been draining your energy most this week?",
+                 "What does your body need right now that you have been ignoring?",
+                 "Write about a time you felt truly rested — what made it possible?"],
+    "Fear":     ["What would you do if you knew you could not fail?",
+                 "What is the fear really protecting you from?",
+                 "Write a letter from your future self who got through this."],
+    "swings":   ["List every emotion you have felt today — even the contradictory ones.",
+                 "What triggered the shift in your mood today?",
+                 "What would 'balance' feel like for you right now?"],
+    "neutral":  ["What do you want to be different in your life one year from now?",
+                 "What are three things you are looking forward to this week?",
+                 "What is something you have been meaning to say to yourself?"],
+}
+
+def get_daily_challenge(user_id: int, mood: str) -> dict:
+    today = datetime.now().strftime("%Y-%m-%d")
+    with get_db() as conn:
+        existing = conn.execute(
+            "SELECT * FROM daily_challenges WHERE user_id=? AND date=?",
+            (user_id, today)
+        ).fetchone()
+        if existing:
+            return dict(existing)
+        # Pick challenge based on mood
+        challenges = DAILY_CHALLENGES.get(mood, DAILY_CHALLENGES["neutral"])
+        import hashlib
+        seed = int(hashlib.md5(f"{user_id}{today}".encode()).hexdigest(), 16) % len(challenges)
+        challenge = challenges[seed]
+        conn.execute(
+            "INSERT OR IGNORE INTO daily_challenges (user_id, challenge, mood, date) VALUES (?,?,?,?)",
+            (user_id, challenge, mood, today)
+        )
+        return {"challenge": challenge, "completed": 0, "date": today}
+
+
+def get_journal_prompt(user_id: int, mood: str) -> str:
+    prompts = JOURNAL_PROMPTS.get(mood, JOURNAL_PROMPTS["neutral"])
+    import hashlib
+    today = datetime.now().strftime("%Y-%m-%d")
+    seed = int(hashlib.md5(f"{user_id}{today}prompt".encode()).hexdigest(), 16) % len(prompts)
+    return prompts[seed]
+
+
+def get_community_pulse() -> dict:
+    """Get anonymous aggregate mood counts for community pulse."""
+    today = datetime.now().strftime("%Y-%m-%d")
+    with get_db() as conn:
+        rows = conn.execute("""
+            SELECT mood, COUNT(*) as cnt FROM mood_logs
+            WHERE DATE(timestamp) = ?
+            GROUP BY mood ORDER BY cnt DESC
+        """, (today,)).fetchall()
+    total = sum(r["cnt"] for r in rows)
+    top   = rows[0] if rows else None
+    return {
+        "total": total,
+        "top_mood": top["mood"] if top else "calm",
+        "top_count": top["cnt"] if top else 0,
+    }
+
+
+def get_eva_memory(user_id: int) -> str:
+    """Get last conversation topic to make Eva feel like she remembers."""
+    with get_db() as conn:
+        last = conn.execute("""
+            SELECT user_message, timestamp FROM chat_history
+            WHERE user_id=?
+            ORDER BY timestamp DESC LIMIT 1
+        """, (user_id,)).fetchone()
+    if not last:
+        return ""
+    msg = last["user_message"]
+    ts  = last["timestamp"][:10] if last["timestamp"] else ""
+    today = datetime.now().strftime("%Y-%m-%d")
+    if ts == today:
+        return ""  # same day, no need to reference
+    # Build a natural memory opener
+    openers = [
+        f"Last time we talked, you mentioned '{msg[:40]}...' — I've been thinking about you. How are things now?",
+        f"Welcome back. I remember you shared something with me recently — how have you been since then?",
+        f"It's good to see you again. How have you been since we last spoke?",
+    ]
+    import random
+    return random.choice(openers)
+
+
+def get_story_of_day() -> dict:
+    """Pick one approved community story to feature today."""
+    today = datetime.now().strftime("%Y-%m-%d")
+    with get_db() as conn:
+        # Check if today's story is already picked
+        existing = conn.execute(
+            "SELECT post_id FROM story_of_day WHERE date=?", (today,)
+        ).fetchone()
+        if existing:
+            post = conn.execute(
+                "SELECT * FROM community_posts WHERE id=?", (existing["post_id"],)
+            ).fetchone()
+            return dict(post) if post else {}
+        # Pick a random approved story
+        post = conn.execute("""
+            SELECT * FROM community_posts WHERE status='approved'
+            ORDER BY RANDOM() LIMIT 1
+        """).fetchone()
+        if post:
+            conn.execute(
+                "INSERT OR IGNORE INTO story_of_day (post_id, date) VALUES (?,?)",
+                (post["id"], today)
+            )
+            return dict(post)
+    return {}
+
+
+def get_weekly_letter(user_id: int, username: str) -> dict:
+    """Generate a personal weekly summary letter from Eva."""
+    with get_db() as conn:
+        # Logins this week
+        week_logins = conn.execute("""
+            SELECT COUNT(DISTINCT DATE(timestamp)) as cnt FROM mood_logs
+            WHERE user_id=? AND timestamp >= DATE('now', '-7 days')
+        """, (user_id,)).fetchone()["cnt"]
+
+        # Most common mood this week
+        top_mood_row = conn.execute("""
+            SELECT mood, COUNT(*) as cnt FROM mood_logs
+            WHERE user_id=? AND timestamp >= DATE('now', '-7 days')
+            GROUP BY mood ORDER BY cnt DESC LIMIT 1
+        """, (user_id,)).fetchone()
+
+        # Journal count this week
+        journals_week = conn.execute("""
+            SELECT COUNT(*) as cnt FROM journals
+            WHERE user_id=? AND created_at >= DATE('now', '-7 days')
+        """, (user_id,)).fetchone()["cnt"]
+
+        # Tasks completed this week
+        tasks_done = conn.execute("""
+            SELECT COUNT(*) as cnt FROM tasks
+            WHERE user_id=? AND status=1 AND created_at >= DATE('now', '-7 days')
+        """, (user_id,)).fetchone()["cnt"]
+
+        # Challenges completed this week
+        challenges_done = conn.execute("""
+            SELECT COUNT(*) as cnt FROM daily_challenges
+            WHERE user_id=? AND completed=1 AND date >= DATE('now', '-7 days')
+        """, (user_id,)).fetchone()["cnt"]
+
+        streak_row = conn.execute(
+            "SELECT current_streak FROM login_streaks WHERE user_id=?", (user_id,)
+        ).fetchone()
+
+    top_mood = top_mood_row["mood"] if top_mood_row else "calm"
+    streak   = streak_row["current_streak"] if streak_row else 0
+
+    MOOD_WORDS = {
+        "happy":"joyful","calm":"peaceful","sad":"heavy","anxious":"unsettled",
+        "angry":"frustrated","stressed":"under pressure","tired":"exhausted",
+        "Fear":"fearful","swings":"up and down","neutral":"steady"
+    }
+    mood_word = MOOD_WORDS.get(top_mood, "reflective")
+
+    return {
+        "username":        username,
+        "week_logins":     week_logins,
+        "top_mood":        top_mood,
+        "mood_word":       mood_word,
+        "journals_week":   journals_week,
+        "tasks_done":      tasks_done,
+        "challenges_done": challenges_done,
+        "streak":          streak,
+    }
+
+
+@app.route("/complete_challenge", methods=["POST"])
+@login_required
+def complete_challenge() -> Any:
+    today = datetime.now().strftime("%Y-%m-%d")
+    with get_db() as conn:
+        conn.execute("""
+            UPDATE daily_challenges SET completed=1, completed_at=CURRENT_TIMESTAMP
+            WHERE user_id=? AND date=?
+        """, (session["user_id"], today))
+    return jsonify({"success": True, "message": "Challenge completed! +1 to your growth today. 🌱"})
+
+
+@app.route("/use_shield", methods=["POST"])
+@login_required
+def use_shield() -> Any:
+    uid = session["user_id"]
+    with get_db() as conn:
+        shield = conn.execute(
+            "SELECT * FROM streak_shields WHERE user_id=?", (uid,)
+        ).fetchone()
+        if not shield or shield["shields"] < 1:
+            return jsonify({"success": False, "message": "No streak shields available."})
+        conn.execute(
+            "UPDATE streak_shields SET shields = shields - 1 WHERE user_id=?", (uid,)
+        )
+        # Restore streak by setting last_login_date to today
+        conn.execute("""
+            UPDATE login_streaks SET last_login_date=DATE('now')
+            WHERE user_id=?
+        """, (uid,))
+    return jsonify({"success": True, "message": "Streak shield used! Your streak is protected. 🛡️"})
+
+
+@app.route("/weekly_letter")
+@login_required
+def weekly_letter() -> Any:
+    letter = get_weekly_letter(session["user_id"], session["username"])
+    return render_template("weekly_letter.html", **letter, username=session["username"])
+
+
+@app.route("/mood_pulse")
+@login_required
+def mood_pulse_api() -> Any:
+    return jsonify(get_community_pulse())
+
+
+@app.route("/journal_prompt")
+@login_required
+def journal_prompt_api() -> Any:
+    mood = session.get("current_mood", "neutral")
+    return jsonify({"prompt": get_journal_prompt(session["user_id"], mood)})
 
 
 def build_suggestions(top_moods: list, task_done: int, task_total: int, journals: int) -> list:
