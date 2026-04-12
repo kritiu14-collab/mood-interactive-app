@@ -129,7 +129,7 @@ def init_db() -> None:
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP
             );
 
-
+            CREATE TABLE IF NOT EXISTS community_posts (
                 id           INTEGER PRIMARY KEY AUTOINCREMENT,
                 user_id      INTEGER REFERENCES users(id),
                 mood_room    TEXT NOT NULL,
@@ -946,7 +946,7 @@ ANIMALS = [
     ("Swan",       "🦢", "graceful"),
     ("Tiger",      "🐯", "fierce"),
     ("Koala",      "🐨", "soothing"),
-    ("Crow",       "🐦‍⬛", "perceptive"),
+    ("Crow",       "🐦", "perceptive"),
 ]
 
 
