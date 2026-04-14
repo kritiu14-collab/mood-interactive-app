@@ -1,123 +1,355 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"><title>Admin Dashboard – Solace</title>
-  <style>
-    *{box-sizing:border-box;margin:0;padding:0;}
-    body{font-family:'Segoe UI',sans-serif;background:#f0f2f5;color:#333;}
-    .sidebar{width:220px;position:fixed;top:0;left:0;height:100vh;background:#1e2a3a;color:#cdd9e5;display:flex;flex-direction:column;}
-    .sidebar .logo{padding:24px 20px;font-size:1.3rem;font-weight:700;color:#fff;border-bottom:1px solid #2e3f52;}
-    .sidebar nav a{display:block;padding:13px 20px;color:#aab8c8;text-decoration:none;font-size:0.9rem;transition:background 0.15s;}
-    .sidebar nav a:hover,.sidebar nav a.active{background:#2e3f52;color:#fff;}
-    .sidebar nav .sl{padding:14px 20px 6px;font-size:0.7rem;text-transform:uppercase;letter-spacing:1px;color:#5f7a90;}
-    .sidebar .bot{margin-top:auto;padding:16px 20px;border-top:1px solid #2e3f52;}
-    .sidebar .bot a{color:#f87171;text-decoration:none;font-size:0.88rem;}
-    .main{margin-left:220px;padding:30px;}
-    .page-title{font-size:1.6rem;font-weight:700;margin-bottom:6px;}
-    .page-sub{color:#666;font-size:0.9rem;margin-bottom:28px;}
-    .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:18px;margin-bottom:30px;}
-    .stat-card{background:#fff;border-radius:12px;padding:22px 24px;box-shadow:0 2px 8px rgba(0,0,0,.06);}
-    .stat-card .label{font-size:0.78rem;color:#888;text-transform:uppercase;letter-spacing:.5px;}
-    .stat-card .value{font-size:2rem;font-weight:700;margin-top:6px;}
-    .stat-card.blue .value{color:#2563eb;}.stat-card.green .value{color:#16a34a;}
-    .stat-card.orange .value{color:#ea580c;}.stat-card.purple .value{color:#7c3aed;}
-    .stat-card.pink .value{color:#db2777;}
-    .card{background:#fff;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.06);margin-bottom:24px;overflow:hidden;}
-    .card-header{padding:18px 24px;font-weight:600;font-size:1rem;border-bottom:1px solid #f0f0f0;display:flex;justify-content:space-between;align-items:center;}
-    .card-header a{font-size:0.82rem;color:#2563eb;text-decoration:none;}
-    table{width:100%;border-collapse:collapse;font-size:0.88rem;}
-    th{background:#f8f9fb;padding:10px 18px;text-align:left;font-weight:600;color:#555;font-size:0.78rem;text-transform:uppercase;}
-    td{padding:11px 18px;border-top:1px solid #f2f2f2;vertical-align:top;}
-    .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:0.75rem;font-weight:600;}
-    .badge.admin{background:#ede9fe;color:#5b21b6;}.badge.user{background:#e0f2fe;color:#075985;}
-    .flash{background:#d1fae5;border-left:4px solid #10b981;padding:12px 18px;border-radius:6px;margin-bottom:20px;font-size:0.88rem;}
-    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
-    .preview{max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#666;font-size:0.8rem;}
-    .ai-prev{max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#999;font-size:0.78rem;font-style:italic;}
-  </style>
+<meta charset="UTF-8"><title>Admin — Solace</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI',sans-serif;background:#f0f2f5;color:#333;display:flex;}
+
+/* Sidebar */
+.sidebar{width:240px;position:fixed;top:0;left:0;height:100vh;background:#1e2a3a;color:#cdd9e5;display:flex;flex-direction:column;overflow-y:auto;z-index:100;}
+.sidebar::-webkit-scrollbar{width:4px;}
+.sidebar::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);}
+.sidebar .logo{padding:22px 20px;font-size:1.2rem;font-weight:700;color:#fff;border-bottom:1px solid #2e3f52;display:flex;align-items:center;gap:10px;}
+.sidebar nav a{display:flex;align-items:center;gap:8px;padding:11px 20px;color:#aab8c8;text-decoration:none;font-size:0.85rem;transition:0.15s;}
+.sidebar nav a:hover,.sidebar nav a.active{background:#2e3f52;color:#fff;}
+.sl{padding:14px 20px 5px;font-size:0.65rem;text-transform:uppercase;letter-spacing:1.5px;color:#5f7a90;font-weight:700;}
+.sidebar .bot{margin-top:auto;padding:16px 20px;border-top:1px solid #2e3f52;}
+.sidebar .bot a{color:#f87171;text-decoration:none;font-size:0.85rem;}
+.sidebar .bot a:hover{color:#fca5a5;}
+
+/* Main */
+.main{margin-left:240px;padding:28px 32px;flex:1;min-height:100vh;}
+.page-hd{margin-bottom:24px;}
+.page-hd h1{font-size:1.5rem;font-weight:700;color:#1e2a3a;}
+.page-hd p{color:#888;font-size:0.85rem;margin-top:3px;}
+
+/* Stat cards */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px;margin-bottom:28px;}
+.stat{background:#fff;border-radius:12px;padding:18px 20px;box-shadow:0 2px 8px rgba(0,0,0,.05);border-top:3px solid transparent;}
+.stat.blue{border-top-color:#2563eb;}.stat.green{border-top-color:#16a34a;}
+.stat.orange{border-top-color:#ea580c;}.stat.purple{border-top-color:#7c3aed;}
+.stat.pink{border-top-color:#db2777;}.stat.teal{border-top-color:#0891b2;}
+.stat.red{border-top-color:#dc2626;}.stat.yellow{border-top-color:#d97706;}
+.stat.indigo{border-top-color:#4f46e5;}
+.stat-lbl{font-size:0.7rem;color:#888;text-transform:uppercase;letter-spacing:.5px;font-weight:600;}
+.stat-val{font-size:1.8rem;font-weight:800;margin-top:5px;color:#1e2a3a;}
+.stat-sub{font-size:0.68rem;color:#aaa;margin-top:2px;}
+
+/* Section label */
+.section-lbl{font-size:0.75rem;font-weight:700;color:#888;text-transform:uppercase;
+  letter-spacing:1px;margin:24px 0 12px;padding-bottom:8px;border-bottom:1px solid #e5e7eb;}
+
+/* Cards */
+.card{background:#fff;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.05);margin-bottom:20px;overflow:hidden;}
+.card-hd{padding:16px 20px;font-weight:700;font-size:0.92rem;border-bottom:1px solid #f0f0f0;
+  display:flex;justify-content:space-between;align-items:center;color:#1e2a3a;}
+.card-hd a{font-size:0.78rem;color:#2563eb;text-decoration:none;font-weight:600;}
+.card-hd a:hover{text-decoration:underline;}
+
+/* Tables */
+table{width:100%;border-collapse:collapse;font-size:0.83rem;}
+th{background:#f8f9fb;padding:9px 16px;text-align:left;font-weight:600;color:#666;font-size:0.72rem;text-transform:uppercase;letter-spacing:.3px;}
+td{padding:10px 16px;border-top:1px solid #f2f2f2;vertical-align:top;}
+tr:hover td{background:#fafafa;}
+.preview{max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#666;font-size:0.78rem;}
+.italic-prev{max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#999;font-size:0.76rem;font-style:italic;}
+
+/* Badges */
+.badge{display:inline-block;padding:3px 9px;border-radius:12px;font-size:0.72rem;font-weight:700;}
+.badge.admin{background:#ede9fe;color:#5b21b6;}
+.badge.user{background:#e0f2fe;color:#075985;}
+.badge.pending{background:#fef3c7;color:#92400e;}
+.badge.approved{background:#d1fae5;color:#065f46;}
+.badge.new{background:#fee2e2;color:#991b1b;}
+
+/* Mood today bar */
+.mood-today-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f5f5f5;}
+.mood-today-row:last-child{border-bottom:none;}
+.mood-today-label{width:90px;font-size:0.8rem;font-weight:600;color:#444;}
+.mood-today-bar-wrap{flex:1;background:#f0f0f0;border-radius:6px;height:8px;overflow:hidden;}
+.mood-today-bar{height:100%;border-radius:6px;transition:width 0.5s ease;}
+.mood-today-count{font-size:0.75rem;color:#888;width:20px;text-align:right;}
+
+/* Two col grid */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+@media(max-width:1000px){.grid2{grid-template-columns:1fr;}}
+
+.flash{background:#d1fae5;border-left:4px solid #10b981;padding:12px 18px;border-radius:6px;margin-bottom:20px;font-size:0.85rem;}
+
+/* Streak bar */
+.streak-bar{
+  display:inline-block;height:6px;background:#7c3aed;border-radius:3px;
+  min-width:4px;vertical-align:middle;
+}
+</style>
 </head>
 <body>
-<div class="sidebar">
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
   <div class="logo">⚡ Solace Admin</div>
   <nav>
     <div class="sl">Overview</div>
-    <a href="/admin" class="active">📊 Dashboard</a>
-    <div class="sl">Manage</div>
-    <a href="/admin/users">👥 Users</a>
-    <a href="/admin/chats">💬 AI Conversations</a>
-    <a href="/admin/community">🌿 Community</a>
-    <a href="/admin/posts">📝 Posts</a>
-  </nav>
-  <div class="bot"><a href="/logout">🚪 Logout</a></div>
-</div>
+    <a href="/admin" class="active"><i class="fas fa-chart-bar fa-fw"></i> Dashboard</a>
 
+    <div class="sl">Users & Data</div>
+    <a href="/admin/users"><i class="fas fa-users fa-fw"></i> Users</a>
+    <a href="/admin/chats"><i class="fas fa-robot fa-fw"></i> Eva AI Chats</a>
+    <a href="/admin/three-am-logs"><i class="fas fa-moon fa-fw"></i> 3 AM Logs</a>
+
+    <div class="sl">Wellness Features</div>
+    <a href="/admin/unsent-letters"><i class="fas fa-envelope fa-fw"></i> Unsent Letters</a>
+    <a href="/admin/venting-sessions"><i class="fas fa-wind fa-fw"></i> Venting Sessions</a>
+    <a href="/admin/rocket-wagon"><i class="fas fa-rocket fa-fw"></i> Rocket Wagon</a>
+    <a href="/admin/imagination-logs"><i class="fas fa-magic fa-fw"></i> Imagination Mood</a>
+
+    <div class="sl">Community</div>
+    <a href="/admin/community"><i class="fas fa-leaf fa-fw"></i> Community Posts</a>
+    <a href="/admin/posts"><i class="fas fa-pen-nib fa-fw"></i> Admin Posts</a>
+
+    <div class="sl">System</div>
+    <a href="/admin/tasks"><i class="fas fa-tasks fa-fw"></i> Admin Tasks</a>
+  </nav>
+  <div class="bot"><a href="/logout"><i class="fas fa-sign-out-alt"></i> Logout</a></div>
+</aside>
+
+<!-- MAIN -->
 <div class="main">
-  <div class="page-title">Dashboard</div>
-  <div class="page-sub">Welcome back, Admin. Here's what's happening across Solace.</div>
+  <div class="page-hd">
+    <h1>Dashboard</h1>
+    <p>Full system overview — all features tracked in real time.</p>
+  </div>
 
   {% with messages = get_flashed_messages() %}
     {% if messages %}{% for m in messages %}<div class="flash">{{ m }}</div>{% endfor %}{% endif %}
   {% endwith %}
 
-  <div class="stats">
-    <div class="stat-card blue"><div class="label">Total Users</div><div class="value">{{ total_users }}</div></div>
-    <div class="stat-card purple"><div class="label">Mood Logs</div><div class="value">{{ total_moods }}</div></div>
-    <div class="stat-card green"><div class="label">Journal Entries</div><div class="value">{{ total_journals }}</div></div>
-    <div class="stat-card orange"><div class="label">AI Chats</div><div class="value">{{ total_chats }}</div></div>
-    <div class="stat-card pink"><div class="label">Posts</div><div class="value">{{ total_posts }}</div></div>
+  <!-- Core Stats -->
+  <div class="section-lbl">Core Statistics</div>
+  <div class="stats-grid">
+    <div class="stat blue">
+      <div class="stat-lbl">Total Users</div>
+      <div class="stat-val">{{ total_users }}</div>
+    </div>
+    <div class="stat purple">
+      <div class="stat-lbl">Mood Logs</div>
+      <div class="stat-val">{{ total_moods }}</div>
+    </div>
+    <div class="stat green">
+      <div class="stat-lbl">Journals</div>
+      <div class="stat-val">{{ total_journals }}</div>
+    </div>
+    <div class="stat orange">
+      <div class="stat-lbl">Eva AI Chats</div>
+      <div class="stat-val">{{ total_chats }}</div>
+    </div>
+    <div class="stat pink">
+      <div class="stat-lbl">Community Posts</div>
+      <div class="stat-val">{{ total_posts }}</div>
+    </div>
+    <div class="stat teal">
+      <div class="stat-lbl">Challenges Done</div>
+      <div class="stat-val">{{ total_challenges }}</div>
+    </div>
   </div>
 
+  <!-- New Feature Stats -->
+  <div class="section-lbl">New Feature Activity</div>
+  <div class="stats-grid">
+    <div class="stat indigo">
+      <div class="stat-lbl">Unsent Letters</div>
+      <div class="stat-val">{{ total_letters }}</div>
+      <div class="stat-sub">private letters written</div>
+    </div>
+    <div class="stat red">
+      <div class="stat-lbl">Venting Sessions</div>
+      <div class="stat-val">{{ total_vents }}</div>
+      <div class="stat-sub">text vents completed</div>
+    </div>
+    <div class="stat pink">
+      <div class="stat-lbl">🎠 Rocket Memories</div>
+      <div class="stat-val">{{ total_memories }}</div>
+      <div class="stat-sub">childhood memories saved</div>
+    </div>
+    <div class="stat purple">
+      <div class="stat-lbl">🌙 3 AM Sessions</div>
+      <div class="stat-val">{{ total_3am }}</div>
+      <div class="stat-sub">late night conversations</div>
+    </div>
+    <div class="stat yellow">
+      <div class="stat-lbl">🎠 Imagination Logs</div>
+      <div class="stat-val">{{ total_imagination }}</div>
+      <div class="stat-sub">times logged imagination</div>
+    </div>
+  </div>
+
+  <!-- Today's mood + Streaks -->
   <div class="grid2">
     <div class="card">
-      <div class="card-header">Recent Users <a href="/admin/users">View all →</a></div>
-      <table>
-        <thead><tr><th>Username</th><th>Email</th><th>Role</th><th>Joined</th></tr></thead>
-        <tbody>
-          {% for u in recent_users %}
-          <tr>
-            <td><a href="/admin/users/{{ u.id }}" style="color:#2563eb;text-decoration:none;font-weight:600">{{ u.username }}</a></td>
-            <td style="color:#888">{{ u.email }}</td>
-            <td><span class="badge {{ 'admin' if u.is_admin else 'user' }}">{{ 'Admin' if u.is_admin else 'User' }}</span></td>
-            <td style="color:#aaa;font-size:0.78rem">{{ (u.created_at or '')[:10] }}</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+      <div class="card-hd">Today's Mood Distribution</div>
+      <div style="padding:16px 20px;">
+        {% set MOOD_EMOJI = {'happy':'😊','sad':'😞','angry':'😡','anxious':'😰','calm':'😌','stressed':'😫','tired':'😴','imagination':'🎠','swings':'🎢'} %}
+        {% set MOOD_COLOR = {'happy':'#FFD700','sad':'#4FC3F7','angry':'#EF5350','anxious':'#AB47BC','calm':'#66BB6A','stressed':'#FF7043','tired':'#90A4AE','imagination':'#FF69B4','swings':'#9C27B0'} %}
+        {% set max_cnt = mood_today[0].cnt if mood_today else 1 %}
+        {% for m in mood_today %}
+        <div class="mood-today-row">
+          <div class="mood-today-label">{{ MOOD_EMOJI.get(m.mood,'✨') }} {{ m.mood|capitalize }}</div>
+          <div class="mood-today-bar-wrap">
+            <div class="mood-today-bar" style="width:{{ ((m.cnt/max_cnt)*100)|int }}%;background:{{ MOOD_COLOR.get(m.mood,'#7c3aed') }};"></div>
+          </div>
+          <div class="mood-today-count">{{ m.cnt }}</div>
+        </div>
+        {% else %}
+        <p style="color:#bbb;font-size:0.82rem;padding:8px 0;">No mood logs today yet.</p>
+        {% endfor %}
+      </div>
     </div>
 
     <div class="card">
-      <div class="card-header">Recent Mood Logs</div>
+      <div class="card-hd">Top Streaks 🔥</div>
       <table>
-        <thead><tr><th>User</th><th>Mood</th><th>Time</th></tr></thead>
+        <thead><tr><th>User</th><th>Current</th><th>Longest</th><th>Total Logins</th></tr></thead>
         <tbody>
-          {% for m in recent_moods %}
+          {% for s in top_streaks %}
           <tr>
-            <td style="font-weight:600">{{ m.username }}</td>
-            <td>{% if m.mood=='happy'%}😊{%elif m.mood=='sad'%}😞{%elif m.mood=='angry'%}😡{%elif m.mood=='anxious'%}😰{%elif m.mood=='calm'%}😌{%elif m.mood=='stressed'%}😫{%elif m.mood=='tired'%}😴{%elif m.mood=='Fear'%}😨{%elif m.mood=='swings'%}🎢{%endif%} {{ m.mood.capitalize() }}</td>
-            <td style="color:#aaa;font-size:0.78rem">{{ (m.timestamp or '')[:16] }}</td>
+            <td style="font-weight:600">{{ s.username }}</td>
+            <td>
+              <span style="font-weight:800;color:#7c3aed;">{{ s.current_streak }}d</span>
+              <span class="streak-bar" style="width:{{ [s.current_streak * 3, 80]|min }}px;"></span>
+            </td>
+            <td style="color:#888;">{{ s.longest_streak }}d</td>
+            <td style="color:#888;">{{ s.total_logins }}</td>
           </tr>
+          {% else %}
+          <tr><td colspan="4" style="color:#bbb;text-align:center;padding:16px;">No streak data yet.</td></tr>
           {% endfor %}
         </tbody>
       </table>
     </div>
   </div>
 
+  <!-- Recent Users -->
   <div class="card">
-    <div class="card-header">Recent Eva AI Conversations <a href="/admin/chats">View all →</a></div>
+    <div class="card-hd">Recent Users <a href="/admin/users">View all →</a></div>
     <table>
-      <thead><tr><th>User</th><th>User Message</th><th>Eva's Response</th><th>Time</th></tr></thead>
+      <thead><tr><th>Username</th><th>Email</th><th>Gender</th><th>Age</th><th>Role</th><th>Joined</th></tr></thead>
       <tbody>
-        {% for c in recent_chats %}
+        {% for u in recent_users %}
         <tr>
-          <td style="font-weight:600">{{ c.username }}</td>
-          <td><div class="preview">{{ c.user_message }}</div></td>
-          <td><div class="ai-prev">{{ c.ai_response }}</div></td>
-          <td style="color:#aaa;font-size:0.78rem">{{ (c.timestamp or '')[:16] }}</td>
+          <td><a href="/admin/users/{{ u.id }}" style="color:#2563eb;text-decoration:none;font-weight:700;">{{ u.username }}</a></td>
+          <td style="color:#888;">{{ u.email }}</td>
+          <td style="color:#aaa;">{{ u.gender or '—' }}</td>
+          <td style="color:#aaa;">{{ u.age or '—' }}</td>
+          <td><span class="badge {{ 'admin' if u.is_admin else 'user' }}">{{ 'Admin' if u.is_admin else 'User' }}</span></td>
+          <td style="color:#aaa;font-size:0.75rem;">{{ (u.created_at or '')[:10] }}</td>
         </tr>
         {% endfor %}
       </tbody>
     </table>
   </div>
+
+  <!-- Recent Moods + Chats -->
+  <div class="grid2">
+    <div class="card">
+      <div class="card-hd">Recent Mood Logs</div>
+      <table>
+        <thead><tr><th>User</th><th>Mood</th><th>Time</th></tr></thead>
+        <tbody>
+          {% for m in recent_moods %}
+          <tr>
+            <td style="font-weight:600;">{{ m.username }}</td>
+            <td>{{ MOOD_EMOJI.get(m.mood,'✨') if MOOD_EMOJI is defined else '' }} {{ m.mood|capitalize }}</td>
+            <td style="color:#aaa;font-size:0.75rem;">{{ (m.timestamp or '')[:16] }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="card-hd">Recent Eva Chats <a href="/admin/chats">View all →</a></div>
+      <table>
+        <thead><tr><th>User</th><th>Message</th><th>Eva Response</th></tr></thead>
+        <tbody>
+          {% for c in recent_chats %}
+          <tr>
+            <td style="font-weight:600;white-space:nowrap;">{{ c.username }}</td>
+            <td><div class="preview">{{ c.user_message }}</div></td>
+            <td><div class="italic-prev">{{ c.ai_response }}</div></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Unsent Letters -->
+  <div class="card">
+    <div class="card-hd">💌 Recent Unsent Letters <a href="/admin/unsent-letters">View all →</a></div>
+    <table>
+      <thead><tr><th>User</th><th>Addressed To</th><th>Letter Preview</th><th>Eva Reply</th><th>Date</th></tr></thead>
+      <tbody>
+        {% for l in recent_letters %}
+        <tr>
+          <td style="font-weight:600;">{{ l.username }}</td>
+          <td style="color:#7c3aed;font-weight:600;">{{ l.addressed_to or '—' }}</td>
+          <td><div class="italic-prev">{{ l.letter }}</div></td>
+          <td><div class="italic-prev" style="color:#7c3aed;">{{ l.eva_reply or '—' }}</div></td>
+          <td style="color:#aaa;font-size:0.75rem;">{{ (l.created_at or '')[:10] }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="5" style="color:#bbb;text-align:center;padding:14px;">No unsent letters yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Venting + Rocket Wagon -->
+  <div class="grid2">
+    <div class="card">
+      <div class="card-hd">🌪️ Recent Venting Sessions <a href="/admin/venting-sessions">View all →</a></div>
+      <table>
+        <thead><tr><th>User</th><th>Keywords</th><th>Date</th></tr></thead>
+        <tbody>
+          {% for v in recent_vents %}
+          <tr>
+            <td style="font-weight:600;">{{ v.username }}</td>
+            <td style="color:#ef4444;font-size:0.75rem;">{{ (v.keywords or '')[:60] }}</td>
+            <td style="color:#aaa;font-size:0.75rem;">{{ (v.created_at or '')[:10] }}</td>
+          </tr>
+          {% else %}
+          <tr><td colspan="3" style="color:#bbb;text-align:center;padding:14px;">No venting sessions yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="card-hd">🚀 Recent Rocket Memories <a href="/admin/rocket-wagon">View all →</a></div>
+      <table>
+        <thead><tr><th>User</th><th>Memory Title</th><th>Opacity</th><th>Date</th></tr></thead>
+        <tbody>
+          {% for m in recent_memories %}
+          <tr>
+            <td style="font-weight:600;">{{ m.username }}</td>
+            <td>{{ m.memory_title }}</td>
+            <td>
+              <div style="width:50px;background:#f0f0f0;border-radius:4px;height:6px;overflow:hidden;">
+                <div style="width:{{ ((m.opacity or 1.0)*100)|int }}%;background:#FF69B4;height:100%;border-radius:4px;"></div>
+              </div>
+            </td>
+            <td style="color:#aaa;font-size:0.75rem;">{{ (m.created_at or '')[:10] }}</td>
+          </tr>
+          {% else %}
+          <tr><td colspan="4" style="color:#bbb;text-align:center;padding:14px;">No memories yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
 </div>
 </body>
 </html>

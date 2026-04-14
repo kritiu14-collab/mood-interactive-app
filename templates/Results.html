@@ -90,8 +90,8 @@
     <div class="card-title"><i class="fas fa-chart-bar" style="color:#7c3aed"></i> Mood Breakdown</div>
     {% set total_logs = namespace(val=0) %}
     {% for m in mood_logs %}{% set total_logs.val = total_logs.val + m.cnt %}{% endfor %}
-    {% set mood_colors = {'happy':'#FFD700','sad':'#4FC3F7','angry':'#EF5350','anxious':'#AB47BC','calm':'#66BB6A','stressed':'#FF7043','tired':'#90A4AE','Fear':'#5C6BC0','swings':'#FF7043'} %}
-    {% set mood_emojis = {'happy':'😊','sad':'😞','angry':'😡','anxious':'😰','calm':'😌','stressed':'😫','tired':'😴','Fear':'😨','swings':'🎢'} %}
+    {% set mood_colors = {'happy':'#FFD700','sad':'#4FC3F7','angry':'#EF5350','anxious':'#AB47BC','calm':'#66BB6A','stressed':'#FF7043','tired':'#90A4AE','imagination':'#5C6BC0','swings':'#FF7043'} %}
+    {% set mood_emojis = {'happy':'😊','sad':'😞','angry':'😡','anxious':'😰','calm':'😌','stressed':'😫','tired':'😴','imagination':'🎠','swings':'🎢'} %}
     {% for m in mood_logs %}
     <div class="mood-row">
         <div class="mood-label">{{ mood_emojis.get(m.mood,'✨') }} {{ m.mood.capitalize() }}</div>
@@ -138,8 +138,8 @@
 
 <script>
 const td = {{ mood_trend | tojson }};
-const MS = {happy:8,calm:7,swings:5,tired:4,anxious:3,stressed:3,sad:2,angry:2,Fear:2};
-const MC = {happy:'#FFD700',sad:'#4FC3F7',angry:'#EF5350',anxious:'#AB47BC',calm:'#66BB6A',stressed:'#FF7043',tired:'#90A4AE',Fear:'#5C6BC0',swings:'#FF7043'};
+const MS = {happy:8,calm:7,swings:5,tired:4,anxious:3,stressed:3,sad:2,angry:2,imagination:5};
+const MC = {happy:'#FFD700',sad:'#4FC3F7',angry:'#EF5350',anxious:'#AB47BC',calm:'#66BB6A',stressed:'#FF7043',tired:'#90A4AE',imagination:'#FF69B4',swings:'#FF7043'};
 const ctx = document.getElementById('trendChart').getContext('2d');
 const gr  = ctx.createLinearGradient(0,0,0,220);
 gr.addColorStop(0,'rgba(124,58,237,0.25)'); gr.addColorStop(1,'rgba(124,58,237,0)');

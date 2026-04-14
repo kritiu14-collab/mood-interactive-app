@@ -42,11 +42,11 @@
         .lbadge{padding:3px 11px;border-radius:20px;font-size:0.7rem;font-weight:700;}
         .d-happy{background:#FFD700;} .d-sad{background:#4FC3F7;} .d-angry{background:#EF5350;}
         .d-anxious{background:#AB47BC;} .d-calm{background:#66BB6A;} .d-stressed{background:#FF7043;}
-        .d-tired{background:#90A4AE;} .d-Fear{background:#5C6BC0;} .d-swings{background:linear-gradient(135deg,#FF7043,#AB47BC);}
+        .d-tired{background:#90A4AE;} .d-imagination{background:#FF69B4;} .d-swings{background:linear-gradient(135deg,#FF7043,#AB47BC);}
         .b-happy{background:#FFF9C4;color:#7a5c00;} .b-sad{background:#E1F5FE;color:#01579b;}
         .b-angry{background:#FFEBEE;color:#b71c1c;} .b-anxious{background:#F3E5F5;color:#4a148c;}
         .b-calm{background:#E8F5E9;color:#1b5e20;} .b-stressed{background:#FBE9E7;color:#bf360c;}
-        .b-tired{background:#ECEFF1;color:#263238;} .b-Fear{background:#E8EAF6;color:#1a237e;}
+        .b-tired{background:#ECEFF1;color:#263238;} .b-imagination{background:#FFF0F8;color:#b91c8c;}
         .b-swings{background:#FFF3E0;color:#3b1f00;}
         .empty{text-align:center;padding:50px;color:#aaa;}
         .empty i{font-size:3rem;margin-bottom:14px;opacity:0.3;display:block;}
@@ -71,7 +71,7 @@
         <div class="insight-emoji">
             {% if top_mood == 'happy' %}😊{% elif top_mood == 'sad' %}😞{% elif top_mood == 'angry' %}😡
             {% elif top_mood == 'anxious' %}😰{% elif top_mood == 'calm' %}😌{% elif top_mood == 'stressed' %}😫
-            {% elif top_mood == 'tired' %}😴{% elif top_mood == 'Fear' %}😨{% elif top_mood == 'swings' %}🎢
+            {% elif top_mood == 'tired' %}😴{% elif top_mood == 'imagination' %}😨{% elif top_mood == 'swings' %}🎢
             {% else %}✨{% endif %}
         </div>
         <div>
@@ -111,7 +111,7 @@
                     <div class="lmood">
                         {% if mood=='happy'%}😊{%elif mood=='sad'%}😞{%elif mood=='angry'%}😡
                         {%elif mood=='anxious'%}😰{%elif mood=='calm'%}😌{%elif mood=='stressed'%}😫
-                        {%elif mood=='tired'%}😴{%elif mood=='Fear'%}😨{%elif mood=='swings'%}🎢{%endif%}
+                        {%elif mood=='tired'%}😴{%elif mood=='imagination'%}🎠{%elif mood=='swings'%}🎢{%endif%}
                         {{ mood.capitalize() }}
                     </div>
                     <div class="ltime"><i class="far fa-clock"></i> {{ time }}</div>
@@ -131,9 +131,9 @@
 </script>
 
 <script>
-const MS={happy:8,calm:7,swings:5,tired:4,anxious:3,stressed:3,sad:2,angry:2,Fear:2};
-const MC={happy:'#FFD700',sad:'#4FC3F7',angry:'#EF5350',anxious:'#AB47BC',calm:'#66BB6A',stressed:'#FF7043',tired:'#90A4AE',Fear:'#5C6BC0',swings:'#FF7043'};
-const ME={happy:'😊',sad:'😞',angry:'😡',anxious:'😰',calm:'😌',stressed:'😫',tired:'😴',Fear:'😨',swings:'🎢'};
+const MS={happy:8,calm:7,swings:5,tired:4,anxious:3,stressed:3,sad:2,angry:2,imagination:5};
+const MC={happy:'#FFD700',sad:'#4FC3F7',angry:'#EF5350',anxious:'#AB47BC',calm:'#66BB6A',stressed:'#FF7043',tired:'#90A4AE',imagination:'#FF69B4',swings:'#FF7043'};
+const ME={happy:'😊',sad:'😞',angry:'😡',anxious:'😰',calm:'😌',stressed:'😫',tired:'😴',imagination:'🎠',swings:'🎢'};
 
 const raw=JSON.parse(document.getElementById('mood-data').textContent);
 const data=raw.slice().reverse();

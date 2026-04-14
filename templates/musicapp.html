@@ -323,10 +323,11 @@
 // ─────────────────────────────────────────────
 const PLAYLISTS = {
     happy: {
-        label: '😊 Happy', emoji: '😊',
+        label: '😊 Khushi', emoji: '😊',
         spotifyPlaylist: 'https://open.spotify.com/playlist/37i9dQZF1DX0XUsuxWHRQd',
-        playlistName: 'Journey to Happiness',
-                songs: [
+        playlistName: 'Khushi Ka Safar',
+        description: 'Dil khush karne wale gaane — pure joy in Hindi',
+        songs: [
             { title: 'Badtameez Dil', artist: 'Pritam, Benny Dayal', emoji: '💃', src: null,
               spotify: 'https://open.spotify.com/search/Badtameez%20Dil%20Yeh%20Jawaani' },
             { title: 'Gallan Goodiyaan', artist: 'Shankar Ehsaan Loy', emoji: '🥳', src: null,
@@ -342,10 +343,10 @@ const PLAYLISTS = {
         ]
     },
     sad: {
-        label: '😞 Sad', emoji: '😞',
+        label: '😞 Udaasi', emoji: '😞',
         spotifyPlaylist: 'https://open.spotify.com/playlist/37i9dQZF1DX3YSRoSdA634',
-        playlistName: 'Its okay to not to be OKAY',
-        
+        playlistName: 'Dil Ka Dard',
+        description: 'Dil ko sukoon de — Hindi songs for your heavy heart',
         songs: [
             { title: 'Channa Mereya', artist: 'Arijit Singh', emoji: '💔', src: null,
               spotify: 'https://open.spotify.com/search/Channa%20Mereya%20Arijit%20Singh' },
@@ -362,10 +363,10 @@ const PLAYLISTS = {
         ]
     },
     stressed: {
-        label: '😫 Stressed', emoji: '😫',
+        label: '😫 Tension', emoji: '😫',
         spotifyPlaylist: 'https://open.spotify.com/playlist/37i9dQZF1DWZqd5JICZI0u',
-        playlistName: 'De-Stress yourself',
-        
+        playlistName: 'Sukoon Ki Raah',
+        description: 'Tension dur karo — soothing Hindi melodies to quiet your mind',
         songs: [
             { title: 'Kun Faya Kun', artist: 'A.R. Rahman, Javed Ali', emoji: '☮️', src: null,
               spotify: 'https://open.spotify.com/search/Kun%20Faya%20Kun%20AR%20Rahman%20Rockstar' },
@@ -380,10 +381,11 @@ const PLAYLISTS = {
         ]
     },
     calm: {
-        label: '😌 Calm', emoji: '😌',
+        label: '😌 Sukoon', emoji: '😌',
         spotifyPlaylist: 'https://open.spotify.com/playlist/37i9dQZF1DWZqd5JICZI0u',
-        playlistName: 'Calm Down',
-                songs: [
+        playlistName: 'Dil Ka Sukoon',
+        description: 'Serenity in Hindi — pure peace for your calm soul',
+        songs: [
             { title: 'Kun Faya Kun', artist: 'A.R. Rahman, Javed Ali', emoji: '☮️', src: null,
               spotify: 'https://open.spotify.com/search/Kun%20Faya%20Kun%20AR%20Rahman' },
             { title: 'Iktara', artist: 'Kavita Seth', emoji: '🎵', src: null,
@@ -397,9 +399,10 @@ const PLAYLISTS = {
         ]
     },
     angry: {
-        label: '😡 Angry', emoji: '😡',
+        label: '😡 Gussa', emoji: '😡',
         spotifyPlaylist: 'https://open.spotify.com/playlist/37i9dQZF1DX0XUsuxWHRQd',
-        playlistName: 'Be a Badass',
+        playlistName: 'Gussa Nikalo',
+        description: 'Apna gussa nikalo — powerful Hindi tracks to release and reset',
         songs: [
             { title: 'Kar Har Maidaan Fateh', artist: 'Sukhwinder Singh', emoji: '🔥', src: null,
               spotify: 'https://open.spotify.com/search/Kar%20Har%20Maidaan%20Fateh%20Sanju' },
@@ -414,10 +417,10 @@ const PLAYLISTS = {
         ]
     },
     anxious: {
-        label: '😰 Anxiety', emoji: '😰',
+        label: '😰 Ghabrahat', emoji: '😰',
         spotifyPlaylist: 'https://open.spotify.com/playlist/37i9dQZF1DWZqd5JICZI0u',
-        playlistName: 'Just Breathe',
-       
+        playlistName: 'Dil Ko Chain',
+        description: 'Ghabrahat door karo — grounding Hindi melodies to ease your mind',
         songs: [
             { title: 'Kun Faya Kun', artist: 'A.R. Rahman, Javed Ali', emoji: '🌬️', src: null,
               spotify: 'https://open.spotify.com/search/Kun%20Faya%20Kun%20AR%20Rahman%20Rockstar' },
@@ -432,10 +435,10 @@ const PLAYLISTS = {
         ]
     },
     tired: {
-        label: '😴 Tired', emoji: '😴',
+        label: '😴 Thakaan', emoji: '😴',
         spotifyPlaylist: 'https://open.spotify.com/playlist/37i9dQZF1DWZqd5JICZI0u',
-        playlistName: 'Relax Yourself',
-        
+        playlistName: 'Aaraam Ki Neend',
+        description: 'Thake hue dil ke liye — soft Hindi lullabies and rest',
         songs: [
             { title: 'Lori', artist: 'Shaan, Mahalakshmi Iyer', emoji: '🌙', src: null,
               spotify: 'https://open.spotify.com/search/Lori%20Kuch%20Kuch%20Hota%20Hai%20Shaan' },
@@ -452,8 +455,8 @@ const PLAYLISTS = {
     swings: {
         label: '🎢 Mood Swings', emoji: '🎢',
         spotifyPlaylist: 'https://open.spotify.com/playlist/37i9dQZF1DX0XUsuxWHRQd',
-        playlistName: 'Rollercoaster of Emotions',
-       
+        playlistName: 'Dil Ka Rollercoaster',
+        description: 'Kahin khushi kahin gham — a Hindi mix for your mixed feelings',
         songs: [
             { title: 'Kabhi Khushi Kabhie Gham', artist: 'Lata Mangeshkar, Udit Narayan', emoji: '🎢', src: null,
               spotify: 'https://open.spotify.com/search/Kabhi%20Khushi%20Kabhie%20Gham%20title%20song' },
@@ -468,10 +471,11 @@ const PLAYLISTS = {
         ]
     },
     Fear: {
-        label: '😨 Fear', emoji: '😨',
+        label: '😨 Darr', emoji: '😨',
         spotifyPlaylist: 'https://open.spotify.com/playlist/37i9dQZF1DX0XUsuxWHRQd',
-        playlistName: 'You can do it',
-                songs: [
+        playlistName: 'Sapno Ki Udaan',
+        description: 'Darr mat — Hindi songs to find your courage and strength',
+        songs: [
             { title: 'Kar Har Maidaan Fateh', artist: 'Sukhwinder Singh', emoji: '🏆', src: null,
               spotify: 'https://open.spotify.com/search/Kar%20Har%20Maidaan%20Fateh%20Sanju' },
             { title: 'Jai Ho', artist: 'A.R. Rahman', emoji: '🦁', src: null,

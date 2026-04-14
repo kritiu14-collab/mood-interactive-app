@@ -215,6 +215,33 @@ def init_db() -> None:
                 keywords   TEXT,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP
             );
+
+            CREATE TABLE IF NOT EXISTS rocket_wagon (
+                id           INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id      INTEGER REFERENCES users(id),
+                memory_title TEXT NOT NULL,
+                memory_text  TEXT NOT NULL,
+                childhood_dream TEXT,
+                opacity      REAL DEFAULT 1.0,
+                created_at   DATETIME DEFAULT CURRENT_TIMESTAMP
+            );
+
+            CREATE TABLE IF NOT EXISTS cloud_visions (
+                id           INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id      INTEGER REFERENCES users(id),
+                vision_text  TEXT NOT NULL,
+                cloud_emoji  TEXT DEFAULT '☁️',
+                created_at   DATETIME DEFAULT CURRENT_TIMESTAMP
+            );
+
+            CREATE TABLE IF NOT EXISTS sketch_posts (
+                id           INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id      INTEGER REFERENCES users(id),
+                image_data   TEXT NOT NULL,
+                mood         TEXT DEFAULT 'imagination',
+                prompt       TEXT,
+                created_at   DATETIME DEFAULT CURRENT_TIMESTAMP
+            );
         """)
         exists = conn.execute("SELECT id FROM users WHERE username='admin'").fetchone()
         if not exists:
@@ -238,6 +265,7 @@ def migrate_db() -> None:
         "ALTER TABLE users ADD COLUMN age_group TEXT DEFAULT ''",
         "ALTER TABLE users ADD COLUMN dob TEXT DEFAULT ''",
         "ALTER TABLE mood_logs ADD COLUMN timestamp DATETIME DEFAULT CURRENT_TIMESTAMP",
+        "ALTER TABLE rocket_wagon ADD COLUMN opacity REAL DEFAULT 1.0",
     ]
     with get_db() as conn:
         for sql in migrations:
@@ -778,6 +806,12 @@ def _get_fallback(user_msg: str, mood: str) -> str:
         pool = _EVA_FALLBACK["sleep"]
     elif any(w in msg for w in ["motivat","lazy","procrastinat","stuck","can't start","giving up"]):
         pool = _EVA_FALLBACK["motivation"]
+    elif any(w in msg for w in ["imagin","dream","create","childhood","wonder","bing","bong","play","creative","magical","cotton candy"]):
+        pool = [
+            "There is something so alive in you right now — that spark of imagination is real and it matters. What is it that your creativity is trying to make or say?",
+            "Your inner child is very present today. That is not a small thing — most people spend years trying to find their way back to that openness. What are you creating or dreaming about?",
+            "Bing Bong once said: take her to the moon for me. Your imagination is that rocket. Where does it want to take you today?",
+        ]
     else:
         # Truly unmatched — unique responses based on message length
         if len(words) <= 3:
@@ -827,7 +861,22 @@ def get_ai_response() -> Any:
             f"https://generativelanguage.googleapis.com/v1beta/"
             f"models/gemini-2.0-flash:generateContent?key={GEMINI_API_KEY}"
         )
-        system_prompt = (
+        # Special whimsical mode for imagination mood
+        if mood == "imagination":
+            system_prompt = (
+                f"You are Eva — but right now, you are channelling the spirit of Bing Bong, "
+                f"Riley's forgotten imaginary friend from Inside Out. "
+                f"The user has logged 'Imagination' as their mood — they are reconnecting with their inner child. "
+                f"Your goal: be a bridge back to their childhood innocence and creative potential. "
+                f"Remind them of their creative power. Be whimsical, warm, and gently silly. "
+                f"Use Bing Bong's philosophy: 'Take her to the moon for me.' "
+                f"Encourage them to play, create, and find joy in the beautiful process of growing up. "
+                f"Ask them about a childhood dream, a forgotten hobby, or a silly thing that used to make them happy. "
+                f"Be joyful and slightly poetic — like a memory that smells like cotton candy and sounds like a song. "
+                f"Keep it warm, 3-5 sentences, and end with something that sparks wonder."
+            )
+        else:
+            system_prompt = (
             f"You are the Solace Companion — a warm, emotionally intelligent presence named Eva. "
             f"The user's current mood is '{mood}'. "
             f"\n\nYour entire purpose is to be a Holding Space. "
@@ -851,7 +900,7 @@ def get_ai_response() -> Any:
             f"  sometimes just the quiet acknowledgment that they are not alone."
             f"\n\nYou believe in this person completely. Even when they cannot believe in themselves."
             f"\nYou are not here to help them think — you are here to help them feel less alone."
-        )
+        )  # end else system_prompt
         payload = {
             "contents": [{"parts": [{"text": system_prompt + "\n\nUser says: " + user_msg}]}],
             "generationConfig": {"temperature": 0.9, "maxOutputTokens": 800}
@@ -914,6 +963,11 @@ def journal_page() -> Any:
         streak_row = conn.execute(
             "SELECT current_streak FROM login_streaks WHERE user_id=?", (uid,)
         ).fetchone()
+        # Load unsent letters for display on journal page
+        unsent_letters = conn.execute(
+            "SELECT * FROM unsent_letters WHERE user_id=? ORDER BY created_at DESC",
+            (uid,)
+        ).fetchall()
 
     dominant_mood = mood_this_week["mood"] if mood_this_week else "neutral"
     streak        = streak_row["current_streak"] if streak_row else 0
@@ -925,6 +979,7 @@ def journal_page() -> Any:
         tasks_done=tasks_done,
         journals_written=journals_written,
         streak=streak,
+        unsent_letters=unsent_letters,
     )
 
 
@@ -1255,12 +1310,19 @@ DAILY_CHALLENGES = {
     "tired":    ["Take a proper 10-minute rest — eyes closed, phone down, no screen.",
                  "Drink water before reaching for caffeine — dehydration causes 40% of fatigue.",
                  "Do legs-up-the-wall pose for 5 minutes — one of the most restorative poses."],
-    "Fear":     ["Name your fear out loud or in writing — naming it reduces its power by half.",
-                 "Write the realistic best case, worst case, and most likely outcome of your fear.",
-                 "Think of one moment you were brave — hold that memory for 30 seconds."],
+    "imagination": ["Draw, doodle, or colour something — anything. No rules, no judgement, just make.",
+                 "Write down one childhood dream you forgot about. What would young you think of today you?",
+                 "Do one thing purely for the joy of it today — something with no productivity attached.",
+                 "Tell yourself a story — out loud, for 2 minutes. Make it silly and magical.",
+                 "Find one ordinary thing and see it with wonder. A cloud, a leaf, a sound."],
     "swings":   ["Check in with your emotions every 2 hours today — just name what you feel.",
                  "Do 5 minutes of rhythmic walking — the bilateral movement calms mood swings.",
                  "Name one thing in your life that is stable and consistent right now."],
+    "imagination": ["Draw, doodle, or colour something today — anything. No rules.",
+                 "Write down one childhood dream you forgot about.",
+                 "Do one thing purely for joy — no productivity allowed.",
+                 "Tell yourself a silly story out loud for 2 minutes.",
+                 "Find one ordinary thing and see it with wonder today."],
     "neutral":  ["Write one thing you want to feel more of this week.",
                  "Reach out to someone you haven't spoken to in a while.",
                  "Try one new small thing today — even a different route to somewhere."],
@@ -1288,9 +1350,10 @@ JOURNAL_PROMPTS = {
     "tired":    ["What has been draining your energy most this week?",
                  "What does your body need right now that you have been ignoring?",
                  "Write about a time you felt truly rested — what made it possible?"],
-    "Fear":     ["What would you do if you knew you could not fail?",
-                 "What is the fear really protecting you from?",
-                 "Write a letter from your future self who got through this."],
+    "imagination": ["What is one creative thing you loved doing as a child that you stopped doing?",
+                 "If you could build your dream world with no limits, what would it look like?",
+                 "Write a letter to your inner child — what would you tell them?",
+                 "What would Bing Bong — your forgotten imaginary friend — say to you today?"],
     "swings":   ["List every emotion you have felt today — even the contradictory ones.",
                  "What triggered the shift in your mood today?",
                  "What would 'balance' feel like for you right now?"],
@@ -1442,7 +1505,7 @@ def get_weekly_letter(user_id: int, username: str) -> dict:
     MOOD_WORDS = {
         "happy":"joyful","calm":"peaceful","sad":"heavy","anxious":"unsettled",
         "angry":"frustrated","stressed":"under pressure","tired":"exhausted",
-        "Fear":"fearful","swings":"up and down","neutral":"steady"
+        "imagination":"wonderfully imaginative","swings":"up and down","neutral":"steady"
     }
     mood_word = MOOD_WORDS.get(top_mood, "reflective")
 
@@ -1522,7 +1585,7 @@ def build_suggestions(top_moods: list, task_done: int, task_total: int, journals
         "tired":    ("🩶", "You are often tired. Prioritise 7-8 hours of sleep and try the 'legs up the wall' pose for 5 minutes before bed.", "/exercises"),
         "happy":    ("💛", "You have had many happy days! Keep journaling these moments — revisiting them on hard days is scientifically proven to lift mood.", "/journal"),
         "calm":     ("💚", "Calm is your strength. You are building a healthy emotional baseline. Keep up your current routines — they are working.", "/history"),
-        "Fear":     ("💙", "Fear has shown up often. Practice 'name it to tame it' — labelling fear reduces its intensity by activating the rational brain.", "/exercises"),
+        "imagination": ("🎠", "Imagination has been showing up for you! That spark of creativity is a sign your inner child wants to play. Give it space — make, dream, create.", "/journal"),
         "swings":   ("🌈", "Your moods vary widely. Tracking them daily (as you are doing) is the best first step. Consider adding a consistent morning ritual.", "/journal"),
     }
     for mood in top_moods:
@@ -1642,7 +1705,7 @@ def get_user_animal(user_id: int) -> tuple[str, str]:
     mood_nudge = {
         "happy": 0, "calm": 9, "sad": 6, "angry": 5,
         "anxious": 2, "stressed": 11, "tired": 13,
-        "Fear": 10, "swings": 7,
+        "imagination": 7, "swings": 7,
     }
     seed += mood_nudge.get(top_mood, 0)
     animal = ANIMALS[seed % len(ANIMALS)]
@@ -1657,7 +1720,7 @@ MOOD_ROOMS = {
     "anxious":  {"label": "Breathe Zone",     "emoji": "😰", "color": "#AB47BC", "bg": "#F3E5F5"},
     "stressed": {"label": "Unwind Space",     "emoji": "😫", "color": "#FF7043", "bg": "#FBE9E7"},
     "tired":    {"label": "Rest Nook",        "emoji": "😴", "color": "#90A4AE", "bg": "#ECEFF1"},
-    "Fear":     {"label": "Courage Circle",   "emoji": "😨", "color": "#5C6BC0", "bg": "#E8EAF6"},
+    "imagination": {"label": "Rocket Wagon",  "emoji": "🎠", "color": "#FF69B4", "bg": "#FFF0F8"},
     "swings":   {"label": "Balance Board",    "emoji": "🎢", "color": "#FF7043", "bg": "#FFF3E0"},
     "general":  {"label": "General Stories",  "emoji": "🌟", "color": "#7c3aed", "bg": "#F5F3FF"},
 }
@@ -1831,35 +1894,81 @@ def delete_community_post(post_id: int) -> Any:
 @admin_required
 def admin_dashboard() -> Any:
     with get_db() as conn:
-        total_users   = conn.execute("SELECT COUNT(*) FROM users").fetchone()[0]
-        total_moods   = conn.execute("SELECT COUNT(*) FROM mood_logs").fetchone()[0]
-        total_journals= conn.execute("SELECT COUNT(*) FROM journals").fetchone()[0]
-        total_chats   = conn.execute("SELECT COUNT(*) FROM chat_history").fetchone()[0]
-        total_posts   = conn.execute("SELECT COUNT(*) FROM posts").fetchone()[0]
+        # Core stats
+        total_users      = conn.execute("SELECT COUNT(*) FROM users").fetchone()[0]
+        total_moods      = conn.execute("SELECT COUNT(*) FROM mood_logs").fetchone()[0]
+        total_journals   = conn.execute("SELECT COUNT(*) FROM journals").fetchone()[0]
+        total_chats      = conn.execute("SELECT COUNT(*) FROM chat_history").fetchone()[0]
+        total_posts      = conn.execute("SELECT COUNT(*) FROM community_posts").fetchone()[0]
+        # New feature stats
+        total_letters    = conn.execute("SELECT COUNT(*) FROM unsent_letters").fetchone()[0]
+        total_vents      = conn.execute("SELECT COUNT(*) FROM venting_sessions").fetchone()[0]
+        total_memories   = conn.execute("SELECT COUNT(*) FROM rocket_wagon").fetchone()[0]
+        total_challenges = conn.execute("SELECT COUNT(*) FROM daily_challenges WHERE completed=1").fetchone()[0]
+        # 3AM sessions count
+        total_3am        = conn.execute("""
+            SELECT COUNT(*) FROM chat_history
+            WHERE strftime('%H', timestamp) IN ('00','01','02','03','04')
+        """).fetchone()[0]
+        # Mood breakdown today
+        mood_today = conn.execute("""
+            SELECT mood, COUNT(*) as cnt FROM mood_logs
+            WHERE DATE(timestamp) = DATE('now')
+            GROUP BY mood ORDER BY cnt DESC
+        """).fetchall()
+        # Imagination mood count
+        total_imagination = conn.execute(
+            "SELECT COUNT(*) FROM mood_logs WHERE mood='imagination'"
+        ).fetchone()[0]
 
         recent_users = conn.execute(
-            "SELECT id, username, email, is_admin, created_at FROM users ORDER BY created_at DESC LIMIT 5"
+            "SELECT id, username, email, is_admin, created_at, gender, age FROM users ORDER BY created_at DESC LIMIT 6"
         ).fetchall()
-
         recent_moods = conn.execute("""
             SELECT u.username, ml.mood, ml.timestamp
             FROM mood_logs ml JOIN users u ON ml.user_id=u.id
             ORDER BY ml.timestamp DESC LIMIT 8
         """).fetchall()
-
         recent_chats = conn.execute("""
             SELECT u.username, ch.user_message, ch.ai_response, ch.timestamp
             FROM chat_history ch JOIN users u ON ch.user_id=u.id
             ORDER BY ch.timestamp DESC LIMIT 5
+        """).fetchall()
+        recent_letters = conn.execute("""
+            SELECT ul.*, u.username FROM unsent_letters ul
+            JOIN users u ON ul.user_id=u.id
+            ORDER BY ul.created_at DESC LIMIT 5
+        """).fetchall()
+        recent_vents = conn.execute("""
+            SELECT vs.*, u.username FROM venting_sessions vs
+            JOIN users u ON vs.user_id=u.id
+            ORDER BY vs.created_at DESC LIMIT 5
+        """).fetchall()
+        recent_memories = conn.execute("""
+            SELECT rw.*, u.username FROM rocket_wagon rw
+            JOIN users u ON rw.user_id=u.id
+            ORDER BY rw.created_at DESC LIMIT 5
+        """).fetchall()
+        # Active streaks
+        top_streaks = conn.execute("""
+            SELECT u.username, ls.current_streak, ls.longest_streak, ls.total_logins
+            FROM login_streaks ls JOIN users u ON ls.user_id=u.id
+            ORDER BY ls.current_streak DESC LIMIT 5
         """).fetchall()
 
     return render_template(
         "admin/dashboard.html",
         total_users=total_users, total_moods=total_moods,
         total_journals=total_journals, total_chats=total_chats,
-        total_posts=total_posts,
+        total_posts=total_posts, total_letters=total_letters,
+        total_vents=total_vents, total_memories=total_memories,
+        total_challenges=total_challenges, total_3am=total_3am,
+        total_imagination=total_imagination,
+        mood_today=mood_today,
         recent_users=recent_users, recent_moods=recent_moods,
-        recent_chats=recent_chats,
+        recent_chats=recent_chats, recent_letters=recent_letters,
+        recent_vents=recent_vents, recent_memories=recent_memories,
+        top_streaks=top_streaks,
     )
 
 
@@ -2138,19 +2247,23 @@ def three_am_message() -> Any:
     data     = request.json or {}
     user_msg = data.get("message", "")
     uid      = session["user_id"]
+    msg      = user_msg.lower().strip()
 
-    # Special late-night Eva persona
+    # Special late-night Eva persona — responds to WHAT user actually said
     system_prompt = (
-        "You are Eva — and right now it is the middle of the night. "
-        "The user has come to you at 3 AM, which means they are struggling and couldn't sleep. "
-        "This is your most important mode. Be slower. Be softer. Be more present than ever. "
-        "Do not be energetic or upbeat. Match the stillness of the night. "
-        "Use gentle, quiet language — like a whisper, not a conversation. "
-        "Do not give advice. Do not ask many questions. "
-        "Your only job right now is to make this person feel less alone in the dark. "
-        "Acknowledge that being awake at this hour takes courage. "
-        "Tell them the night always ends. Tell them they are not the only one awake right now. "
-        "Speak in 3-6 sentences. Soft. Warm. Like a hand held in the dark."
+        "You are Eva — and right now it is 3 AM. The user has come to you in the middle of the night. "
+        "This is your most sacred mode. Be slower. Be softer. Be more present than ever. "
+        "CRITICAL: Read what the user ACTUALLY said and respond to THAT specifically. "
+        "Do not give generic comfort. Do not repeat yourself. "
+        "If they say 'thank you' — acknowledge it warmly and gently ask what brought them here. "
+        "If they say 'bye' or 'goodbye' — wish them rest and peace for the night. "
+        "If they share feelings — reflect exactly what they shared back to them with warmth. "
+        "If they share a worry — acknowledge that specific worry, not a generic response. "
+        "If they ask a question — answer it softly. "
+        "Match the stillness of the night. Speak in 3-5 sentences. "
+        "Soft. Warm. Personal. Like a hand held in the dark. "
+        "Never repeat a response you have already given in this conversation. "
+        "User message: " + user_msg
     )
 
     text = ""
@@ -2161,8 +2274,8 @@ def three_am_message() -> Any:
                 f"models/gemini-2.0-flash:generateContent?key={GEMINI_API_KEY}"
             )
             payload = {
-                "contents": [{"parts": [{"text": system_prompt + "\n\nUser says: " + user_msg}]}],
-                "generationConfig": {"temperature": 0.85, "maxOutputTokens": 300}
+                "contents": [{"parts": [{"text": system_prompt}]}],
+                "generationConfig": {"temperature": 0.9, "maxOutputTokens": 350}
             }
             res = requests.post(url, json=payload, timeout=15)
             if res.status_code == 200:
@@ -2170,14 +2283,48 @@ def three_am_message() -> Any:
         except Exception as e:
             print(f"[3AM] Gemini error: {e}")
 
+    # Smart keyword-based fallback — reads what user ACTUALLY said
     if not text:
-        import random
-        text = random.choice([
-            "I'm here. It's 3 AM and you came here — that tells me something matters deeply to you right now. You don't have to explain anything. Just breathe. I'm not going anywhere.",
-            "The night feels heaviest between 2 and 4. You are not alone in this moment — there are thousands of people awake right now, carrying their own weight. You found your way here, and that matters.",
-            "Something brought you here at this hour. Whatever it is, you don't have to carry it alone tonight. I'm here, quiet and present, just for you.",
-            "Not every wound makes a sound. Sometimes the heaviest things are the ones nobody sees. I see you here. I'm glad you came.",
-        ])
+        STOP = {"the","a","an","is","was","it","and","or","but","to","of","in","that","this","with","my","me","i"}
+
+        if any(w in msg for w in ["thank","thanks","appreciate","helped","better"]):
+            text = "I'm glad you're here. This moment — you reaching out at this hour — it means something. What brought you here tonight? I want to understand."
+        elif any(w in msg for w in ["bye","goodbye","good night","sleep","going","leaving","tired"]):
+            text = "Rest now. The night always ends, and you will wake up on the other side of this. I'm proud of you for finding your way here. Sleep gently."
+        elif any(w in msg for w in ["cant sleep","cannot sleep","insomnia","awake","no sleep"]):
+            text = "The night keeps some of us up for a reason — sometimes our mind is trying to process something it hasn't finished with yet. You don't have to force sleep. Just breathe slowly. I'm here."
+        elif any(w in msg for w in ["alone","lonely","nobody","no one","empty","miss"]):
+            text = "Loneliness at 3 AM is one of the heaviest feelings. But you found your way here, and I am right here with you. You are not as alone as the night makes you feel."
+        elif any(w in msg for w in ["scared","afraid","fear","anxious","panic","worried","worry"]):
+            text = "Fear visits us most at night, when the world is quiet and our thoughts get loud. Take one slow breath. Whatever is scaring you — it does not have to be solved right now. Just breathe. I'm with you."
+        elif any(w in msg for w in ["sad","cry","crying","tears","hurt","pain","broken"]):
+            text = "There is no shame in tears at 3 AM. Some of the most honest feelings only come when the world is quiet. I hear you. What you are feeling is real, and it matters."
+        elif any(w in msg for w in ["angry","mad","frustrated","hate","unfair"]):
+            text = "Something is burning in you right now. That is okay. The night holds all of it — your anger, your frustration, everything. You don't have to contain it here."
+        elif any(w in msg for w in ["help","need","struggling","hard","difficult","tough","cant"]):
+            text = "Something is hard right now and you came here instead of sitting with it alone — that took courage. I'm listening. What is making things feel so heavy tonight?"
+        elif any(w in msg for w in ["ok","okay","fine","alright","just","nothing","idk","dunno"]):
+            text = "3 AM has a way of pulling people out of bed even when they say they are fine. I'm here if something is sitting with you, even if you can't name it yet. The night is quiet — we can just sit here together."
+        elif len(msg) <= 5:
+            text = "I hear you. Even one word in the dark takes courage. I'm here — take your time. You don't have to say anything you're not ready to say."
+        else:
+            # Reflect what they actually said back to them
+            words = [w for w in msg.split() if w not in STOP and len(w) > 2]
+            if words:
+                key_word = words[0]
+                responses = [
+                    f"When you say '{key_word}' at 3 AM — I want you to know I heard that. The night has a way of making everything feel larger. I'm here with you in it.",
+                    f"Something about '{key_word}' brought you here tonight. Whatever it is, you don't have to carry it alone in the dark. I'm listening.",
+                    f"I hear '{key_word}' and I feel the weight behind it. Tell me more if you want — or we can just sit here quietly. Either way, you are not alone.",
+                ]
+            else:
+                responses = [
+                    "Whatever you are carrying right now — the night does not have to hold it alone. I am here.",
+                    "Something brought you here at this hour. Take your time. I'm not going anywhere.",
+                    "The 3 AM version of you is brave for reaching out. I see you. I'm here.",
+                ]
+            import random as _rand
+            text = _rand.choice(responses)
 
     with get_db() as conn:
         conn.execute(
@@ -2297,7 +2444,7 @@ def soul_mirror_data() -> Any:
             (uid,)
         ).fetchone()[0]
 
-    heavy_moods = {"sad", "anxious", "stressed", "angry", "Fear", "swings", "tired"}
+    heavy_moods = {"sad", "anxious", "stressed", "angry", "imagination", "swings", "tired"}
     dominant    = rows[0]["mood"] if rows else "neutral"
     heavy_days  = sum(r["cnt"] for r in rows if r["mood"] in heavy_moods)
 
@@ -2307,7 +2454,7 @@ def soul_mirror_data() -> Any:
         "stressed": "You've been carrying a lot lately. I've cleared the noise. This space is just for you right now.",
         "angry":    "This week held some fire. I've made space for that energy — you're allowed to feel it.",
         "tired":    "You've been running on empty. I've made things softer and slower here, just for you.",
-        "Fear":     "It's been a fearful week. I've made this space as gentle as I can. You're safe here.",
+        "imagination": "Your imagination has been active this week — I can feel it. This space is full of colour and wonder, just for you.",
         "calm":     "You've found some peace this week. I'm reflecting that back to you — this is your energy.",
         "happy":    "What a bright week you've had. I'm matching your energy — let's celebrate this.",
         "swings":   "It's been an up-and-down week. I'm here for all of it — every version of you is welcome.",
@@ -2441,6 +2588,20 @@ def reverse_journal_page() -> Any:
 def generate_future_letter() -> Any:
     uid = session["user_id"]
     with get_db() as conn:
+        # Check if user has been active for at least 7 days
+        days_active = conn.execute(
+            "SELECT COUNT(DISTINCT DATE(timestamp)) FROM mood_logs WHERE user_id=?",
+            (uid,)
+        ).fetchone()[0]
+    if days_active < 7:
+        days_left = 7 - days_active
+        return jsonify({
+            "error": f"Your letter unlocks after 7 days of use. You have {days_active} day{'s' if days_active != 1 else ''} so far. {days_left} more day{'s' if days_left != 1 else ''} to go!",
+            "days_active": days_active,
+            "days_needed": 7,
+            "locked": True
+        }), 200
+    with get_db() as conn:
         mood_rows = conn.execute("""
             SELECT mood, COUNT(*) as cnt FROM mood_logs
             WHERE user_id=? AND timestamp >= DATE('now','-7 days')
@@ -2512,6 +2673,264 @@ def generate_future_letter() -> Any:
 
     return jsonify({"letter": letter, "username": username})
 
+
+
+
+# ===========================================================================
+# ADMIN — Unsent Letters & Venting Sessions
+# ===========================================================================
+
+@app.route("/admin/unsent-letters")
+@admin_required
+def admin_unsent_letters() -> Any:
+    with get_db() as conn:
+        letters = conn.execute("""
+            SELECT ul.*, u.username, u.email
+            FROM unsent_letters ul
+            JOIN users u ON ul.user_id = u.id
+            ORDER BY ul.created_at DESC
+        """).fetchall()
+    return render_template("admin/unsent_letters.html", letters=letters)
+
+
+@app.route("/admin/venting-sessions")
+@admin_required
+def admin_venting_sessions() -> Any:
+    with get_db() as conn:
+        sessions = conn.execute("""
+            SELECT vs.*, u.username, u.email
+            FROM venting_sessions vs
+            JOIN users u ON vs.user_id = u.id
+            ORDER BY vs.created_at DESC
+        """).fetchall()
+    return render_template("admin/venting_sessions.html", sessions=sessions)
+
+
+@app.route("/admin/three-am-logs")
+@admin_required
+def admin_three_am_logs() -> Any:
+    with get_db() as conn:
+        # 3AM chats are stored in chat_history — filter by hour
+        logs = conn.execute("""
+            SELECT ch.*, u.username, u.email
+            FROM chat_history ch
+            JOIN users u ON ch.user_id = u.id
+            WHERE strftime('%H', ch.timestamp) IN ('00','01','02','03','04')
+            ORDER BY ch.timestamp DESC
+            LIMIT 100
+        """).fetchall()
+    return render_template("admin/three_am_logs.html", logs=logs)
+
+
+
+# ===========================================================================
+# ROCKET WAGON — Imagination Memory Archive
+# ===========================================================================
+
+@app.route("/rocket-wagon")
+@login_required
+def rocket_wagon_page() -> Any:
+    uid = session["user_id"]
+    with get_db() as conn:
+        memories = conn.execute(
+            "SELECT * FROM rocket_wagon WHERE user_id=? ORDER BY created_at DESC",
+            (uid,)
+        ).fetchall()
+        # Count recent adult/heavy moods to calculate fade level
+        heavy_count = conn.execute("""
+            SELECT COUNT(*) FROM mood_logs
+            WHERE user_id=? AND mood IN ('stressed','anxious','angry','tired')
+            AND timestamp >= DATE('now','-7 days')
+        """, (uid,)).fetchone()[0]
+    # Fade factor: more heavy moods = more transparent memories
+    fade_factor = min(heavy_count * 0.08, 0.5)  # max 50% fade
+    return render_template(
+        "rocket_wagon.html",
+        username=session["username"],
+        memories=memories,
+        fade_factor=fade_factor,
+        heavy_count=heavy_count,
+    )
+
+
+@app.route("/rocket-wagon/add", methods=["POST"])
+@login_required
+def add_rocket_memory() -> Any:
+    data    = request.json or {}
+    title   = data.get("title", "").strip()
+    text    = data.get("text", "").strip()
+    dream   = data.get("childhood_dream", "").strip()
+    uid     = session["user_id"]
+
+    if not title or not text:
+        return jsonify({"error": "Title and memory are required."}), 400
+
+    # If user restores a memory (completes creative task) increase all opacities
+    with get_db() as conn:
+        conn.execute(
+            "INSERT INTO rocket_wagon (user_id, memory_title, memory_text, childhood_dream) VALUES (?,?,?,?)",
+            (uid, title, text, dream)
+        )
+        # Boost existing memories opacity slightly (creative act restores memories)
+        conn.execute("""
+            UPDATE rocket_wagon SET opacity = MIN(1.0, opacity + 0.15)
+            WHERE user_id=?
+        """, (uid,))
+
+    return jsonify({"message": "Memory saved to the Rocket Wagon! 🎠"}), 201
+
+
+@app.route("/rocket-wagon/delete/<int:mid>", methods=["POST"])
+@login_required
+def delete_rocket_memory(mid: int) -> Any:
+    with get_db() as conn:
+        conn.execute(
+            "DELETE FROM rocket_wagon WHERE id=? AND user_id=?",
+            (mid, session["user_id"])
+        )
+    return jsonify({"message": "Memory released."}), 200
+
+
+@app.route("/rocket-wagon/restore", methods=["POST"])
+@login_required
+def restore_memories() -> Any:
+    """Called when user completes a creative task or journals about childhood dream."""
+    uid = session["user_id"]
+    with get_db() as conn:
+        conn.execute("""
+            UPDATE rocket_wagon SET opacity = MIN(1.0, opacity + 0.25)
+            WHERE user_id=?
+        """, (uid,))
+    return jsonify({"message": "Memories brightened! Your creativity is bringing them back. ✨"}), 200
+
+
+
+@app.route("/admin/rocket-wagon")
+@admin_required
+def admin_rocket_wagon() -> Any:
+    with get_db() as conn:
+        memories = conn.execute("""
+            SELECT rw.*, u.username, u.email
+            FROM rocket_wagon rw JOIN users u ON rw.user_id=u.id
+            ORDER BY rw.created_at DESC
+        """).fetchall()
+    return render_template("admin/rocket_wagon.html", memories=memories)
+
+
+@app.route("/admin/imagination-logs")
+@admin_required
+def admin_imagination_logs() -> Any:
+    with get_db() as conn:
+        logs = conn.execute("""
+            SELECT ml.*, u.username, u.email
+            FROM mood_logs ml JOIN users u ON ml.user_id=u.id
+            WHERE ml.mood='imagination'
+            ORDER BY ml.timestamp DESC
+        """).fetchall()
+    return render_template("admin/imagination_logs.html", logs=logs)
+
+
+
+# ===========================================================================
+# IMAGINATION — Sketch Posts (Memory Sketchbook)
+# ===========================================================================
+
+@app.route("/sketch/post", methods=["POST"])
+@login_required
+def post_sketch() -> Any:
+    data       = request.json or {}
+    image_data = data.get("image", "")
+    mood       = data.get("mood", "imagination")
+    prompt     = data.get("prompt", "")
+    uid        = session["user_id"]
+
+    if not image_data:
+        return jsonify({"error": "No image data received."}), 400
+
+    # Store base64 image in sketch_posts table
+    with get_db() as conn:
+        conn.execute(
+            "INSERT INTO sketch_posts (user_id, image_data, mood, prompt) VALUES (?,?,?,?)",
+            (uid, image_data, mood, prompt)
+        )
+
+    return jsonify({"message": "Your sketch is now live in the Imagination Community! 🎨"}), 201
+
+
+@app.route("/sketch/feed")
+@login_required
+def sketch_feed() -> Any:
+    """Returns sketches posted by users in imagination mood — only visible to imagination mood users."""
+    uid          = session["user_id"]
+    current_mood = session.get("current_mood", "neutral")
+
+    with get_db() as conn:
+        sketches = conn.execute("""
+            SELECT sp.id, sp.image_data, sp.prompt, sp.created_at,
+                   u.username
+            FROM sketch_posts sp
+            JOIN users u ON sp.user_id = u.id
+            WHERE sp.mood = 'imagination'
+            ORDER BY sp.created_at DESC
+            LIMIT 20
+        """).fetchall()
+
+    return jsonify({
+        "sketches": [
+            {
+                "id":        s["id"],
+                "username":  s["username"],
+                "prompt":    s["prompt"],
+                "image":     s["image_data"],
+                "date":      (s["created_at"] or "")[:10],
+            }
+            for s in sketches
+        ],
+        "visible_to_imagination_only": True
+    })
+
+
+# ===========================================================================
+# IMAGINATION — Cloud Visions
+# ===========================================================================
+
+@app.route("/cloud-vision/save", methods=["POST"])
+@login_required
+def save_cloud_vision() -> Any:
+    data         = request.json or {}
+    vision_text  = data.get("vision", "").strip()
+    cloud_emoji  = data.get("cloud_emoji", "☁️")
+    uid          = session["user_id"]
+
+    if not vision_text:
+        return jsonify({"error": "Vision text is required."}), 400
+
+    with get_db() as conn:
+        conn.execute(
+            "INSERT INTO cloud_visions (user_id, vision_text, cloud_emoji) VALUES (?,?,?)",
+            (uid, vision_text, cloud_emoji)
+        )
+
+    return jsonify({"message": "Vision saved to your Rocket Wagon! ✨"}), 201
+
+
+@app.route("/cloud-vision/list")
+@login_required
+def list_cloud_visions() -> Any:
+    uid = session["user_id"]
+    with get_db() as conn:
+        visions = conn.execute(
+            "SELECT cloud_emoji, vision_text, created_at FROM cloud_visions "
+            "WHERE user_id=? ORDER BY created_at DESC LIMIT 20",
+            (uid,)
+        ).fetchall()
+
+    return jsonify({
+        "visions": [
+            {"emoji": v["cloud_emoji"], "text": v["vision_text"], "date": (v["created_at"] or "")[:10]}
+            for v in visions
+        ]
+    })
 
 
 if __name__ == "__main__":

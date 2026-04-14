@@ -1,626 +1,846 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Solace Journal</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
-
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Solace · Journal</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Playfair+Display:ital,wght@0,600;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 <style>
+*{box-sizing:border-box;margin:0;padding:0;}
 :root{
---bg:#fdf6f6;
---card:#ffffffd9;
---primary:#d4a5a5;
---secondary:#a5cad4;
---text:#5a5a5a;
---radius:18px;
---shadow:0 8px 25px rgba(0,0,0,0.05);
+  --bg:#f7f3ff;
+  --card:#ffffff;
+  --border:#e9e3f5;
+  --primary:#7c3aed;
+  --primary-light:#ede9fe;
+  --secondary:#4f46e5;
+  --text:#2d1b69;
+  --muted:#8b7aad;
+  --radius:18px;
+  --shadow:0 4px 24px rgba(124,58,237,0.08);
 }
 
-[data-theme="dark"]{
---bg:#0f1021;
---card:rgba(30,32,60,0.9);
---primary:#c8a6ff;
---secondary:#6ecbff;
---text:#f5f6ff;
---shadow:0 10px 35px rgba(0,0,0,0.6);
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+
+/* ── LAYOUT ── */
+.app-layout{display:grid;grid-template-columns:260px 1fr;min-height:100vh;}
+
+/* ── LEFT SIDEBAR ── */
+.sidebar{
+  background:linear-gradient(180deg,#2d1b69 0%,#1e1235 100%);
+  padding:24px 16px;position:sticky;top:0;height:100vh;
+  overflow-y:auto;display:flex;flex-direction:column;gap:8px;
+}
+.sidebar::-webkit-scrollbar{width:3px;}
+.sidebar::-webkit-scrollbar-thumb{background:rgba(196,181,253,0.2);border-radius:2px;}
+
+.sidebar-brand{
+  display:flex;align-items:center;gap:10px;
+  margin-bottom:20px;padding-bottom:16px;
+  border-bottom:1px solid rgba(255,255,255,0.08);
+}
+.sidebar-logo{
+  width:36px;height:36px;border-radius:10px;
+  background:rgba(196,181,253,0.15);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.1rem;color:#c4b5fd;font-weight:800;
+}
+.sidebar-title{font-size:1rem;font-weight:800;color:#c4b5fd;}
+.sidebar-sub{font-size:0.7rem;color:rgba(255,255,255,0.3);margin-top:1px;}
+
+.tab-btn{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 14px;border-radius:12px;
+  background:transparent;border:none;
+  color:rgba(255,255,255,0.5);font-family:'Nunito',sans-serif;
+  font-size:0.85rem;font-weight:600;cursor:pointer;
+  transition:all 0.2s;width:100%;text-align:left;
+}
+.tab-btn:hover{background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.8);}
+.tab-btn.active{background:rgba(196,181,253,0.15);color:#c4b5fd;}
+.tab-btn .tab-icon{font-size:1rem;width:20px;text-align:center;}
+.tab-badge{margin-left:auto;background:rgba(196,181,253,0.2);color:#c4b5fd;
+  font-size:0.65rem;padding:2px 7px;border-radius:10px;font-weight:700;}
+
+.sidebar-section-label{
+  font-size:0.65rem;color:rgba(255,255,255,0.2);
+  text-transform:uppercase;letter-spacing:1.5px;
+  padding:8px 14px 4px;font-weight:700;
 }
 
-/* Galaxy background */
-[data-theme="dark"] body{
-background:
-radial-gradient(circle at 20% 20%, #2c2e5b 0%, transparent 40%),
-radial-gradient(circle at 80% 30%, #1a1b3f 0%, transparent 40%),
-radial-gradient(circle at 50% 80%, #1f1f4a 0%, transparent 40%),
-#0f1021;
+/* Future letter in sidebar */
+.future-letter-side{
+  background:rgba(59,130,246,0.1);
+  border:1px solid rgba(59,130,246,0.2);
+  border-radius:14px;padding:14px;margin:8px 0;
+}
+.fl-side-label{font-size:0.65rem;color:#93c5fd;text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:6px;}
+.fl-side-mood{font-size:0.8rem;color:rgba(196,181,253,0.8);margin-bottom:10px;}
+.fl-side-btn{
+  width:100%;padding:9px;border:none;border-radius:10px;
+  background:linear-gradient(135deg,#1e3a8a,#3b82f6);
+  color:white;font-family:'Nunito',sans-serif;font-weight:700;
+  font-size:0.78rem;cursor:pointer;transition:0.2s;
+}
+.fl-side-btn:hover{opacity:0.9;}
+.fl-side-btn:disabled{opacity:0.5;cursor:not-allowed;}
+
+.sidebar-footer{
+  margin-top:auto;padding-top:16px;
+  border-top:1px solid rgba(255,255,255,0.08);
+}
+.sidebar-footer a{
+  display:flex;align-items:center;gap:8px;
+  color:rgba(255,255,255,0.3);text-decoration:none;
+  font-size:0.78rem;font-weight:600;padding:8px 14px;
+  border-radius:10px;transition:0.2s;
+}
+.sidebar-footer a:hover{color:rgba(255,255,255,0.6);background:rgba(255,255,255,0.05);}
+
+/* ── MAIN CONTENT ── */
+.main-content{padding:28px 32px;max-width:780px;}
+
+/* ── TAB PANELS ── */
+.tab-panel{display:none;}
+.tab-panel.active{display:block;}
+
+/* ── WRITE JOURNAL ── */
+.journal-card{
+  background:var(--card);border-radius:var(--radius);
+  box-shadow:var(--shadow);border:1px solid var(--border);
+  padding:28px;margin-bottom:20px;
+}
+.journal-card-header{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:22px;
+}
+.journal-card-header h2{
+  font-size:1.1rem;font-weight:800;color:var(--text);
+}
+.page-date{font-size:0.78rem;color:var(--muted);}
+
+.prompt-box{
+  background:var(--primary-light);border-left:3px solid var(--primary);
+  border-radius:0 12px 12px 0;padding:12px 16px;
+  font-size:0.85rem;color:var(--secondary);line-height:1.7;
+  font-style:italic;font-family:'Playfair Display',serif;
+  margin-bottom:20px;
+}
+.prompt-label{font-size:0.65rem;font-weight:800;color:var(--primary);
+  text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;
+  font-style:normal;font-family:'Nunito',sans-serif;}
+
+.field-group{margin-bottom:18px;}
+.field-label{
+  font-size:0.72rem;font-weight:800;color:var(--muted);
+  text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;display:block;
 }
 
-body{
-font-family:'Quicksand',sans-serif;
-background:var(--bg);
-color:var(--text);
-padding:20px;
-transition:0.3s;
+input[type=date],input[type=text]{
+  width:100%;padding:11px 14px;
+  border:1.5px solid var(--border);border-radius:12px;
+  font-family:'Nunito',sans-serif;font-size:0.9rem;color:var(--text);
+  outline:none;transition:0.2s;background:var(--bg);
 }
+input[type=date]:focus,input[type=text]:focus{border-color:var(--primary);}
 
-.container{
-max-width:900px;
-margin:auto;
+.mood-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:4px;}
+.mood-chip{
+  padding:7px 14px;border-radius:20px;border:1.5px solid var(--border);
+  background:white;font-size:0.8rem;font-weight:700;color:var(--muted);
+  cursor:pointer;transition:all 0.2s;font-family:'Nunito',sans-serif;
 }
+.mood-chip:hover{border-color:var(--primary);color:var(--primary);}
+.mood-chip.active{background:var(--primary);color:white;border-color:var(--primary);}
 
-header{
-display:flex;
-justify-content:space-between;
-align-items:center;
-margin-bottom:30px;
+.journal-textarea{
+  width:100%;min-height:90px;padding:12px 14px;
+  border:1.5px solid var(--border);border-radius:12px;
+  font-family:'Playfair Display',serif;font-size:0.95rem;
+  color:var(--text);line-height:1.8;resize:vertical;
+  outline:none;transition:0.2s;background:var(--bg);
 }
+.journal-textarea:focus{border-color:var(--primary);background:white;}
+.journal-textarea::placeholder{color:#ccc;font-style:italic;}
 
-h1{
-font-family:'Playfair Display',serif;
-color:var(--primary);
+.word-count{font-size:0.68rem;color:var(--muted);text-align:right;margin-top:4px;}
+
+.section-divider{
+  display:flex;align-items:center;gap:10px;margin:18px 0;
+  font-size:0.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;
 }
+.section-divider::before,.section-divider::after{content:'';flex:1;height:1px;background:var(--border);}
 
-#todayDate{
-font-size:14px;
-opacity:0.7;
+.btn-save{
+  background:linear-gradient(135deg,var(--primary),var(--secondary));
+  color:white;border:none;border-radius:12px;
+  padding:13px 28px;font-family:'Nunito',sans-serif;
+  font-weight:800;font-size:0.92rem;cursor:pointer;transition:0.2s;
+  box-shadow:0 4px 14px rgba(124,58,237,0.25);
 }
-
-/* Cards */
-.card{
-background:var(--card);
-padding:25px;
-border-radius:var(--radius);
-box-shadow:var(--shadow);
-margin-bottom:25px;
+.btn-save:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(124,58,237,0.35);}
+.btn-clear{
+  background:white;color:var(--muted);border:1.5px solid var(--border);
+  border-radius:12px;padding:13px 20px;font-family:'Nunito',sans-serif;
+  font-weight:700;font-size:0.9rem;cursor:pointer;transition:0.2s;margin-left:8px;
 }
+.btn-clear:hover{border-color:var(--primary);color:var(--primary);}
 
-[data-theme="dark"] .card{
-background:rgba(25,27,55,0.95);
-border:1px solid rgba(255,255,255,0.05);
+/* ── PAST ENTRIES ── */
+.search-input{
+  width:100%;padding:12px 16px 12px 40px;
+  border:1.5px solid var(--border);border-radius:14px;
+  font-family:'Nunito',sans-serif;font-size:0.88rem;color:var(--text);
+  outline:none;transition:0.2s;background:white;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%238b7aad' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.099zm-5.242 1.656a5.5 5.5 0 1 1 0-11 5.5 5.5 0 0 1 0 11z'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:14px center;
 }
+.search-input:focus{border-color:var(--primary);}
+.search-wrap{position:relative;margin-bottom:16px;}
 
-/* Inputs */
-input,textarea{
-width:100%;
-padding:10px;
-border-radius:10px;
-border:1px solid #eee;
-margin-top:6px;
-font-family:inherit;
+.entry-card{
+  background:white;border-radius:14px;border:1.5px solid var(--border);
+  padding:16px 18px;margin-bottom:10px;transition:0.2s;cursor:pointer;
+  display:flex;align-items:flex-start;justify-content:space-between;gap:12px;
 }
-
-[data-theme="dark"] input,
-[data-theme="dark"] textarea{
-background:#1c1e3c;
-color:#ffffff;
-border:1px solid rgba(255,255,255,0.1);
+.entry-card:hover{border-color:var(--primary);box-shadow:0 2px 12px rgba(124,58,237,0.08);}
+.entry-date{font-size:0.7rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px;}
+.entry-title{font-weight:800;color:var(--text);font-size:0.9rem;margin-bottom:3px;}
+.entry-preview{font-size:0.78rem;color:var(--muted);line-height:1.5;}
+.entry-mood-badge{
+  font-size:0.65rem;font-weight:800;padding:4px 10px;border-radius:10px;
+  background:var(--primary-light);color:var(--primary);white-space:nowrap;flex-shrink:0;
 }
-
-textarea{
-height:100px;
-resize:none;
+.entry-actions{display:flex;gap:6px;margin-top:8px;}
+.entry-btn{
+  font-size:0.72rem;font-weight:700;padding:5px 12px;border-radius:8px;
+  cursor:pointer;border:none;font-family:'Nunito',sans-serif;transition:0.2s;
 }
+.entry-btn.view{background:var(--primary-light);color:var(--primary);}
+.entry-btn.view:hover{background:var(--primary);color:white;}
+.entry-btn.del{background:#fef2f2;color:#ef4444;}
+.entry-btn.del:hover{background:#ef4444;color:white;}
+.empty-state{text-align:center;padding:40px;color:var(--muted);}
+.empty-state .ei{font-size:2.5rem;display:block;margin-bottom:10px;opacity:0.3;}
 
-.mood-selector{
-display:flex;
-gap:10px;
-flex-wrap:wrap;
-margin-top:10px;
+/* ── UNSENT LETTERS ── */
+.letter-write-card{
+  background:white;border-radius:var(--radius);
+  box-shadow:var(--shadow);border:1px solid var(--border);
+  padding:28px;margin-bottom:20px;position:relative;overflow:hidden;
 }
-
-.mood-btn{
-padding:6px 14px;
-border-radius:20px;
-border:1px solid var(--primary);
-background:transparent;
-cursor:pointer;
+.letter-write-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:4px;
+  background:linear-gradient(90deg,#7c3aed,#ec4899,#7c3aed);
+  background-size:200%;animation:shimmer 3s linear infinite;
 }
+@keyframes shimmer{0%{background-position:0%;}100%{background-position:200%;}}
 
-.mood-btn.active{
-background:var(--primary);
-color:white;
+.to-input{
+  width:100%;padding:11px 14px;border:1.5px solid var(--border);
+  border-radius:12px;font-family:'Nunito',sans-serif;font-size:0.9rem;
+  color:var(--text);outline:none;transition:0.2s;background:var(--bg);
+  margin-bottom:14px;
 }
-
-.btn{
-padding:8px 16px;
-border:none;
-border-radius:20px;
-cursor:pointer;
-margin-top:10px;
+.to-input:focus{border-color:var(--primary);}
+.letter-textarea{
+  width:100%;min-height:180px;padding:14px 16px;
+  border:1.5px solid var(--border);border-radius:12px;
+  font-family:'Playfair Display',serif;font-size:0.95rem;font-style:italic;
+  color:var(--text);line-height:1.9;resize:vertical;
+  outline:none;transition:0.2s;background:#fffdf9;margin-bottom:14px;
 }
-
-.btn-save{background:var(--secondary);color:white;}
-.btn-clear{background:#eee;}
-
-/* Entry cards */
-.entry{
-padding:15px;
-border-radius:var(--radius);
-margin-bottom:15px;
-box-shadow:var(--shadow);
-background:var(--card);
-display:flex;
-justify-content:space-between;
-align-items:center;
+.letter-textarea:focus{border-color:var(--primary);background:white;}
+.letter-textarea::placeholder{color:#ccc;font-style:italic;}
+.send-letter-btn{
+  background:linear-gradient(135deg,#7c3aed,#4c1d95);
+  color:white;border:none;border-radius:12px;
+  padding:12px 24px;font-family:'Nunito',sans-serif;
+  font-weight:800;font-size:0.9rem;cursor:pointer;transition:0.2s;
 }
+.send-letter-btn:hover{opacity:0.9;transform:translateY(-1px);}
+.send-letter-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
 
-[data-theme="dark"] .entry{
-background:#1c1e3c;
-box-shadow:0 8px 25px rgba(0,0,0,0.6);
+.eva-reply-box{
+  background:var(--primary-light);border:1px solid #ddd6fe;
+  border-radius:14px;padding:18px;margin-top:16px;
+  display:none;animation:fadeUp 0.5s ease;
 }
+.eva-reply-box.show{display:block;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+.eva-reply-label{font-size:0.65rem;font-weight:800;color:var(--primary);
+  text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;}
+.eva-reply-text{font-size:0.88rem;color:#4c1d95;
+  font-family:'Playfair Display',serif;font-style:italic;line-height:1.85;}
 
-.entry.happy{border-left:5px solid #ffe066;}
-.entry.sad{border-left:5px solid #74b9ff;}
-.entry.calm{border-left:5px solid #55efc4;}
-.entry.anxious{border-left:5px solid #fab1a0;}
-
-.prompt{
-font-style:italic;
-margin-bottom:10px;
-opacity:0.8;
+.past-letter-card{
+  background:white;border-radius:14px;border:1.5px solid var(--border);
+  padding:18px;margin-bottom:12px;
 }
-
-.word-count{
-font-size:12px;
-opacity:0.6;
+.pl-to{font-size:0.68rem;color:var(--muted);text-transform:uppercase;
+  letter-spacing:.5px;font-weight:700;margin-bottom:5px;}
+.pl-preview{
+  font-family:'Playfair Display',serif;font-style:italic;
+  font-size:0.88rem;color:#555;line-height:1.8;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+  margin-bottom:8px;
 }
-
-/* Modal */
-.modal{
-display:none;
-position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
-background:rgba(0,0,0,0.5);
-backdrop-filter:blur(4px);
-overflow:auto;
+.pl-eva{
+  background:var(--primary-light);border-radius:10px;padding:10px 14px;
+  font-size:0.78rem;color:var(--primary);line-height:1.7;
+  font-family:'Playfair Display',serif;font-style:italic;margin-bottom:10px;
 }
+.pl-footer{display:flex;align-items:center;justify-content:space-between;}
+.pl-date{font-size:0.68rem;color:#bbb;}
+.pl-del{background:none;border:none;color:#fca5a5;cursor:pointer;
+  font-size:0.72rem;font-weight:700;transition:0.2s;font-family:'Nunito',sans-serif;}
+.pl-del:hover{color:#ef4444;}
 
-.modal-content{
-background:var(--bg);
-max-width:700px;
-margin:60px auto;
-padding:30px;
-border-radius:20px;
-box-shadow:0 10px 40px rgba(0,0,0,0.2);
+.privacy-note{font-size:0.7rem;color:var(--muted);text-align:center;margin-top:10px;line-height:1.6;}
+
+/* ── MODAL ── */
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);
+  backdrop-filter:blur(6px);z-index:100;align-items:center;justify-content:center;padding:20px;}
+.modal.show{display:flex;}
+.modal-card{
+  background:white;border-radius:20px;padding:32px;
+  max-width:540px;width:100%;max-height:80vh;overflow-y:auto;
+  animation:fadeUp 0.3s ease;
 }
-
-.close-modal{
-float:right;
-cursor:pointer;
-font-size:24px;
-}
-
-.modal-section{
-margin-top:20px;
-}
-
+.modal-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;}
+.modal-title{font-size:1.1rem;font-weight:800;color:var(--text);}
+.modal-close{background:none;border:none;font-size:1.4rem;color:var(--muted);cursor:pointer;line-height:1;}
+.modal-meta{font-size:0.78rem;color:var(--muted);margin-bottom:16px;}
+.modal-section{margin-bottom:16px;}
 .modal-section h4{
-color:var(--primary);
-margin-bottom:5px;
+  font-size:0.72rem;font-weight:800;color:var(--primary);
+  text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;
+}
+.modal-section p{
+  font-family:'Playfair Display',serif;font-size:0.9rem;
+  color:#555;line-height:1.85;
 }
 
-/* ── REVERSE JOURNAL / FUTURE LETTER ── */
-.future-letter-section {
-    margin-top: 28px;
-    border-radius: var(--radius);
-    overflow: hidden;
-    background: var(--card);
-    box-shadow: var(--shadow);
+/* ── FUTURE LETTER in sidebar ── */
+.fl-output-side{
+  background:rgba(30,58,138,0.06);border:1px solid rgba(59,130,246,0.15);
+  border-radius:12px;padding:12px;margin-top:10px;
+  display:none;
 }
-.future-letter-header {
-    background: linear-gradient(135deg, #1e3a8a, #3b82f6);
-    padding: 18px 24px;
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    cursor: pointer;
-    user-select: none;
-    transition: opacity 0.2s;
+.fl-output-side.show{display:block;}
+.fl-text-side{
+  font-family:'Playfair Display',serif;font-style:italic;
+  font-size:0.75rem;color:#1e3a8a;line-height:1.8;
+  max-height:200px;overflow-y:auto;
 }
-.future-letter-header:hover { opacity: 0.9; }
-.future-letter-header .fh-icon { font-size: 1.5rem; }
-.future-letter-header h2 {
-    font-size: 1rem; font-weight: 700;
-    color: white; margin: 0;
-    font-family: 'Quicksand', sans-serif;
-}
-.future-letter-header p {
-    font-size: 0.75rem; color: rgba(255,255,255,0.65);
-    margin: 2px 0 0; font-family: 'Quicksand', sans-serif;
-}
-.future-letter-header .fh-chevron {
-    margin-left: auto; color: rgba(255,255,255,0.5);
-    font-size: 1rem; transition: transform 0.3s;
-}
-.future-letter-body {
-    padding: 24px;
-    display: none;
-}
-.future-letter-body.open { display: block; }
+.fl-sign-side{font-size:0.7rem;color:#3b82f6;font-style:italic;
+  font-family:'Playfair Display',serif;text-align:right;margin-top:6px;}
 
-.week-stats {
-    display: grid; grid-template-columns: repeat(3,1fr);
-    gap: 10px; margin-bottom: 20px;
+/* ── RESPONSIVE ── */
+@media(max-width:768px){
+  .app-layout{grid-template-columns:1fr;}
+  .sidebar{display:none;}
+  .main-content{padding:16px;}
 }
-.ws-box {
-    background: #eff6ff; border-radius: 12px;
-    padding: 12px; text-align: center;
-}
-[data-theme="dark"] .ws-box { background: rgba(59,130,246,0.1); }
-.ws-num { font-size: 1.5rem; font-weight: 800; color: #1e40af; }
-[data-theme="dark"] .ws-num { color: #93c5fd; }
-.ws-lbl { font-size: 0.68rem; color: #93c5fd; text-transform: uppercase;
-          letter-spacing: .5px; margin-top: 2px; font-weight: 700; }
-
-.gen-future-btn {
-    width: 100%; padding: 14px;
-    background: linear-gradient(135deg, #1e3a8a, #3b82f6);
-    color: white; border: none; border-radius: 12px;
-    font-family: 'Quicksand', sans-serif; font-weight: 700;
-    font-size: 0.95rem; cursor: pointer; transition: 0.2s;
-    box-shadow: 0 4px 14px rgba(30,58,138,0.25);
-}
-.gen-future-btn:hover { opacity: 0.9; transform: translateY(-1px); }
-.gen-future-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-
-.future-letter-output {
-    display: none; margin-top: 20px;
-    animation: fadeIn 0.6s ease;
-}
-.future-letter-output.show { display: block; }
-@keyframes fadeIn { from{opacity:0;transform:translateY(8px);} to{opacity:1;transform:translateY(0);} }
-.fl-from {
-    font-size: 0.7rem; font-weight: 700; color: #93c5fd;
-    text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px;
-}
-.fl-text {
-    font-family: 'Playfair Display', serif;
-    font-size: 0.95rem; color: #1e3a8a; line-height: 2;
-    white-space: pre-line; padding: 20px;
-    background: #f0f7ff; border-radius: 12px;
-    border-left: 3px solid #3b82f6;
-}
-[data-theme="dark"] .fl-text {
-    background: rgba(59,130,246,0.08);
-    color: #93c5fd; border-color: #3b82f6;
-}
-.fl-sign {
-    font-family: 'Playfair Display', serif; font-style: italic;
-    color: #3b82f6; font-size: 0.9rem;
-    text-align: right; margin-top: 12px;
-}
-.fl-save-note {
-    font-size: 0.7rem; color: #bbb; text-align: center; margin-top: 8px;
-}
-.mood-this-week {
-    display: inline-flex; align-items: center; gap: 6px;
-    background: #dbeafe; border-radius: 20px; padding: 5px 12px;
-    font-size: 0.78rem; font-weight: 700; color: #1e40af;
-    margin-bottom: 16px;
-}
-[data-theme="dark"] .mood-this-week { background: rgba(59,130,246,0.15); color: #93c5fd; }
-
 </style>
 </head>
-
 <body>
 
-<div style="max-width:900px;margin:0 auto;padding:16px 20px 0;font-family:Quicksand,sans-serif;"><a href="/dashboard" style="color:#d4a5a5;text-decoration:none;font-size:0.85rem;font-weight:600;"><i class="fas fa-arrow-left" style="margin-right:6px"></i> Back to Dashboard</a></div>
-<div class="container">
-<header>
-<div>
-<h1>Solace</h1>
-<div id="todayDate"></div>
-</div>
-<button onclick="toggleTheme()" class="btn">Theme</button>
-</header>
+<div class="app-layout">
 
-<div class="card">
-<div class="prompt" id="prompt"></div>
-
-<label>Date</label>
-<input type="date" id="j-date">
-
-<label>Mood</label>
-<div class="mood-selector">
-<button class="mood-btn active" onclick="setMood('calm')">Calm</button>
-<button class="mood-btn" onclick="setMood('happy')">Happy</button>
-<button class="mood-btn" onclick="setMood('sad')">Sad</button>
-<button class="mood-btn" onclick="setMood('anxious')">Anxious</button>
-</div>
-
-<label>Title</label>
-<input id="j-title">
-
-<label>Morning Thoughts</label>
-<textarea id="j-morning"></textarea>
-<div class="word-count" id="wc1">0 words</div>
-
-<label>Evening Thoughts</label>
-<textarea id="j-evening"></textarea>
-<div class="word-count" id="wc2">0 words</div>
-
-<label>Night Thoughts</label>
-<textarea id="j-night"></textarea>
-<div class="word-count" id="wc3">0 words</div>
-
-<button class="btn btn-save" onclick="saveEntry()">Save Journal</button>
-<button class="btn btn-clear" onclick="clearForm()">Clear</button>
-</div>
-
-<div class="card">
-<input placeholder="Search entries..." id="search" oninput="renderEntries()">
-<div id="history"></div>
-</div>
-
-<!-- ═══ REVERSE JOURNAL — LETTER FROM FUTURE SELF ═══ -->
-<div class="future-letter-section">
-    <div class="future-letter-header" onclick="toggleFutureLetter()">
-        <div class="fh-icon">🔮</div>
-        <div>
-            <h2>Letter from Your Future Self</h2>
-            <p>Eva reads your week and writes back from one year in the future</p>
-        </div>
-        <span class="fh-chevron" id="flChevron">▼</span>
+<!-- ════ SIDEBAR ════ -->
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="sidebar-logo">✦</div>
+    <div>
+      <div class="sidebar-title">Solace Journal</div>
+      <div class="sidebar-sub">{{ username }}</div>
     </div>
-    <div class="future-letter-body" id="futureLetterBody">
+  </div>
 
-        <div class="mood-this-week" id="moodThisWeek">
-            <span id="moodEmoji">🌀</span>
-            <span>This week's mood: <strong id="dominantMoodLabel">—</strong></span>
-        </div>
+  <div class="sidebar-section-label">Journal</div>
+  <button class="tab-btn active" onclick="switchTab('write', this)">
+    <span class="tab-icon">✍️</span> Write Today
+  </button>
+  <button class="tab-btn" onclick="switchTab('entries', this)">
+    <span class="tab-icon">📖</span> Past Entries
+  </button>
+  <button class="tab-btn" onclick="switchTab('letters', this)">
+    <span class="tab-icon">💌</span> Unsent Letters
+    {% if unsent_letters %}<span class="tab-badge">{{ unsent_letters|length }}</span>{% endif %}
+  </button>
 
-        <div class="week-stats">
-            <div class="ws-box">
-                <div class="ws-num" id="flTasks">{ tasks_done }</div>
-                <div class="ws-lbl">Tasks Done</div>
-            </div>
-            <div class="ws-box">
-                <div class="ws-num" id="flJournals">{ journals_written }</div>
-                <div class="ws-lbl">Journals Written</div>
-            </div>
-            <div class="ws-box">
-                <div class="ws-num" id="flStreak">{ streak }</div>
-                <div class="ws-lbl">Day Streak</div>
-            </div>
-        </div>
+  <div class="sidebar-section-label" style="margin-top:12px;">Weekly Letter</div>
 
-        <button class="gen-future-btn" id="genFutureBtn" onclick="generateFutureLetter()">
-            🔮 Generate My Letter from the Future
-        </button>
-
-        <div class="future-letter-output" id="futureLetterOutput">
-            <div class="fl-from">✦ A letter from { "{ username }" }, one year from now</div>
-            <div class="fl-text" id="flText"></div>
-            <div class="fl-sign" id="flSign"></div>
-            <p class="fl-save-note">Take a screenshot to save — this letter is generated fresh each time.</p>
-        </div>
-
+  <!-- FUTURE LETTER in sidebar — shows once a week -->
+  <div class="future-letter-side">
+    <div class="fl-side-label">🔮 From Future You</div>
+    <div class="fl-side-mood" id="flSideMood">
+      {% set MOOD_EMOJI = {'happy':'😊','sad':'😞','angry':'😡','anxious':'😰','calm':'😌','stressed':'😫','tired':'😴','imagination':'🎠','swings':'🎢','neutral':'🌀'} %}
+      {{ MOOD_EMOJI.get(dominant_mood, '🌀') }} This week: <strong>{{ dominant_mood|capitalize }}</strong>
     </div>
-</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:10px;">
+      <div style="background:rgba(59,130,246,0.1);border-radius:8px;padding:8px;text-align:center;">
+        <div style="font-size:1.1rem;font-weight:800;color:#3b82f6;">{{ tasks_done }}</div>
+        <div style="font-size:0.6rem;color:#93c5fd;text-transform:uppercase;letter-spacing:.5px;">Tasks</div>
+      </div>
+      <div style="background:rgba(59,130,246,0.1);border-radius:8px;padding:8px;text-align:center;">
+        <div style="font-size:1.1rem;font-weight:800;color:#3b82f6;">{{ journals_written }}</div>
+        <div style="font-size:0.6rem;color:#93c5fd;text-transform:uppercase;letter-spacing:.5px;">Journals</div>
+      </div>
+      <div style="background:rgba(59,130,246,0.1);border-radius:8px;padding:8px;text-align:center;">
+        <div style="font-size:1.1rem;font-weight:800;color:#3b82f6;">{{ streak }}</div>
+        <div style="font-size:0.6rem;color:#93c5fd;text-transform:uppercase;letter-spacing:.5px;">Streak</div>
+      </div>
+    </div>
+    <button class="fl-side-btn" id="genFutureBtn" onclick="generateFutureLetter()">
+      🔮 Generate My Letter
+    </button>
+    <div class="fl-output-side" id="flOutputSide">
+      <div class="fl-text-side" id="flTextSide"></div>
+      <div class="fl-sign-side" id="flSignSide"></div>
+    </div>
+  </div>
 
-</div>
+  <div class="sidebar-section-label" style="margin-top:12px;">Navigate</div>
+  <button class="tab-btn" onclick="window.location.href='/dashboard'">
+    <span class="tab-icon">🏠</span> Dashboard
+  </button>
+  <button class="tab-btn" onclick="window.location.href='/ai_chat'">
+    <span class="tab-icon">🤖</span> Talk to Eva
+  </button>
 
-<div id="journalModal" class="modal">
-<div class="modal-content">
-<span class="close-modal" onclick="closeModal()">×</span>
-<h2 id="modal-date"></h2>
-<h3 id="modal-title"></h3>
-<p id="modal-mood"></p>
-<div class="modal-section">
-<h4>🌅 Morning</h4>
-<p id="modal-morning"></p>
-</div>
-<div class="modal-section">
-<h4>☀ Evening</h4>
-<p id="modal-evening"></p>
-</div>
-<div class="modal-section">
-<h4>🌙 Night</h4>
-<p id="modal-night"></p>
-</div>
-</div>
+  <div class="sidebar-footer">
+    <a href="/dashboard"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+  </div>
+</aside>
+
+<!-- ════ MAIN ════ -->
+<div class="main-content">
+
+  <!-- ══ TAB: WRITE ══ -->
+  <div class="tab-panel active" id="tab-write">
+    <div class="journal-card">
+      <div class="journal-card-header">
+        <h2>Today's Entry</h2>
+        <span class="page-date" id="todayDate"></span>
+      </div>
+
+      <div class="prompt-box">
+        <div class="prompt-label">✦ Eva's prompt for today</div>
+        <div id="promptText">Loading your prompt...</div>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Date</label>
+        <input type="date" id="j-date">
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Mood</label>
+        <div class="mood-row">
+          <button class="mood-chip active" onclick="setMood('calm',this)">😌 Calm</button>
+          <button class="mood-chip" onclick="setMood('happy',this)">😊 Happy</button>
+          <button class="mood-chip" onclick="setMood('sad',this)">😞 Sad</button>
+          <button class="mood-chip" onclick="setMood('anxious',this)">😰 Anxious</button>
+          <button class="mood-chip" onclick="setMood('stressed',this)">😫 Stressed</button>
+          <button class="mood-chip" onclick="setMood('angry',this)">😡 Angry</button>
+          <button class="mood-chip" onclick="setMood('tired',this)">😴 Tired</button>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Title</label>
+        <input type="text" id="j-title" placeholder="Give this entry a name...">
+      </div>
+
+      <div class="section-divider">🌅 Morning Thoughts</div>
+      <div class="field-group">
+        <textarea class="journal-textarea" id="j-morning" placeholder="How did you start your day? What were you thinking this morning..."></textarea>
+        <div class="word-count" id="wc1">0 words</div>
+      </div>
+
+      <div class="section-divider">☀️ Evening Thoughts</div>
+      <div class="field-group">
+        <textarea class="journal-textarea" id="j-evening" placeholder="How did the day unfold? What happened, what did you feel..."></textarea>
+        <div class="word-count" id="wc2">0 words</div>
+      </div>
+
+      <div class="section-divider">🌙 Night Thoughts</div>
+      <div class="field-group">
+        <textarea class="journal-textarea" id="j-night" placeholder="Before you sleep — what are you carrying, letting go of, or grateful for..."></textarea>
+        <div class="word-count" id="wc3">0 words</div>
+      </div>
+
+      <div style="margin-top:20px;">
+        <button class="btn-save" onclick="saveEntry()"><i class="fas fa-save" style="margin-right:6px"></i>Save Journal</button>
+        <button class="btn-clear" onclick="clearForm()">Clear</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ TAB: PAST ENTRIES ══ -->
+  <div class="tab-panel" id="tab-entries">
+    <div class="journal-card">
+      <div class="journal-card-header"><h2>Past Entries</h2></div>
+      <div class="search-wrap">
+        <input class="search-input" id="searchInput" placeholder="Search entries by title or date..." oninput="renderEntries()">
+      </div>
+      <div id="entriesList">
+        <div class="empty-state"><span class="ei">📖</span>No entries yet. Start writing!</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ TAB: UNSENT LETTERS ══ -->
+  <div class="tab-panel" id="tab-letters">
+
+    <div class="letter-write-card">
+      <div class="journal-card-header">
+        <h2>💌 Write an Unsent Letter</h2>
+      </div>
+      <p style="font-size:0.82rem;color:var(--muted);margin-bottom:18px;line-height:1.7;">
+        Write to a person, a feeling, your past self, your fear, your grief — anything you couldn't say out loud. This letter will never be sent. Eva will read it and hold space for what you expressed.
+      </p>
+
+      <div class="field-group">
+        <label class="field-label">Addressed To</label>
+        <input class="to-input" id="letterTo" placeholder="My anxiety / My past self / Dad / My fear of failure...">
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Your Letter</label>
+        <textarea class="letter-textarea" id="letterText"
+          placeholder="Dear ____,&#10;&#10;There are things I never got to say..."></textarea>
+      </div>
+
+      <button class="send-letter-btn" id="sendLetterBtn" onclick="sendLetter()">
+        <i class="fas fa-paper-plane" style="margin-right:6px"></i>Release This Letter
+      </button>
+
+      <div class="eva-reply-box" id="evaReplyBox">
+        <div class="eva-reply-label">✦ Eva read your letter</div>
+        <div class="eva-reply-text" id="evaReplyText"></div>
+      </div>
+
+      <p class="privacy-note">🔒 Private to you only. Never sent. Never shared.</p>
+    </div>
+
+    <!-- Past letters -->
+    <div class="journal-card">
+      <div class="journal-card-header"><h2>Previous Letters</h2></div>
+      <div id="pastLettersList">
+        {% if unsent_letters %}
+          {% for letter in unsent_letters %}
+          <div class="past-letter-card" id="ul-{{ letter.id }}">
+            <div class="pl-to">To: {{ letter.addressed_to or 'Unnamed' }}</div>
+            <div class="pl-preview">{{ letter.letter }}</div>
+            {% if letter.eva_reply %}
+            <div class="pl-eva">
+              <div style="font-size:0.62rem;color:#7c3aed;font-style:normal;font-weight:800;margin-bottom:3px;">EVA'S RESPONSE</div>
+              {{ letter.eva_reply }}
+            </div>
+            {% endif %}
+            <div class="pl-footer">
+              <span class="pl-date">{{ (letter.created_at or '')[:10] }}</span>
+              <button class="pl-del" onclick="deleteLetter({{ letter.id }})">
+                <i class="fas fa-trash"></i> Release &amp; delete
+              </button>
+            </div>
+          </div>
+          {% endfor %}
+        {% else %}
+        <div class="empty-state">
+          <span class="ei">💌</span>
+          Your unsent letters will appear here.<br>
+          <span style="font-size:0.78rem;">Sometimes the most honest words are the ones never sent.</span>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+  </div>
+
+</div><!-- end main-content -->
+</div><!-- end app-layout -->
+
+<!-- MODAL -->
+<div class="modal" id="journalModal">
+  <div class="modal-card">
+    <div class="modal-top">
+      <div>
+        <div class="modal-title" id="modal-title">—</div>
+        <div class="modal-meta" id="modal-meta">—</div>
+      </div>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-section"><h4>🌅 Morning</h4><p id="modal-morning">—</p></div>
+    <div class="modal-section"><h4>☀️ Evening</h4><p id="modal-evening">—</p></div>
+    <div class="modal-section"><h4>🌙 Night</h4><p id="modal-night">—</p></div>
+  </div>
 </div>
 
 <script>
-let journals=[];
-let mood="calm";
-let editId=null;
+// ── State ──
+let mood = 'calm';
+let journals = [];
 
-const prompts=[
-"What made you smile today?",
-"What is worrying you today?",
-"What are you grateful for?",
-"What did today teach you?",
-"What emotions did you feel today?"
-];
-
-document.getElementById("prompt").innerText=prompts[Math.floor(Math.random()*prompts.length)];
-document.getElementById("todayDate").innerText=new Date().toDateString();
-document.getElementById("j-date").valueAsDate=new Date();
-document.getElementById("j-date").max=new Date().toISOString().split("T")[0];
-
-function setMood(m){
-mood=m;
-document.querySelectorAll(".mood-btn").forEach(btn=>{
-btn.classList.remove("active");
-if(btn.innerText.toLowerCase()==m)btn.classList.add("active");
+// ── Init ──
+document.addEventListener('DOMContentLoaded', () => {
+    const today = new Date();
+    document.getElementById('j-date').valueAsDate = today;
+    document.getElementById('todayDate').textContent = today.toLocaleDateString('en-IN', {weekday:'long',year:'numeric',month:'long',day:'numeric'});
+    loadJournals();
+    loadPrompt();
 });
+
+// ── Tabs ──
+function switchTab(name, btn) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + name).classList.add('active');
+    if (btn) btn.classList.add('active');
+    if (name === 'entries') renderEntries();
 }
 
-// BACKEND SAVE FUNCTION
-async function saveEntry() {
-    const entry = {
-        date: document.getElementById("j-date").value,
-        title: document.getElementById("j-title").value,
-        mood: mood,
-        morning: document.getElementById("j-morning").value,
-        evening: document.getElementById("j-evening").value,
-        night: document.getElementById("j-night").value
-    };
+// ── Mood ──
+function setMood(m, btn) {
+    mood = m;
+    document.querySelectorAll('.mood-chip').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+}
 
-    const response = await fetch('/save_journal', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(entry)
-    });
-
-    if (response.ok) {
-        clearForm();
-        loadJournalsFromDB(); 
-    } else {
-        alert("Failed to save entry. Make sure you are logged in!");
+// ── Prompt ──
+async function loadPrompt() {
+    try {
+        const res = await fetch('/journal_prompt');
+        const d   = await res.json();
+        document.getElementById('promptText').textContent = d.prompt || 'What is on your heart today?';
+    } catch(e) {
+        document.getElementById('promptText').textContent = 'What is on your heart today?';
     }
 }
 
-// BACKEND LOAD FUNCTION
-async function loadJournalsFromDB() {
-    const response = await fetch('/get_journals');
-    journals = await response.json();
+// ── Word counters ──
+function wordCount(el, wc) {
+    el.addEventListener('input', () => {
+        const n = el.value.trim().split(/\s+/).filter(Boolean).length;
+        document.getElementById(wc).textContent = n + ' word' + (n !== 1 ? 's' : '');
+    });
+}
+wordCount(document.getElementById('j-morning'), 'wc1');
+wordCount(document.getElementById('j-evening'), 'wc2');
+wordCount(document.getElementById('j-night'),   'wc3');
+
+// ── Save Journal ──
+async function saveEntry() {
+    const entry = {
+        date:    document.getElementById('j-date').value,
+        title:   document.getElementById('j-title').value,
+        mood:    mood,
+        morning: document.getElementById('j-morning').value,
+        evening: document.getElementById('j-evening').value,
+        night:   document.getElementById('j-night').value,
+    };
+    if (!entry.date) { alert('Please select a date.'); return; }
+
+    const res = await fetch('/save_journal', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify(entry)
+    });
+    if (res.ok) {
+        clearForm();
+        showToast('Journal saved! ✓');
+        loadJournals();
+    } else {
+        alert('Failed to save. Make sure you are logged in.');
+    }
+}
+
+// ── Load Journals ──
+async function loadJournals() {
+    const res = await fetch('/get_journals');
+    journals  = await res.json();
     renderEntries();
 }
 
-function renderEntries(){
-const term=document.getElementById("search").value.toLowerCase();
-const list=document.getElementById("history");
-list.innerHTML="";
+// ── Render Entries ──
+function renderEntries() {
+    const term = (document.getElementById('searchInput')?.value || '').toLowerCase();
+    const list = document.getElementById('entriesList');
+    const MOOD_EMOJI = {happy:'😊',sad:'😞',angry:'😡',anxious:'😰',calm:'😌',stressed:'😫',tired:'😴',imagination:'🎠',swings:'🎢'};
 
-journals
-.filter(j=>j.date.includes(term)||(j.title && j.title.toLowerCase().includes(term)))
-.forEach(j=>{
-const div=document.createElement("div");
-div.className="entry "+j.mood;
-const preview=(j.morning||j.evening||j.night||"").substring(0,50);
+    const filtered = journals.filter(j =>
+        (j.date||'').includes(term) ||
+        (j.title||'').toLowerCase().includes(term)
+    );
 
-div.innerHTML=`
-<div>
-<b>${j.date}</b><br>
-${j.title||"Untitled"}<br>
-<small>${preview}...</small>
-</div>
-<div>
-<button onclick="viewFull(${j.id})">Read</button>
-<button onclick="deleteEntry(${j.id})">Delete</button>
-</div>
-`;
-list.appendChild(div);
-});
+    if (!filtered.length) {
+        list.innerHTML = '<div class="empty-state"><span class="ei">📖</span>No entries found.</div>';
+        return;
+    }
+
+    list.innerHTML = filtered.map(j => {
+        const preview = (j.morning || j.evening || j.night || '').substring(0, 60);
+        return `
+        <div class="entry-card">
+            <div style="flex:1">
+                <div class="entry-date">${j.date}</div>
+                <div class="entry-title">${j.title || 'Untitled Entry'}</div>
+                <div class="entry-preview">${preview}${preview.length>=60?'...':''}</div>
+                <div class="entry-actions">
+                    <button class="entry-btn view" onclick="viewEntry(${j.id})">Read</button>
+                    <button class="entry-btn del" onclick="deleteEntry(${j.id})">Delete</button>
+                </div>
+            </div>
+            <div class="entry-mood-badge">${MOOD_EMOJI[j.mood]||'🌀'} ${(j.mood||'').charAt(0).toUpperCase()+(j.mood||'').slice(1)}</div>
+        </div>`;
+    }).join('');
 }
 
-function viewFull(id){
-const j=journals.find(x=>x.id===id);
-document.getElementById("modal-date").innerText=j.date;
-document.getElementById("modal-title").innerText=j.title||"Untitled Entry";
-document.getElementById("modal-mood").innerText="Mood: "+j.mood;
-document.getElementById("modal-morning").innerText=j.morning||"No entry.";
-document.getElementById("modal-evening").innerText=j.evening||"No entry.";
-document.getElementById("modal-night").innerText=j.night||"No entry.";
-document.getElementById("journalModal").style.display="block";
+function viewEntry(id) {
+    const j = journals.find(x => x.id === id);
+    if (!j) return;
+    document.getElementById('modal-title').textContent = j.title || 'Untitled Entry';
+    document.getElementById('modal-meta').textContent  = j.date + ' · Mood: ' + (j.mood||'—');
+    document.getElementById('modal-morning').textContent = j.morning || 'No entry.';
+    document.getElementById('modal-evening').textContent = j.evening || 'No entry.';
+    document.getElementById('modal-night').textContent   = j.night   || 'No entry.';
+    document.getElementById('journalModal').classList.add('show');
+}
+function closeModal() { document.getElementById('journalModal').classList.remove('show'); }
+window.onclick = e => { if (e.target.id === 'journalModal') closeModal(); };
+
+async function deleteEntry(id) {
+    if (!confirm('Delete this journal entry?')) return;
+    await fetch(`/delete_journal/${id}`);
+    loadJournals();
+    showToast('Entry deleted.');
 }
 
-function closeModal(){
-document.getElementById("journalModal").style.display="none";
+function clearForm() {
+    document.getElementById('j-title').value = '';
+    document.getElementById('j-morning').value = '';
+    document.getElementById('j-evening').value = '';
+    document.getElementById('j-night').value   = '';
+    document.getElementById('j-date').valueAsDate = new Date();
+    document.querySelectorAll('.word-count').forEach(w => w.textContent = '0 words');
+    document.querySelectorAll('.mood-chip').forEach(b => b.classList.remove('active'));
+    document.querySelector('.mood-chip').classList.add('active');
+    mood = 'calm';
 }
 
-// Updated delete function for backend
-async function deleteEntry(id){
-if(confirm("Delete this entry?")){
-    const response = await fetch(`/delete_journal/${id}`);
-    if(response.ok) {
-        loadJournalsFromDB();
+// ── Unsent Letters ──
+async function sendLetter() {
+    const addressedTo = document.getElementById('letterTo').value.trim();
+    const letter      = document.getElementById('letterText').value.trim();
+    if (!letter) { alert('Please write your letter first.'); return; }
+
+    const btn = document.getElementById('sendLetterBtn');
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Eva is reading...';
+    btn.disabled  = true;
+
+    try {
+        const res  = await fetch('/unsent-letter/send', {
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({ addressed_to: addressedTo, letter })
+        });
+        const data = await res.json();
+        if (res.ok) {
+            const box  = document.getElementById('evaReplyBox');
+            const text = document.getElementById('evaReplyText');
+            text.textContent = '';
+            box.classList.add('show');
+            let i = 0;
+            const iv = setInterval(() => {
+                if (i < data.eva_reply.length) { text.textContent += data.eva_reply[i++]; }
+                else clearInterval(iv);
+            }, 20);
+            document.getElementById('letterTo').value   = '';
+            document.getElementById('letterText').value = '';
+            showToast('Letter saved 💌');
+            setTimeout(() => location.reload(), 5000);
+        } else {
+            alert(data.error || 'Something went wrong.');
+        }
+    } catch(e) {
+        alert('Connection error. Make sure the server is running and you are logged in.');
+        console.error('Unsent letter error:', e);
+    } finally {
+        btn.innerHTML = '<i class="fas fa-paper-plane"></i> Release This Letter';
+        btn.disabled  = false;
     }
 }
+
+async function deleteLetter(id) {
+    if (!confirm('Delete this letter?')) return;
+    await fetch(`/unsent-letter/delete/${id}`, { method: 'POST' });
+    const card = document.getElementById(`ul-${id}`);
+    if (card) { card.style.opacity='0';card.style.transition='0.3s';setTimeout(()=>card.remove(),300); }
+    showToast('Letter released.');
 }
 
-function clearForm(){
-document.getElementById("j-title").value="";
-document.getElementById("j-morning").value="";
-document.getElementById("j-evening").value="";
-document.getElementById("j-night").value="";
-document.getElementById("j-date").valueAsDate=new Date();
-editId=null;
-}
-
-function toggleTheme(){
-const body=document.body;
-body.dataset.theme=body.dataset.theme==="dark"?"light":"dark";
-}
-
-function wordCounter(textarea,id){
-textarea.addEventListener("input",()=>{
-const words=textarea.value.trim().split(/\s+/).filter(Boolean).length;
-document.getElementById(id).innerText=words+" words";
-});
-}
-
-wordCounter(document.getElementById("j-morning"),"wc1");
-wordCounter(document.getElementById("j-evening"),"wc2");
-wordCounter(document.getElementById("j-night"),"wc3");
-
-// INITIAL LOAD FROM DB
-loadJournalsFromDB();
-
-</script>
-
-<script>
-// ── Reverse Journal ──
-const MOOD_EMOJI_RJ = {happy:'😊',sad:'😞',angry:'😡',anxious:'😰',calm:'😌',stressed:'😫',tired:'😴',Fear:'😨',swings:'🎢',neutral:'🌀'};
-const DOMINANT_MOOD_RJ = "{{ dominant_mood }}";
-
-document.addEventListener('DOMContentLoaded', () => {
-    const emoji = MOOD_EMOJI_RJ[DOMINANT_MOOD_RJ] || '🌀';
-    const moodEl = document.getElementById('dominantMoodLabel');
-    const emojiEl = document.getElementById('moodEmoji');
-    if (moodEl) moodEl.textContent = DOMINANT_MOOD_RJ.charAt(0).toUpperCase() + DOMINANT_MOOD_RJ.slice(1);
-    if (emojiEl) emojiEl.textContent = emoji;
-});
-
-function toggleFutureLetter() {
-    const body    = document.getElementById('futureLetterBody');
-    const chevron = document.getElementById('flChevron');
-    const open    = body.classList.toggle('open');
-    chevron.style.transform = open ? 'rotate(180deg)' : 'rotate(0deg)';
-}
-
+// ── Future Letter ──
 async function generateFutureLetter() {
-    const btn  = document.getElementById('genFutureBtn');
-    btn.innerHTML = '⏳ Eva is writing your letter...';
+    const btn = document.getElementById('genFutureBtn');
+    btn.innerHTML = '⏳ Writing...';
     btn.disabled  = true;
 
     try {
         const res  = await fetch('/generate-future-letter', { method: 'POST' });
         const data = await res.json();
 
-        const output = document.getElementById('futureLetterOutput');
-        const flText = document.getElementById('flText');
-        const flSign = document.getElementById('flSign');
+        // Handle locked state (less than 7 days)
+        if (data.locked) {
+            const output = document.getElementById('flOutputSide');
+            const text   = document.getElementById('flTextSide');
+            const sign   = document.getElementById('flSignSide');
+            output.classList.add('show');
+            text.textContent = data.error;
+            text.style.fontStyle = 'normal';
+            text.style.color = 'rgba(147,197,253,0.7)';
+            // Show progress bar
+            const pct = Math.round((data.days_active / data.days_needed) * 100);
+            sign.innerHTML = `<div style="margin-top:8px;background:rgba(59,130,246,0.1);border-radius:6px;height:6px;overflow:hidden;"><div style="width:${pct}%;background:#3b82f6;height:100%;border-radius:6px;transition:width 0.5s;"></div></div><div style="font-size:0.65rem;color:rgba(147,197,253,0.5);margin-top:4px;font-style:normal;font-family:Nunito,sans-serif;">${data.days_active} / ${data.days_needed} days</div>`;
+            return;
+        }
+
+        const output = document.getElementById('flOutputSide');
+        const text   = document.getElementById('flTextSide');
+        const sign   = document.getElementById('flSignSide');
         output.classList.add('show');
-        flText.textContent = '';
-        flSign.textContent = '';
+        text.textContent = '';
+        text.style.fontStyle = 'italic';
+        text.style.color = '#1e3a8a';
+        sign.innerHTML = '';
 
         const letter = data.letter || '';
         let i = 0;
         const iv = setInterval(() => {
-            if (i < letter.length) {
-                flText.textContent += letter[i++];
-                output.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-            } else {
+            if (i < letter.length) { text.textContent += letter[i++]; }
+            else {
                 clearInterval(iv);
-                flSign.textContent = `— ${data.username}, one year from now 💙`;
+                sign.textContent = `— ${data.username}, one year from now 💙`;
             }
-        }, 16);
+        }, 18);
     } catch(e) {
         alert('Connection error. Please try again.');
     } finally {
-        btn.innerHTML = '🔮 Generate My Letter from the Future';
+        btn.innerHTML = '🔮 Generate My Letter';
         btn.disabled  = false;
     }
 }
-</script>
 
+// ── Toast ──
+function showToast(msg) {
+    const t = document.createElement('div');
+    t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#7c3aed;color:white;padding:10px 24px;border-radius:20px;font-weight:700;font-size:0.85rem;z-index:999;font-family:Nunito,sans-serif;box-shadow:0 4px 16px rgba(124,58,237,0.4);animation:fadeUp 0.3s ease';
+    t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(() => t.remove(), 2500);
+}
+</script>
 </body>
 </html>

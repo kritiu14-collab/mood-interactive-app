@@ -104,7 +104,7 @@ body{font-family:'Nunito',sans-serif;background:#f9f5ff;min-height:100vh;color:#
 .letter-preview{
   font-family:'Playfair Display',serif;font-style:italic;
   font-size:0.88rem;color:#555;line-height:1.8;
-  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;line-clamp: 3;overflow:hidden;
   margin-bottom:10px;
 }
 .letter-eva{
@@ -148,8 +148,8 @@ body{font-family:'Nunito',sans-serif;background:#f9f5ff;min-height:100vh;color:#
     <input class="addressed-input" id="addressedTo" placeholder="e.g. My anxiety / My past self / Dad / My fear of failing...">
 
     <div class="field-label">Your letter</div>
-    <textarea class="letter-textarea" id="letterText"
-      placeholder="Dear ____,&#10;&#10;There are things I never got to say..."></textarea>
+   <textarea class="letter-textarea" id="letterText" 
+  placeholder="Dear ____, There are things I never got to say..."></textarea>
 
     <button class="send-btn" id="sendBtn" onclick="sendLetter()">
       <i class="fas fa-paper-plane"></i> Release This Letter
@@ -180,7 +180,7 @@ body{font-family:'Nunito',sans-serif;background:#f9f5ff;min-height:100vh;color:#
         {% endif %}
         <div class="letter-footer">
           <span class="letter-date">{{ (letter.created_at or '')[:10] }}</span>
-          <button class="delete-btn" onclick="deleteLetter({{ letter.id }})">
+          <button class="delete-btn" onclick="deleteLetter('{{ letter.id }}')">
             <i class="fas fa-trash"></i> Release &amp; delete
           </button>
         </div>
