@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Solace · 3 AM</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=Playfair+Display:ital@1&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  font-family:'DM Sans',sans-serif;
+  background:#05050f;
+  min-height:100vh;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:24px;
+  color:rgba(255,255,255,0.75);
+  overflow:hidden;
+  position:relative;
+}
+
+/* Stars */
+.stars{position:fixed;inset:0;pointer-events:none;z-index:0;}
+.star{position:absolute;width:2px;height:2px;background:white;border-radius:50%;animation:twinkle var(--d,3s) ease-in-out infinite var(--delay,0s);}
+@keyframes twinkle{0%,100%{opacity:0.2;}50%{opacity:0.9;}}
+
+.wrap{position:relative;z-index:1;max-width:560px;width:100%;text-align:center;}
+
+.moon{font-size:3.5rem;margin-bottom:24px;animation:float 4s ease-in-out infinite;}
+@keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}
+
+.time-badge{
+  display:inline-block;
+  background:rgba(196,181,253,0.08);
+  border:1px solid rgba(196,181,253,0.15);
+  border-radius:20px;padding:6px 18px;
+  font-size:0.78rem;color:rgba(196,181,253,0.6);
+  letter-spacing:2px;text-transform:uppercase;
+  margin-bottom:20px;
+}
+
+h1{
+  font-size:1.5rem;font-weight:300;
+  color:rgba(255,255,255,0.85);
+  line-height:1.6;margin-bottom:10px;
+  font-family:'Playfair Display',serif;font-style:italic;
+}
+
+.subtitle{
+  font-size:0.82rem;color:rgba(255,255,255,0.35);
+  margin-bottom:36px;line-height:1.8;
+}
+
+/* Chat area */
+.chat-box{
+  background:rgba(255,255,255,0.03);
+  border:1px solid rgba(255,255,255,0.06);
+  border-radius:20px;
+  padding:20px;
+  min-height:200px;max-height:340px;
+  overflow-y:auto;
+  margin-bottom:20px;
+  text-align:left;
+  scroll-behavior:smooth;
+}
+.chat-box::-webkit-scrollbar{width:4px;}
+.chat-box::-webkit-scrollbar-track{background:transparent;}
+.chat-box::-webkit-scrollbar-thumb{background:rgba(196,181,253,0.2);border-radius:2px;}
+
+.msg{
+  margin-bottom:16px;
+  animation:fadeUp 0.4s ease;
+  line-height:1.75;
+}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+
+.msg.user{
+  text-align:right;
+}
+.msg.user span{
+  display:inline-block;
+  background:rgba(196,181,253,0.12);
+  border:1px solid rgba(196,181,253,0.15);
+  border-radius:16px 16px 4px 16px;
+  padding:10px 16px;
+  font-size:0.85rem;
+  color:rgba(255,255,255,0.8);
+  max-width:90%;
+  text-align:left;
+}
+.msg.eva{
+  display:flex;gap:10px;align-items:flex-start;
+}
+.eva-dot{
+  width:28px;height:28px;border-radius:50%;
+  background:rgba(196,181,253,0.1);
+  border:1px solid rgba(196,181,253,0.2);
+  display:flex;align-items:center;justify-content:center;
+  font-size:0.8rem;flex-shrink:0;margin-top:4px;
+}
+.msg.eva p{
+  font-size:0.85rem;
+  color:rgba(255,255,255,0.7);
+  line-height:1.8;
+  font-style:italic;
+  font-family:'Playfair Display',serif;
+}
+
+.typing-dots span{
+  display:inline-block;width:5px;height:5px;
+  background:rgba(196,181,253,0.4);
+  border-radius:50%;margin:0 2px;
+  animation:dot 1.2s ease-in-out infinite;
+}
+.typing-dots span:nth-child(2){animation-delay:0.2s;}
+.typing-dots span:nth-child(3){animation-delay:0.4s;}
+@keyframes dot{0%,80%,100%{transform:scale(0.6);opacity:0.4;}40%{transform:scale(1);opacity:1;}}
+
+/* Input */
+.input-row{display:flex;gap:10px;align-items:flex-end;}
+.msg-input{
+  flex:1;
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:14px;
+  padding:12px 16px;
+  color:rgba(255,255,255,0.75);
+  font-family:'DM Sans',sans-serif;
+  font-size:0.88rem;
+  resize:none;
+  outline:none;
+  transition:border-color 0.2s;
+  max-height:100px;
+}
+.msg-input::placeholder{color:rgba(255,255,255,0.2);}
+.msg-input:focus{border-color:rgba(196,181,253,0.3);}
+
+.send-btn{
+  width:44px;height:44px;border-radius:50%;
+  background:rgba(196,181,253,0.12);
+  border:1px solid rgba(196,181,253,0.2);
+  color:rgba(196,181,253,0.7);
+  cursor:pointer;font-size:1rem;
+  transition:0.2s;flex-shrink:0;
+}
+.send-btn:hover{background:rgba(196,181,253,0.2);}
+
+.back-link{
+  position:fixed;top:20px;left:20px;
+  color:rgba(255,255,255,0.25);
+  text-decoration:none;font-size:0.78rem;
+  transition:color 0.2s;z-index:10;
+}
+.back-link:hover{color:rgba(255,255,255,0.5);}
+
+.streak-note{
+  font-size:0.72rem;color:rgba(255,255,255,0.2);
+  margin-top:16px;
+}
+</style>
+</head>
+<body>
+
+<div class="stars" id="stars"></div>
+<a href="/dashboard" class="back-link">← back</a>
+
+<div class="wrap">
+  <div class="time-badge">🌙 Night Mode</div>
+  <div class="moon">🌙</div>
+  <h1>You came here at 3 AM.</h1>
+  <p class="subtitle">
+    That takes courage. Eva is awake.<br>
+    Whatever brought you here — you don't have to carry it alone.
+  </p>
+
+  <div class="chat-box" id="chatBox">
+    <div class="msg eva">
+      <div class="eva-dot">✦</div>
+      <p>It's the middle of the night and you're here. I want you to know — that matters. The night feels heaviest right now, but you found your way to this space. I'm here with you. What's on your heart?</p>
+    </div>
+  </div>
+
+  <div class="input-row">
+    <textarea class="msg-input" id="msgInput" placeholder="Say anything... I'm listening." rows="1"></textarea>
+    <button class="send-btn" onclick="sendMsg()">↑</button>
+  </div>
+
+  {% if streak > 0 %}
+  <p class="streak-note">🔥 {{ streak }}-day streak — you keep showing up. Even at 3 AM.</p>
+  {% endif %}
+</div>
+
+<script>
+// Generate stars
+const starsEl = document.getElementById('stars');
+for (let i = 0; i < 120; i++) {
+  const s = document.createElement('div');
+  s.className = 'star';
+  s.style.cssText = `
+    left:${Math.random()*100}%;
+    top:${Math.random()*100}%;
+    --d:${2+Math.random()*4}s;
+    --delay:${Math.random()*4}s;
+    opacity:${0.1+Math.random()*0.5};
+    width:${Math.random()<0.3?3:2}px;
+    height:${Math.random()<0.3?3:2}px;
+  `;
+  starsEl.appendChild(s);
+}
+
+const chatBox  = document.getElementById('chatBox');
+const msgInput = document.getElementById('msgInput');
+
+// Auto-resize textarea
+msgInput.addEventListener('input', () => {
+  msgInput.style.height = 'auto';
+  msgInput.style.height = Math.min(msgInput.scrollHeight, 100) + 'px';
+});
+msgInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMsg(); }
+});
+
+function addMsg(role, text) {
+  const d = document.createElement('div');
+  d.className = `msg ${role}`;
+  if (role === 'user') {
+    d.innerHTML = `<span>${text}</span>`;
+  } else {
+    d.innerHTML = `<div class="eva-dot">✦</div><p></p>`;
+    chatBox.appendChild(d);
+    chatBox.scrollTop = chatBox.scrollHeight;
+    typeWrite(text, d.querySelector('p'));
+    return;
+  }
+  chatBox.appendChild(d);
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+function showTyping() {
+  const d = document.createElement('div');
+  d.className = 'msg eva';
+  d.id = 'typing';
+  d.innerHTML = `<div class="eva-dot">✦</div><p class="typing-dots"><span></span><span></span><span></span></p>`;
+  chatBox.appendChild(d);
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
+function rmTyping() {
+  const t = document.getElementById('typing');
+  if (t) t.remove();
+}
+
+function typeWrite(text, el, speed = 22) {
+  let i = 0;
+  el.textContent = '';
+  const iv = setInterval(() => {
+    if (i < text.length) { el.textContent += text[i++]; chatBox.scrollTop = chatBox.scrollHeight; }
+    else clearInterval(iv);
+  }, speed);
+}
+
+async function sendMsg() {
+  const msg = msgInput.value.trim();
+  if (!msg) return;
+  addMsg('user', msg);
+  msgInput.value = ''; msgInput.style.height = 'auto';
+  showTyping();
+  try {
+    const res  = await fetch('/three-am-message', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ message: msg })
+    });
+    const data = await res.json();
+    rmTyping();
+    addMsg('eva', data.reply || 'I hear you. I\'m here.');
+  } catch(e) {
+    rmTyping();
+    addMsg('eva', 'I\'m here. The connection stumbled but I didn\'t go anywhere.');
+  }
+}
+</script>
+</body>
+</html>

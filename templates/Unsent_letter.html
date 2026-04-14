@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Solace · Unsent Letters</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Playfair+Display:ital,wght@1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Nunito',sans-serif;background:#f9f5ff;min-height:100vh;color:#333;}
+
+.topbar{background:#2d1b69;padding:14px 28px;display:flex;align-items:center;gap:14px;}
+.topbar a{color:rgba(196,181,253,0.7);text-decoration:none;font-size:0.82rem;font-weight:600;}
+.topbar a:hover{color:#c4b5fd;}
+.topbar .brand{font-size:1.1rem;font-weight:800;color:#c4b5fd;margin-right:auto;}
+
+.hero{
+  background:linear-gradient(135deg,#2d1b69,#4c1d95);
+  padding:36px 28px;text-align:center;color:white;
+}
+.hero .icon{font-size:2.4rem;margin-bottom:10px;}
+.hero h1{font-size:1.5rem;font-weight:800;margin-bottom:6px;}
+.hero p{font-size:0.85rem;opacity:0.7;max-width:440px;margin:0 auto;line-height:1.7;}
+
+.wrap{max-width:720px;margin:0 auto;padding:28px 20px 60px;}
+
+/* Write section */
+.write-card{
+  background:white;border-radius:20px;
+  box-shadow:0 4px 24px rgba(45,27,105,0.1);
+  padding:28px;margin-bottom:28px;
+  position:relative;overflow:hidden;
+}
+.write-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:4px;
+  background:linear-gradient(90deg,#7c3aed,#c4b5fd);
+}
+.write-card h2{font-size:1.05rem;font-weight:800;color:#2d1b69;margin-bottom:18px;}
+
+.field-label{font-size:0.75rem;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;}
+.addressed-input{
+  width:100%;padding:10px 14px;
+  border:1.5px solid #e8e0f5;border-radius:10px;
+  font-family:'Nunito',sans-serif;font-size:0.9rem;
+  color:#333;outline:none;transition:0.2s;
+  margin-bottom:16px;
+}
+.addressed-input:focus{border-color:#7c3aed;}
+.addressed-input::placeholder{color:#bbb;}
+
+.letter-textarea{
+  width:100%;min-height:200px;
+  padding:16px;
+  border:1.5px solid #e8e0f5;border-radius:14px;
+  font-family:'Playfair Display',serif;font-style:italic;
+  font-size:0.95rem;line-height:1.9;color:#333;
+  resize:vertical;outline:none;transition:0.2s;
+  background:#fffdf9;
+  margin-bottom:16px;
+}
+.letter-textarea:focus{border-color:#7c3aed;background:#fff;}
+.letter-textarea::placeholder{color:#ccc;font-style:italic;}
+
+.send-btn{
+  background:linear-gradient(135deg,#7c3aed,#4c1d95);
+  color:white;border:none;border-radius:12px;
+  padding:12px 28px;font-family:'Nunito',sans-serif;
+  font-weight:700;font-size:0.9rem;cursor:pointer;
+  transition:0.2s;
+}
+.send-btn:hover{opacity:0.9;transform:translateY(-1px);}
+.send-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
+
+/* Eva reply */
+.eva-reply{
+  background:linear-gradient(135deg,#f5f3ff,#ede9fe);
+  border:1px solid #ddd6fe;border-radius:16px;
+  padding:20px 24px;margin-top:16px;
+  display:none;animation:fadeIn 0.5s ease;
+}
+.eva-reply.show{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.eva-reply-label{
+  font-size:0.7rem;font-weight:700;color:#7c3aed;
+  text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;
+}
+.eva-reply-text{
+  font-size:0.88rem;color:#4c1d95;
+  font-family:'Playfair Display',serif;font-style:italic;
+  line-height:1.9;
+}
+
+.note{font-size:0.72rem;color:#aaa;text-align:center;margin-top:10px;line-height:1.6;}
+
+/* Past letters */
+.past-title{font-size:0.75rem;font-weight:800;color:#888;text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;}
+.letter-card{
+  background:white;border-radius:16px;
+  box-shadow:0 2px 12px rgba(0,0,0,0.05);
+  padding:20px;margin-bottom:14px;
+  position:relative;
+}
+.letter-to{font-size:0.72rem;color:#aaa;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px;}
+.letter-preview{
+  font-family:'Playfair Display',serif;font-style:italic;
+  font-size:0.88rem;color:#555;line-height:1.8;
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;
+  margin-bottom:10px;
+}
+.letter-eva{
+  background:#f5f3ff;border-radius:10px;padding:12px;
+  font-size:0.8rem;color:#7c3aed;line-height:1.7;
+  font-family:'Playfair Display',serif;font-style:italic;
+  margin-bottom:10px;
+}
+.letter-footer{display:flex;align-items:center;justify-content:space-between;}
+.letter-date{font-size:0.7rem;color:#bbb;}
+.delete-btn{
+  background:none;border:none;color:#fca5a5;cursor:pointer;
+  font-size:0.75rem;font-weight:700;transition:0.2s;
+}
+.delete-btn:hover{color:#ef4444;}
+
+.empty-state{text-align:center;padding:32px;color:#bbb;font-size:0.85rem;}
+.empty-state .ei{font-size:2rem;display:block;margin-bottom:10px;opacity:0.4;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <span class="brand">✦ solace.</span>
+  <a href="/dashboard"><i class="fas fa-home"></i> Dashboard</a>
+  <a href="/journal"><i class="fas fa-book"></i> Journal</a>
+</div>
+
+<div class="hero">
+  <div class="icon">💌</div>
+  <h1>The Unsent Letter</h1>
+  <p>Write what you could never say out loud — to a person, a feeling, your past self, or your fear. It will never be sent. Eva will read it and hold space for what you expressed.</p>
+</div>
+
+<div class="wrap">
+
+  <!-- Write -->
+  <div class="write-card">
+    <h2>✍️ Write Your Letter</h2>
+    <div class="field-label">Addressed to</div>
+    <input class="addressed-input" id="addressedTo" placeholder="e.g. My anxiety / My past self / Dad / My fear of failing...">
+
+    <div class="field-label">Your letter</div>
+    <textarea class="letter-textarea" id="letterText"
+      placeholder="Dear ____,&#10;&#10;There are things I never got to say..."></textarea>
+
+    <button class="send-btn" id="sendBtn" onclick="sendLetter()">
+      <i class="fas fa-paper-plane"></i> Release This Letter
+    </button>
+
+    <div class="eva-reply" id="evaReply">
+      <div class="eva-reply-label">✦ Eva read your letter</div>
+      <div class="eva-reply-text" id="evaReplyText"></div>
+    </div>
+
+    <p class="note">🔒 This letter is private. It is only visible to you and will never be sent or shared.</p>
+  </div>
+
+  <!-- Past letters -->
+  <div class="past-title">Your Previous Letters</div>
+
+  <div id="lettersList">
+    {% if letters %}
+      {% for letter in letters %}
+      <div class="letter-card" id="letter-{{ letter.id }}">
+        <div class="letter-to">To: {{ letter.addressed_to or 'Unnamed' }}</div>
+        <div class="letter-preview">{{ letter.letter }}</div>
+        {% if letter.eva_reply %}
+        <div class="letter-eva">
+          <div style="font-size:0.65rem;color:#a78bfa;font-style:normal;font-weight:700;margin-bottom:4px;">EVA'S RESPONSE</div>
+          {{ letter.eva_reply }}
+        </div>
+        {% endif %}
+        <div class="letter-footer">
+          <span class="letter-date">{{ (letter.created_at or '')[:10] }}</span>
+          <button class="delete-btn" onclick="deleteLetter({{ letter.id }})">
+            <i class="fas fa-trash"></i> Release &amp; delete
+          </button>
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+    <div class="empty-state">
+      <span class="ei">💌</span>
+      Your unsent letters will appear here.<br>Sometimes the most honest words are the ones never sent.
+    </div>
+    {% endif %}
+  </div>
+
+</div>
+
+<script>
+async function sendLetter() {
+  const addressedTo = document.getElementById('addressedTo').value.trim();
+  const letter      = document.getElementById('letterText').value.trim();
+
+  if (!letter) { alert('Please write your letter first.'); return; }
+
+  const btn = document.getElementById('sendBtn');
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Eva is reading...';
+  btn.disabled = true;
+
+  try {
+    const res  = await fetch('/unsent-letter/send', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ addressed_to: addressedTo, letter })
+    });
+    const data = await res.json();
+    if (res.ok) {
+      const replyBox  = document.getElementById('evaReply');
+      const replyText = document.getElementById('evaReplyText');
+      replyText.textContent = '';
+      replyBox.classList.add('show');
+      // Typewrite effect
+      let i = 0;
+      const text = data.eva_reply;
+      const iv = setInterval(() => {
+        if (i < text.length) { replyText.textContent += text[i++]; }
+        else clearInterval(iv);
+      }, 20);
+      // Refresh page after 6s to show new letter
+      setTimeout(() => location.reload(), 6000);
+    } else {
+      alert(data.error || 'Something went wrong.');
+    }
+  } catch(e) {
+    alert('Connection error.');
+  } finally {
+    btn.innerHTML = '<i class="fas fa-paper-plane"></i> Release This Letter';
+    btn.disabled = false;
+  }
+}
+
+async function deleteLetter(id) {
+  if (!confirm('Delete this letter? This cannot be undone.')) return;
+  await fetch(`/unsent-letter/delete/${id}`, { method: 'POST' });
+  const card = document.getElementById(`letter-${id}`);
+  if (card) { card.style.opacity = '0'; card.style.transform = 'translateY(-8px)'; card.style.transition = '0.3s'; setTimeout(() => card.remove(), 300); }
+}
+</script>
+</body>
+</html>

@@ -202,6 +202,108 @@ margin-top:20px;
 color:var(--primary);
 margin-bottom:5px;
 }
+
+/* ── REVERSE JOURNAL / FUTURE LETTER ── */
+.future-letter-section {
+    margin-top: 28px;
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: var(--card);
+    box-shadow: var(--shadow);
+}
+.future-letter-header {
+    background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+    padding: 18px 24px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    cursor: pointer;
+    user-select: none;
+    transition: opacity 0.2s;
+}
+.future-letter-header:hover { opacity: 0.9; }
+.future-letter-header .fh-icon { font-size: 1.5rem; }
+.future-letter-header h2 {
+    font-size: 1rem; font-weight: 700;
+    color: white; margin: 0;
+    font-family: 'Quicksand', sans-serif;
+}
+.future-letter-header p {
+    font-size: 0.75rem; color: rgba(255,255,255,0.65);
+    margin: 2px 0 0; font-family: 'Quicksand', sans-serif;
+}
+.future-letter-header .fh-chevron {
+    margin-left: auto; color: rgba(255,255,255,0.5);
+    font-size: 1rem; transition: transform 0.3s;
+}
+.future-letter-body {
+    padding: 24px;
+    display: none;
+}
+.future-letter-body.open { display: block; }
+
+.week-stats {
+    display: grid; grid-template-columns: repeat(3,1fr);
+    gap: 10px; margin-bottom: 20px;
+}
+.ws-box {
+    background: #eff6ff; border-radius: 12px;
+    padding: 12px; text-align: center;
+}
+[data-theme="dark"] .ws-box { background: rgba(59,130,246,0.1); }
+.ws-num { font-size: 1.5rem; font-weight: 800; color: #1e40af; }
+[data-theme="dark"] .ws-num { color: #93c5fd; }
+.ws-lbl { font-size: 0.68rem; color: #93c5fd; text-transform: uppercase;
+          letter-spacing: .5px; margin-top: 2px; font-weight: 700; }
+
+.gen-future-btn {
+    width: 100%; padding: 14px;
+    background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+    color: white; border: none; border-radius: 12px;
+    font-family: 'Quicksand', sans-serif; font-weight: 700;
+    font-size: 0.95rem; cursor: pointer; transition: 0.2s;
+    box-shadow: 0 4px 14px rgba(30,58,138,0.25);
+}
+.gen-future-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+.gen-future-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+.future-letter-output {
+    display: none; margin-top: 20px;
+    animation: fadeIn 0.6s ease;
+}
+.future-letter-output.show { display: block; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(8px);} to{opacity:1;transform:translateY(0);} }
+.fl-from {
+    font-size: 0.7rem; font-weight: 700; color: #93c5fd;
+    text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px;
+}
+.fl-text {
+    font-family: 'Playfair Display', serif;
+    font-size: 0.95rem; color: #1e3a8a; line-height: 2;
+    white-space: pre-line; padding: 20px;
+    background: #f0f7ff; border-radius: 12px;
+    border-left: 3px solid #3b82f6;
+}
+[data-theme="dark"] .fl-text {
+    background: rgba(59,130,246,0.08);
+    color: #93c5fd; border-color: #3b82f6;
+}
+.fl-sign {
+    font-family: 'Playfair Display', serif; font-style: italic;
+    color: #3b82f6; font-size: 0.9rem;
+    text-align: right; margin-top: 12px;
+}
+.fl-save-note {
+    font-size: 0.7rem; color: #bbb; text-align: center; margin-top: 8px;
+}
+.mood-this-week {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: #dbeafe; border-radius: 20px; padding: 5px 12px;
+    font-size: 0.78rem; font-weight: 700; color: #1e40af;
+    margin-bottom: 16px;
+}
+[data-theme="dark"] .mood-this-week { background: rgba(59,130,246,0.15); color: #93c5fd; }
+
 </style>
 </head>
 
@@ -254,6 +356,53 @@ margin-bottom:5px;
 <input placeholder="Search entries..." id="search" oninput="renderEntries()">
 <div id="history"></div>
 </div>
+
+<!-- ═══ REVERSE JOURNAL — LETTER FROM FUTURE SELF ═══ -->
+<div class="future-letter-section">
+    <div class="future-letter-header" onclick="toggleFutureLetter()">
+        <div class="fh-icon">🔮</div>
+        <div>
+            <h2>Letter from Your Future Self</h2>
+            <p>Eva reads your week and writes back from one year in the future</p>
+        </div>
+        <span class="fh-chevron" id="flChevron">▼</span>
+    </div>
+    <div class="future-letter-body" id="futureLetterBody">
+
+        <div class="mood-this-week" id="moodThisWeek">
+            <span id="moodEmoji">🌀</span>
+            <span>This week's mood: <strong id="dominantMoodLabel">—</strong></span>
+        </div>
+
+        <div class="week-stats">
+            <div class="ws-box">
+                <div class="ws-num" id="flTasks">{ tasks_done }</div>
+                <div class="ws-lbl">Tasks Done</div>
+            </div>
+            <div class="ws-box">
+                <div class="ws-num" id="flJournals">{ journals_written }</div>
+                <div class="ws-lbl">Journals Written</div>
+            </div>
+            <div class="ws-box">
+                <div class="ws-num" id="flStreak">{ streak }</div>
+                <div class="ws-lbl">Day Streak</div>
+            </div>
+        </div>
+
+        <button class="gen-future-btn" id="genFutureBtn" onclick="generateFutureLetter()">
+            🔮 Generate My Letter from the Future
+        </button>
+
+        <div class="future-letter-output" id="futureLetterOutput">
+            <div class="fl-from">✦ A letter from { "{ username }" }, one year from now</div>
+            <div class="fl-text" id="flText"></div>
+            <div class="fl-sign" id="flSign"></div>
+            <p class="fl-save-note">Take a screenshot to save — this letter is generated fresh each time.</p>
+        </div>
+
+    </div>
+</div>
+
 </div>
 
 <div id="journalModal" class="modal">
@@ -416,5 +565,62 @@ wordCounter(document.getElementById("j-night"),"wc3");
 loadJournalsFromDB();
 
 </script>
+
+<script>
+// ── Reverse Journal ──
+const MOOD_EMOJI_RJ = {happy:'😊',sad:'😞',angry:'😡',anxious:'😰',calm:'😌',stressed:'😫',tired:'😴',Fear:'😨',swings:'🎢',neutral:'🌀'};
+const DOMINANT_MOOD_RJ = "{{ dominant_mood }}";
+
+document.addEventListener('DOMContentLoaded', () => {
+    const emoji = MOOD_EMOJI_RJ[DOMINANT_MOOD_RJ] || '🌀';
+    const moodEl = document.getElementById('dominantMoodLabel');
+    const emojiEl = document.getElementById('moodEmoji');
+    if (moodEl) moodEl.textContent = DOMINANT_MOOD_RJ.charAt(0).toUpperCase() + DOMINANT_MOOD_RJ.slice(1);
+    if (emojiEl) emojiEl.textContent = emoji;
+});
+
+function toggleFutureLetter() {
+    const body    = document.getElementById('futureLetterBody');
+    const chevron = document.getElementById('flChevron');
+    const open    = body.classList.toggle('open');
+    chevron.style.transform = open ? 'rotate(180deg)' : 'rotate(0deg)';
+}
+
+async function generateFutureLetter() {
+    const btn  = document.getElementById('genFutureBtn');
+    btn.innerHTML = '⏳ Eva is writing your letter...';
+    btn.disabled  = true;
+
+    try {
+        const res  = await fetch('/generate-future-letter', { method: 'POST' });
+        const data = await res.json();
+
+        const output = document.getElementById('futureLetterOutput');
+        const flText = document.getElementById('flText');
+        const flSign = document.getElementById('flSign');
+        output.classList.add('show');
+        flText.textContent = '';
+        flSign.textContent = '';
+
+        const letter = data.letter || '';
+        let i = 0;
+        const iv = setInterval(() => {
+            if (i < letter.length) {
+                flText.textContent += letter[i++];
+                output.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            } else {
+                clearInterval(iv);
+                flSign.textContent = `— ${data.username}, one year from now 💙`;
+            }
+        }, 16);
+    } catch(e) {
+        alert('Connection error. Please try again.');
+    } finally {
+        btn.innerHTML = '🔮 Generate My Letter from the Future';
+        btn.disabled  = false;
+    }
+}
+</script>
+
 </body>
 </html>

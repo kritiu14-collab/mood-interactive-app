@@ -540,6 +540,7 @@
         <div class="panel-avatar" id="panelAvatar">👤</div>
         <div class="panel-username" id="panelUsername">Loading...</div>
         <div class="panel-email"    id="panelEmail">—</div>
+        <div style="font-size:0.72rem;opacity:0.65;margin-top:4px" id="panelAgeGender">—</div>
         <div style="font-size:0.72rem;opacity:0.65;margin-top:4px">Member since <span id="panelSince">—</span></div>
     </div>
 
@@ -601,6 +602,7 @@
         <a href="/music"     class="panel-nav-link"><i class="fas fa-music"></i> Mood Music</a>
         <a href="/ai_chat"   class="panel-nav-link"><i class="fas fa-robot"></i> Eva AI</a>
         <a href="/feedback"  class="panel-nav-link"><i class="fas fa-comment-dots"></i> Feedback</a>
+        <a href="/about"     class="panel-nav-link"><i class="fas fa-info-circle"></i> About Solace</a>
     </div>
 
     <div class="panel-logout">
@@ -617,6 +619,7 @@
         <div class="panel-avatar">😊</div>
         <div class="panel-username" id="panelUsername">Loading...</div>
         <div class="panel-email"    id="panelEmail">—</div>
+        <div style="font-size:0.72rem;opacity:0.65;margin-top:4px" id="panelAgeGender">—</div>
     </div>
 
     <div class="panel-body">
@@ -848,6 +851,51 @@
         </div>
         {% endif %}
 
+
+        <!-- ═══ 3 AM BUTTON ═══ -->
+        <div id="threeAmBtn" style="display:none;" class="mt-3">
+            <a href="/three-am" style="display:flex;align-items:center;gap:12px;background:linear-gradient(135deg,rgba(10,10,30,0.85),rgba(30,10,60,0.85));border:1px solid rgba(196,181,253,0.2);border-radius:16px;padding:14px 20px;text-decoration:none;transition:0.2s;" onmouseover="this.style.borderColor='rgba(196,181,253,0.4)'" onmouseout="this.style.borderColor='rgba(196,181,253,0.2)'">
+                <span style="font-size:1.6rem;">🌙</span>
+                <div>
+                    <div style="font-weight:800;color:rgba(196,181,253,0.9);font-size:0.88rem;">It's 3 AM and you're awake.</div>
+                    <div style="font-size:0.75rem;color:rgba(196,181,253,0.45);margin-top:2px;">Eva is awake too. Come in.</div>
+                </div>
+                <span style="margin-left:auto;color:rgba(196,181,253,0.3);font-size:1.1rem;">→</span>
+            </a>
+        </div>
+
+        <!-- ═══ NEW FEATURE BUTTONS ═══ -->
+        <div class="mt-3" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            <a href="/unsent-letter" style="display:flex;align-items:center;gap:10px;background:var(--mood-light);border:1.5px solid var(--mood-border);border-radius:14px;padding:12px 14px;text-decoration:none;transition:0.2s;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
+                <span style="font-size:1.3rem;">💌</span>
+                <div>
+                    <div style="font-weight:800;color:var(--mood-dark);font-size:0.78rem;">Unsent Letter</div>
+                    <div style="font-size:0.68rem;color:#999;">Write what you can't say</div>
+                </div>
+            </a>
+            <a href="/venting-chamber" style="display:flex;align-items:center;gap:10px;background:var(--mood-light);border:1.5px solid var(--mood-border);border-radius:14px;padding:12px 14px;text-decoration:none;transition:0.2s;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
+                <span style="font-size:1.3rem;">🎙️</span>
+                <div>
+                    <div style="font-weight:800;color:var(--mood-dark);font-size:0.78rem;">Vent It Out</div>
+                    <div style="font-size:0.68rem;color:#999;">Speak. Release. Let go.</div>
+                </div>
+            </a>
+            <a href="/reverse-journal" style="display:flex;align-items:center;gap:10px;background:var(--mood-light);border:1.5px solid var(--mood-border);border-radius:14px;padding:12px 14px;text-decoration:none;transition:0.2s;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
+                <span style="font-size:1.3rem;">🔮</span>
+                <div>
+                    <div style="font-weight:800;color:var(--mood-dark);font-size:0.78rem;">Future Letter</div>
+                    <div style="font-size:0.68rem;color:#999;">Letter from future you</div>
+                </div>
+            </a>
+            <a href="/three-am" style="display:flex;align-items:center;gap:10px;background:var(--mood-light);border:1.5px solid var(--mood-border);border-radius:14px;padding:12px 14px;text-decoration:none;transition:0.2s;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
+                <span style="font-size:1.3rem;">🌙</span>
+                <div>
+                    <div style="font-weight:800;color:var(--mood-dark);font-size:0.78rem;">3 AM Mode</div>
+                    <div style="font-size:0.68rem;color:#999;">Eva is always awake</div>
+                </div>
+            </a>
+        </div>
+
     </div>
 </section>
 
@@ -894,7 +942,7 @@ async function loadAccountData() {
         document.getElementById('panelAvatar').textContent  = MOOD_EMOJI[data.top_mood] || '👤';
         document.getElementById('panelUsername').textContent = data.username   || '—';
         document.getElementById('panelEmail').textContent    = data.email      || '—';
-        document.getElementById('panelSince').textContent    = data.member_since || '—';
+        document.getElementById('panelSince').textContent    = data.member_since || '2026';
         document.getElementById('statMoods').textContent     = data.mood_count    ?? '—';
         document.getElementById('statJournals').textContent  = data.journal_count ?? '—';
         document.getElementById('statTasks').textContent     = data.task_count    ?? '—';
@@ -974,5 +1022,17 @@ function buildCalendar(calData) {
     }
 }
 </script>
+
+<script>
+// Show 3AM button only between midnight and 4 AM
+(function() {
+    const h = new Date().getHours();
+    if (h >= 0 && h < 4) {
+        const btn = document.getElementById('threeAmBtn');
+        if (btn) btn.style.display = 'block';
+    }
+})();
+</script>
+
 </body>
 </html>

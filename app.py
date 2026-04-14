@@ -190,6 +190,31 @@ def init_db() -> None:
                 post_id    INTEGER REFERENCES community_posts(id),
                 date       TEXT UNIQUE
             );
+
+            CREATE TABLE IF NOT EXISTS unsent_letters (
+                id         INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id    INTEGER REFERENCES users(id),
+                addressed_to TEXT NOT NULL,
+                letter     TEXT NOT NULL,
+                eva_reply  TEXT,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            );
+
+            CREATE TABLE IF NOT EXISTS soul_mirror (
+                id         INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id    INTEGER REFERENCES users(id) UNIQUE,
+                dominant_mood TEXT DEFAULT 'neutral',
+                heavy_days INTEGER DEFAULT 0,
+                last_computed TEXT
+            );
+
+            CREATE TABLE IF NOT EXISTS venting_sessions (
+                id         INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id    INTEGER REFERENCES users(id),
+                transcript TEXT,
+                keywords   TEXT,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            );
         """)
         exists = conn.execute("SELECT id FROM users WHERE username='admin'").fetchone()
         if not exists:
@@ -201,6 +226,27 @@ def init_db() -> None:
 
 
 init_db()
+
+# ---------------------------------------------------------------------------
+# Database migration — adds columns to existing databases safely
+# ---------------------------------------------------------------------------
+def migrate_db() -> None:
+    migrations = [
+        "ALTER TABLE users ADD COLUMN created_at DATETIME DEFAULT CURRENT_TIMESTAMP",
+        "ALTER TABLE users ADD COLUMN gender TEXT DEFAULT ''",
+        "ALTER TABLE users ADD COLUMN age INTEGER DEFAULT 0",
+        "ALTER TABLE users ADD COLUMN age_group TEXT DEFAULT ''",
+        "ALTER TABLE users ADD COLUMN dob TEXT DEFAULT ''",
+        "ALTER TABLE mood_logs ADD COLUMN timestamp DATETIME DEFAULT CURRENT_TIMESTAMP",
+    ]
+    with get_db() as conn:
+        for sql in migrations:
+            try:
+                conn.execute(sql)
+            except Exception:
+                pass  # Column already exists — safe to ignore
+
+migrate_db()
 
 
 # ---------------------------------------------------------------------------
@@ -782,17 +828,33 @@ def get_ai_response() -> Any:
             f"models/gemini-2.0-flash:generateContent?key={GEMINI_API_KEY}"
         )
         system_prompt = (
-            f"You are Eva, a warm and deeply compassionate AI emotional companion inside the Solace mental wellness app. "
+            f"You are the Solace Companion — a warm, emotionally intelligent presence named Eva. "
             f"The user's current mood is '{mood}'. "
-            f"Be gentle, patient, non-judgmental and genuinely caring — like a trusted friend who understands psychology. "
-            f"Always validate feelings first. Use warm conversational language. Gently use CBT techniques when appropriate. "
-            f"Ask one thoughtful follow-up question. Keep responses 3-5 sentences. Never be preachy. Never say 'as an AI'. "
-            f"End with a gentle question or encouraging sentence. You believe in this person always."
+            f"\n\nYour entire purpose is to be a Holding Space. "
+            f"You do not fix. You do not advise. You do not interrogate. You simply hold. "
+            f"\n\nCore rules you never break:"
+            f"\n- Do NOT offer solutions unless the user explicitly asks for advice."
+            f"\n- Do NOT ask more than one question per three turns of conversation. "
+            f"  If you feel the urge to ask a question, pause. Reflect instead. Validate instead."
+            f"\n- Use Reflective Listening as your primary tool. Mirror what they said back to them "
+            f"  in your own warm words. Examples: 'It sounds like you are carrying a lot of weight today...', "
+            f"  'What I am hearing is that you feel unseen, and that is incredibly painful...', "
+            f"  'It seems like this has been building up for a while...'"
+            f"\n- If the user is venting, simply validate them. Let them pour out everything. "
+            f"  Your job in those moments is to say: I hear you, I see you, what you feel is real."
+            f"\n- Use poetic, soothing language. Speak in full warm sentences — never bullet points, never lists."
+            f"\n- Never say 'I understand how you feel' — show it through the depth of your response."
+            f"\n- Never say 'as an AI', never reference being artificial, never be clinical."
+            f"\n- Match their emotional depth. If they speak softly, be soft. If they are in pain, go deeper."
+            f"\n- Write 4-7 sentences. Meaningful and personal — not too long, not dismissively short."
+            f"\n- End with warmth — sometimes a gentle reflection, sometimes pure reassurance, "
+            f"  sometimes just the quiet acknowledgment that they are not alone."
+            f"\n\nYou believe in this person completely. Even when they cannot believe in themselves."
+            f"\nYou are not here to help them think — you are here to help them feel less alone."
         )
         payload = {
-            "contents": [{"parts": [{"text": system_prompt + "\n\nUser: " + user_msg}]}],
-
-            "generationConfig": {"temperature": 0.8, "maxOutputTokens": 400}
+            "contents": [{"parts": [{"text": system_prompt + "\n\nUser says: " + user_msg}]}],
+            "generationConfig": {"temperature": 0.9, "maxOutputTokens": 800}
         }
         try:
             res = requests.post(url, json=payload, timeout=15)
@@ -833,7 +895,37 @@ def get_ai_response() -> Any:
 @app.route("/journal")
 @login_required
 def journal_page() -> Any:
-    return render_template("journal.html", username=session["username"])
+    uid = session["user_id"]
+    with get_db() as conn:
+        mood_this_week = conn.execute("""
+            SELECT mood, COUNT(*) as cnt FROM mood_logs
+            WHERE user_id=? AND timestamp >= DATE('now','-7 days')
+            GROUP BY mood ORDER BY cnt DESC LIMIT 1
+        """, (uid,)).fetchone()
+        tasks_done = conn.execute("""
+            SELECT COUNT(*) FROM tasks
+            WHERE user_id=? AND status=1
+            AND created_at >= DATE('now','-7 days')
+        """, (uid,)).fetchone()[0]
+        journals_written = conn.execute("""
+            SELECT COUNT(*) FROM journals
+            WHERE user_id=? AND created_at >= DATE('now','-7 days')
+        """, (uid,)).fetchone()[0]
+        streak_row = conn.execute(
+            "SELECT current_streak FROM login_streaks WHERE user_id=?", (uid,)
+        ).fetchone()
+
+    dominant_mood = mood_this_week["mood"] if mood_this_week else "neutral"
+    streak        = streak_row["current_streak"] if streak_row else 0
+
+    return render_template(
+        "journal.html",
+        username=session["username"],
+        dominant_mood=dominant_mood,
+        tasks_done=tasks_done,
+        journals_written=journals_written,
+        streak=streak,
+    )
 
 
 @app.route("/save_journal", methods=["POST"])
@@ -1974,6 +2066,8 @@ def account_data() -> Any:
         user = conn.execute(
             "SELECT username, email, created_at, gender, age, age_group FROM users WHERE id=?", (uid,)
         ).fetchone()
+        if not user:
+            return jsonify({"error": "User not found"}), 404
         mood_count    = conn.execute("SELECT COUNT(*) FROM mood_logs WHERE user_id=?", (uid,)).fetchone()[0]
         journal_count = conn.execute("SELECT COUNT(*) FROM journals  WHERE user_id=?", (uid,)).fetchone()[0]
         task_count    = conn.execute("SELECT COUNT(*) FROM tasks     WHERE user_id=?", (uid,)).fetchone()[0]
@@ -2000,7 +2094,7 @@ def account_data() -> Any:
     return jsonify({
         "username":      user["username"],
         "email":         user["email"],
-        "member_since":  (user["created_at"] or "")[:10],
+        "member_since":  (user["created_at"] or "")[:10] if user["created_at"] else "2026",
         "gender":        user["gender"] or "",
         "age":           user["age"] or 0,
         "age_group":     user["age_group"] or "",
@@ -2013,6 +2107,411 @@ def account_data() -> Any:
         "calendar":      [{"date": r["date"], "mood": r["mood"]} for r in calendar],
         "recent_moods":  [{"mood": r["mood"], "time": r["timestamp"]} for r in recent],
     })
+
+
+# ===========================================================================
+# 3 AM BUTTON
+# ===========================================================================
+
+@app.route("/three-am")
+@login_required
+def three_am_page() -> Any:
+    from datetime import datetime
+    hour = datetime.now().hour
+    uid  = session["user_id"]
+    with get_db() as conn:
+        streak = conn.execute(
+            "SELECT current_streak FROM login_streaks WHERE user_id=?", (uid,)
+        ).fetchone()
+    return render_template(
+        "three_am.html",
+        username=session["username"],
+        hour=hour,
+        streak=streak["current_streak"] if streak else 0,
+        current_mood=session.get("current_mood", "neutral")
+    )
+
+
+@app.route("/three-am-message", methods=["POST"])
+@login_required
+def three_am_message() -> Any:
+    data     = request.json or {}
+    user_msg = data.get("message", "")
+    uid      = session["user_id"]
+
+    # Special late-night Eva persona
+    system_prompt = (
+        "You are Eva — and right now it is the middle of the night. "
+        "The user has come to you at 3 AM, which means they are struggling and couldn't sleep. "
+        "This is your most important mode. Be slower. Be softer. Be more present than ever. "
+        "Do not be energetic or upbeat. Match the stillness of the night. "
+        "Use gentle, quiet language — like a whisper, not a conversation. "
+        "Do not give advice. Do not ask many questions. "
+        "Your only job right now is to make this person feel less alone in the dark. "
+        "Acknowledge that being awake at this hour takes courage. "
+        "Tell them the night always ends. Tell them they are not the only one awake right now. "
+        "Speak in 3-6 sentences. Soft. Warm. Like a hand held in the dark."
+    )
+
+    text = ""
+    if GEMINI_API_KEY:
+        try:
+            url = (
+                f"https://generativelanguage.googleapis.com/v1beta/"
+                f"models/gemini-2.0-flash:generateContent?key={GEMINI_API_KEY}"
+            )
+            payload = {
+                "contents": [{"parts": [{"text": system_prompt + "\n\nUser says: " + user_msg}]}],
+                "generationConfig": {"temperature": 0.85, "maxOutputTokens": 300}
+            }
+            res = requests.post(url, json=payload, timeout=15)
+            if res.status_code == 200:
+                text = res.json()["candidates"][0]["content"]["parts"][0]["text"]
+        except Exception as e:
+            print(f"[3AM] Gemini error: {e}")
+
+    if not text:
+        import random
+        text = random.choice([
+            "I'm here. It's 3 AM and you came here — that tells me something matters deeply to you right now. You don't have to explain anything. Just breathe. I'm not going anywhere.",
+            "The night feels heaviest between 2 and 4. You are not alone in this moment — there are thousands of people awake right now, carrying their own weight. You found your way here, and that matters.",
+            "Something brought you here at this hour. Whatever it is, you don't have to carry it alone tonight. I'm here, quiet and present, just for you.",
+            "Not every wound makes a sound. Sometimes the heaviest things are the ones nobody sees. I see you here. I'm glad you came.",
+        ])
+
+    with get_db() as conn:
+        conn.execute(
+            "INSERT INTO chat_history (session_id, user_id, user_message, ai_response) VALUES (?,?,?,?)",
+            (str(uuid.uuid4()), uid, user_msg, text)
+        )
+
+    return jsonify({"reply": text})
+
+
+# ===========================================================================
+# UNSENT LETTERS
+# ===========================================================================
+
+@app.route("/unsent-letter")
+@login_required
+def unsent_letter_page() -> Any:
+    uid = session["user_id"]
+    with get_db() as conn:
+        letters = conn.execute(
+            "SELECT * FROM unsent_letters WHERE user_id=? ORDER BY created_at DESC",
+            (uid,)
+        ).fetchall()
+    return render_template(
+        "unsent_letter.html",
+        username=session["username"],
+        letters=letters,
+        current_mood=session.get("current_mood", "neutral")
+    )
+
+
+@app.route("/unsent-letter/send", methods=["POST"])
+@login_required
+def send_unsent_letter() -> Any:
+    data         = request.json or {}
+    addressed_to = data.get("addressed_to", "").strip()
+    letter       = data.get("letter", "").strip()
+    uid          = session["user_id"]
+
+    if not letter:
+        return jsonify({"error": "Letter cannot be empty."}), 400
+
+    # Eva reads the letter and responds to what was unsaid
+    system_prompt = (
+        f"The user has just written an unsent letter addressed to '{addressed_to}'. "
+        "This letter will never be sent. They wrote it to release something they could not say out loud. "
+        "Your job is to respond as Eva — not as the person the letter was addressed to. "
+        "Acknowledge the courage it took to write this. "
+        "Reflect back the emotional core of what they expressed — the pain, the longing, the anger, or the love. "
+        "Do not give advice. Do not tell them what to do next. "
+        "Just honour what they wrote. Make them feel that their words mattered. "
+        "Speak in 4-6 sentences. Warm, gentle, and deeply human."
+        f"\n\nThe letter they wrote:\n{letter}"
+    )
+
+    eva_reply = ""
+    if GEMINI_API_KEY:
+        try:
+            url = (
+                f"https://generativelanguage.googleapis.com/v1beta/"
+                f"models/gemini-2.0-flash:generateContent?key={GEMINI_API_KEY}"
+            )
+            payload = {
+                "contents": [{"parts": [{"text": system_prompt}]}],
+                "generationConfig": {"temperature": 0.9, "maxOutputTokens": 400}
+            }
+            res = requests.post(url, json=payload, timeout=15)
+            if res.status_code == 200:
+                eva_reply = res.json()["candidates"][0]["content"]["parts"][0]["text"]
+        except Exception as e:
+            print(f"[UnsentLetter] Gemini error: {e}")
+
+    if not eva_reply:
+        import random
+        eva_reply = random.choice([
+            f"What you wrote to {addressed_to or 'them'} took real courage. The words you chose — even unsent — are real. They existed. They mattered. Sometimes the most honest things we say are the ones never spoken aloud. I heard every word.",
+            f"There is something sacred about a letter that never gets sent. It means the words were written for you — to release what was sitting inside you. What you expressed here is valid and true. You deserved to say it.",
+            "Writing it down means it was real. You gave your feelings a shape, a form, a voice. That is not nothing — that is everything. I'm honoured you shared it here.",
+        ])
+
+    with get_db() as conn:
+        conn.execute(
+            "INSERT INTO unsent_letters (user_id, addressed_to, letter, eva_reply) VALUES (?,?,?,?)",
+            (uid, addressed_to, letter, eva_reply)
+        )
+
+    return jsonify({"eva_reply": eva_reply, "message": "Letter saved."})
+
+
+@app.route("/unsent-letter/delete/<int:lid>", methods=["POST"])
+@login_required
+def delete_unsent_letter(lid: int) -> Any:
+    with get_db() as conn:
+        conn.execute(
+            "DELETE FROM unsent_letters WHERE id=? AND user_id=?",
+            (lid, session["user_id"])
+        )
+    return jsonify({"message": "Letter released."})
+
+
+# ===========================================================================
+# SOUL MIRROR — compute dominant mood from last 7 days
+# ===========================================================================
+
+@app.route("/soul-mirror-data")
+@login_required
+def soul_mirror_data() -> Any:
+    uid  = session["user_id"]
+    with get_db() as conn:
+        rows = conn.execute("""
+            SELECT mood, COUNT(*) as cnt FROM mood_logs
+            WHERE user_id=? AND timestamp >= DATE('now','-7 days')
+            GROUP BY mood ORDER BY cnt DESC
+        """, (uid,)).fetchall()
+        total_7 = conn.execute(
+            "SELECT COUNT(*) FROM mood_logs WHERE user_id=? AND timestamp >= DATE('now','-7 days')",
+            (uid,)
+        ).fetchone()[0]
+
+    heavy_moods = {"sad", "anxious", "stressed", "angry", "Fear", "swings", "tired"}
+    dominant    = rows[0]["mood"] if rows else "neutral"
+    heavy_days  = sum(r["cnt"] for r in rows if r["mood"] in heavy_moods)
+
+    MIRROR_MESSAGES = {
+        "sad":      "I've noticed it's been a heavy week. I've dimmed the lights and prepared a quiet space just for you.",
+        "anxious":  "Your week has felt restless. I've slowed everything down — breathe with me for a moment.",
+        "stressed": "You've been carrying a lot lately. I've cleared the noise. This space is just for you right now.",
+        "angry":    "This week held some fire. I've made space for that energy — you're allowed to feel it.",
+        "tired":    "You've been running on empty. I've made things softer and slower here, just for you.",
+        "Fear":     "It's been a fearful week. I've made this space as gentle as I can. You're safe here.",
+        "calm":     "You've found some peace this week. I'm reflecting that back to you — this is your energy.",
+        "happy":    "What a bright week you've had. I'm matching your energy — let's celebrate this.",
+        "swings":   "It's been an up-and-down week. I'm here for all of it — every version of you is welcome.",
+    }
+
+    message = MIRROR_MESSAGES.get(dominant, "I see you. This space is yours.")
+
+    return jsonify({
+        "dominant_mood": dominant,
+        "heavy_days":    heavy_days,
+        "total_7":       total_7,
+        "mirror_message": message,
+        "moods_breakdown": [{"mood": r["mood"], "count": r["cnt"]} for r in rows],
+    })
+
+
+# ===========================================================================
+# VENTING CHAMBER
+# ===========================================================================
+
+@app.route("/venting-chamber")
+@login_required
+def venting_chamber_page() -> Any:
+    return render_template(
+        "venting_chamber.html",
+        username=session["username"],
+        current_mood=session.get("current_mood", "neutral")
+    )
+
+
+@app.route("/vent-complete", methods=["POST"])
+@login_required
+def vent_complete() -> Any:
+    data       = request.json or {}
+    transcript = data.get("transcript", "").strip()
+    keywords   = data.get("keywords", "")
+    uid        = session["user_id"]
+
+    if transcript:
+        with get_db() as conn:
+            conn.execute(
+                "INSERT INTO venting_sessions (user_id, transcript, keywords) VALUES (?,?,?)",
+                (uid, transcript, keywords)
+            )
+
+    # Eva gives a closing acknowledgment after the vent
+    system_prompt = (
+        "The user just finished a venting session using their voice. "
+        "They spoke out loud to release their emotions — they were not having a conversation. "
+        "Now they have finished. Your job is to give a closing acknowledgment — "
+        "like a gentle exhale after a storm. "
+        "Tell them what they just did took courage. "
+        "Tell them the words are released now. "
+        "Do not reference specific content of what they said. "
+        "Speak in 2-3 sentences. Calm. Closing. Like the end of something heavy."
+    )
+    if transcript:
+        system_prompt += f"\n\nWhat they vented about (for context only): {transcript[:200]}"
+
+    closing = ""
+    if GEMINI_API_KEY:
+        try:
+            url = (
+                f"https://generativelanguage.googleapis.com/v1beta/"
+                f"models/gemini-2.0-flash:generateContent?key={GEMINI_API_KEY}"
+            )
+            payload = {
+                "contents": [{"parts": [{"text": system_prompt}]}],
+                "generationConfig": {"temperature": 0.85, "maxOutputTokens": 200}
+            }
+            res = requests.post(url, json=payload, timeout=15)
+            if res.status_code == 200:
+                closing = res.json()["candidates"][0]["content"]["parts"][0]["text"]
+        except Exception as e:
+            print(f"[Vent] Gemini error: {e}")
+
+    if not closing:
+        import random
+        closing = random.choice([
+            "You said what needed to be said. It's out now — you don't have to carry it alone anymore. Take a breath.",
+            "That took courage. Whatever was inside you, you gave it a voice. Now let it go.",
+            "The words are released. Something lighter is on the other side of this moment.",
+        ])
+
+    return jsonify({"closing": closing})
+
+
+# ===========================================================================
+# REVERSE JOURNALING — AI letter from future self
+# ===========================================================================
+
+@app.route("/reverse-journal")
+@login_required
+def reverse_journal_page() -> Any:
+    uid = session["user_id"]
+    with get_db() as conn:
+        mood_this_week = conn.execute("""
+            SELECT mood, COUNT(*) as cnt FROM mood_logs
+            WHERE user_id=? AND timestamp >= DATE('now','-7 days')
+            GROUP BY mood ORDER BY cnt DESC LIMIT 1
+        """, (uid,)).fetchone()
+        tasks_done = conn.execute("""
+            SELECT COUNT(*) FROM tasks
+            WHERE user_id=? AND status=1
+            AND created_at >= DATE('now','-7 days')
+        """, (uid,)).fetchone()[0]
+        journals_written = conn.execute("""
+            SELECT COUNT(*) FROM journals
+            WHERE user_id=? AND created_at >= DATE('now','-7 days')
+        """, (uid,)).fetchone()[0]
+        streak_row = conn.execute(
+            "SELECT current_streak FROM login_streaks WHERE user_id=?", (uid,)
+        ).fetchone()
+
+    dominant_mood = mood_this_week["mood"] if mood_this_week else "neutral"
+    streak        = streak_row["current_streak"] if streak_row else 0
+
+    return render_template(
+        "reverse_journal.html",
+        username=session["username"],
+        dominant_mood=dominant_mood,
+        tasks_done=tasks_done,
+        journals_written=journals_written,
+        streak=streak,
+        current_mood=session.get("current_mood", "neutral")
+    )
+
+
+@app.route("/generate-future-letter", methods=["POST"])
+@login_required
+def generate_future_letter() -> Any:
+    uid = session["user_id"]
+    with get_db() as conn:
+        mood_rows = conn.execute("""
+            SELECT mood, COUNT(*) as cnt FROM mood_logs
+            WHERE user_id=? AND timestamp >= DATE('now','-7 days')
+            GROUP BY mood ORDER BY cnt DESC
+        """, (uid,)).fetchall()
+        tasks_done = conn.execute("""
+            SELECT title FROM tasks
+            WHERE user_id=? AND status=1
+            AND created_at >= DATE('now','-7 days')
+            LIMIT 5
+        """, (uid,)).fetchall()
+        journals = conn.execute("""
+            SELECT morning_text FROM journals
+            WHERE user_id=? AND created_at >= DATE('now','-7 days')
+            LIMIT 3
+        """, (uid,)).fetchall()
+        streak_row = conn.execute(
+            "SELECT current_streak FROM login_streaks WHERE user_id=?", (uid,)
+        ).fetchone()
+
+    username      = session["username"]
+    dominant_mood = mood_rows[0]["mood"] if mood_rows else "neutral"
+    streak        = streak_row["current_streak"] if streak_row else 0
+    task_titles   = [t["title"] for t in tasks_done] if tasks_done else []
+    journal_texts = [j["morning_text"] for j in journals if j["morning_text"]] if journals else []
+
+    system_prompt = (
+        f"You are writing a letter FROM {username}'s future self — one year from now. "
+        f"This week, {username} had the following data: "
+        f"Dominant mood: {dominant_mood}. "
+        f"Login streak: {streak} days. "
+        f"Tasks completed this week: {', '.join(task_titles) if task_titles else 'none listed'}. "
+        f"Journal entries this week: {len(journal_texts)}. "
+        f"{'Sample journal: ' + journal_texts[0][:150] if journal_texts else ''} "
+        f"\n\nWrite a warm, personal letter from their future self. "
+        f"Reference specific details from this week — the mood, the streak, the tasks. "
+        f"Tell them what this week meant from the perspective of a year later. "
+        f"Tell them what grew from this difficult or ordinary week. "
+        f"Be emotional, personal, and specific. Use 'I' as the future self speaking to 'you' (the present self). "
+        f"Write 5-8 sentences. Make it feel like it was written by a real person who loves them deeply."
+    )
+
+    letter = ""
+    if GEMINI_API_KEY:
+        try:
+            url = (
+                f"https://generativelanguage.googleapis.com/v1beta/"
+                f"models/gemini-2.0-flash:generateContent?key={GEMINI_API_KEY}"
+            )
+            payload = {
+                "contents": [{"parts": [{"text": system_prompt}]}],
+                "generationConfig": {"temperature": 0.95, "maxOutputTokens": 600}
+            }
+            res = requests.post(url, json=payload, timeout=20)
+            if res.status_code == 200:
+                letter = res.json()["candidates"][0]["content"]["parts"][0]["text"]
+        except Exception as e:
+            print(f"[ReverseJournal] Gemini error: {e}")
+
+    if not letter:
+        letter = (
+            f"Dear {username}, I'm writing to you from a year from now. "
+            f"I remember this week — you were feeling {dominant_mood}, and you showed up anyway. "
+            f"You kept your streak going for {streak} days. That mattered more than you knew. "
+            f"I can tell you now: that version of you, tired and uncertain, was building something real. "
+            f"The person writing this letter exists because you didn't give up that week. "
+            f"I'm proud of you. I love you. Keep going."
+        )
+
+    return jsonify({"letter": letter, "username": username})
+
 
 
 if __name__ == "__main__":
