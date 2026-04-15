@@ -488,7 +488,13 @@ async function sendMsg(){
 
     addMsg('user', msg);
     input.value = ''; input.style.height = 'auto';
-    btn.disabled = true; showTyping();
+    btn.disabled = true; 
+    
+    // 1. Identify if the message is just a greeting
+    const greetings = ['hi', 'hello', 'hey', 'good morning', 'good evening', 'yo', 'hi eva'];
+    const isJustGreeting = greetings.includes(msg.toLowerCase().replace(/[?!.]/g, ''));
+
+    showTyping();
 
     if(checkCrisis(msg)){
         rmTyping();
@@ -509,7 +515,14 @@ async function sendMsg(){
             setTimeout(openCookieBox, 1400);
         } else {
             const bubble = addMsg('ai','');
-            typeWrite(data.reply || 'Something went wrong. Please try again.', bubble);
+            
+            // 2. Logic to prepend a friendly greeting if the user just said "hi"
+            let finalReply = data.reply;
+            if (isJustGreeting && !finalReply.toLowerCase().includes('hello') && !finalReply.toLowerCase().includes('hi ')) {
+                finalReply = `Hi there! It's good to see you. 😊 ` + finalReply;
+            }
+
+            typeWrite(finalReply || 'Something went wrong. Please try again.', bubble);
         }
     } catch(e){
         rmTyping();
@@ -518,7 +531,6 @@ async function sendMsg(){
         btn.disabled = false; input.focus();
     }
 }
-
 </script>
 
 
