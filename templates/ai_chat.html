@@ -643,7 +643,7 @@ function closeQuote() {
     const m = new Date().getMinutes();
     const totalMins = h * 60 + m;
     const start = 1 * 60;      // 1:00 AM
-    const end   = 4 * 60 + 30; // 4:30 AM
+    const end   = 4 * 60 + 0;  // 4:00 AM
     if (totalMins >= start && totalMins <= end) {
         const link = document.getElementById('threeAmLink');
         if (link) link.style.display = 'flex';

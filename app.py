@@ -1908,7 +1908,7 @@ def admin_dashboard() -> Any:
         # 3AM sessions count
         total_3am        = conn.execute("""
             SELECT COUNT(*) FROM chat_history
-            WHERE strftime('%H', timestamp) IN ('00','01','02','03','04')
+            WHERE strftime('%H', timestamp) IN ('01','02','03','04')
         """).fetchone()[0]
         # Mood breakdown today
         mood_today = conn.execute("""
@@ -2929,6 +2929,73 @@ def list_cloud_visions() -> Any:
         "visions": [
             {"emoji": v["cloud_emoji"], "text": v["vision_text"], "date": (v["created_at"] or "")[:10]}
             for v in visions
+        ]
+    })
+
+
+
+# ===========================================================================
+# BOOKTOK — Imagination Community Book Sharing
+# ===========================================================================
+
+@app.route("/booktok/share", methods=["POST"])
+@login_required
+def booktok_share() -> Any:
+    data   = request.json or {}
+    uid    = session["user_id"]
+    title  = data.get("title", "").strip()
+    author = data.get("author", "").strip()
+    genre  = data.get("genre", "General").strip()
+    note   = data.get("note", "").strip()
+    if not title:
+        return jsonify({"error": "Book title is required."}), 400
+    with get_db() as conn:
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS booktok_posts (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER REFERENCES users(id),
+                title TEXT NOT NULL,
+                author TEXT,
+                genre TEXT DEFAULT 'General',
+                note TEXT,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+        conn.execute(
+            "INSERT INTO booktok_posts (user_id, title, author, genre, note) VALUES (?,?,?,?,?)",
+            (uid, title, author, genre, note)
+        )
+    return jsonify({"message": "Book shared with the Imagination community! 📚"}), 201
+
+
+@app.route("/booktok/feed")
+@login_required
+def booktok_feed() -> Any:
+    """Returns books shared by users in imagination mood — cozy community."""
+    with get_db() as conn:
+        try:
+            books = conn.execute("""
+                SELECT bp.id, bp.title, bp.author, bp.genre, bp.note,
+                       bp.created_at, u.username
+                FROM booktok_posts bp
+                JOIN users u ON bp.user_id = u.id
+                ORDER BY bp.created_at DESC
+                LIMIT 30
+            """).fetchall()
+        except Exception:
+            books = []
+    return jsonify({
+        "books": [
+            {
+                "id":     b["id"],
+                "title":  b["title"],
+                "author": b["author"] or "",
+                "genre":  b["genre"] or "General",
+                "note":   b["note"] or "",
+                "user":   b["username"],
+                "date":   (b["created_at"] or "")[:10],
+            }
+            for b in books
         ]
     })
 
