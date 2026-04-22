@@ -9,63 +9,98 @@
 body{font-family:'Nunito',sans-serif;background:#07071a;min-height:100vh;color:white;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;overflow:hidden;position:relative;}
 .bg-glow{position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse at 20% 50%,rgba(239,68,68,0.06) 0%,transparent 60%),radial-gradient(ellipse at 80% 20%,rgba(139,92,246,0.05) 0%,transparent 50%);}
 canvas{position:fixed;inset:0;z-index:0;pointer-events:none;}
-.wrap{position:relative;z-index:1;max-width:580px;width:100%;text-align:center;}
+.wrap{position:relative;z-index:1;max-width:520px;width:100%;text-align:center;}
 .back{position:fixed;top:20px;left:20px;color:rgba(255,255,255,0.25);text-decoration:none;font-size:0.78rem;z-index:10;transition:0.2s;}
 .back:hover{color:rgba(255,255,255,0.55);}
-.chamber-icon{width:72px;height:72px;border-radius:50%;background:rgba(239,68,68,0.1);border:2px solid rgba(239,68,68,0.15);display:flex;align-items:center;justify-content:center;font-size:1.8rem;margin:0 auto 20px;transition:all 0.4s;}
-.chamber-icon.active{background:rgba(239,68,68,0.18);border-color:rgba(239,68,68,0.4);animation:iconPulse 2s ease-in-out infinite;}
-@keyframes iconPulse{0%,100%{transform:scale(1);}50%{transform:scale(1.06);}}
+
+/* Header */
 h1{font-size:1.5rem;font-weight:800;color:rgba(255,255,255,0.88);margin-bottom:8px;}
-.subtitle{font-size:0.82rem;color:rgba(255,255,255,0.35);margin-bottom:28px;line-height:1.75;}
-.word-cloud{min-height:80px;display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:center;margin-bottom:20px;}
-.word-tag{padding:5px 14px;border-radius:20px;font-size:0.78rem;font-weight:700;animation:wAppear 0.4s ease forwards,wFade 5s ease forwards 2s;opacity:0;}
-@keyframes wAppear{from{opacity:0;transform:scale(0.6) translateY(8px);}to{opacity:1;transform:scale(1) translateY(0);}}
-@keyframes wFade{0%{opacity:1;transform:translateY(0);}100%{opacity:0;transform:translateY(-24px);}}
-.vent-area-wrap{position:relative;margin-bottom:14px;}
-.vent-area{width:100%;min-height:150px;max-height:300px;background:rgba(255,255,255,0.04);border:1.5px solid rgba(255,255,255,0.08);border-radius:16px;padding:16px 18px;color:rgba(255,255,255,0.8);font-family:'Playfair Display',serif;font-style:italic;font-size:0.95rem;line-height:1.85;resize:vertical;outline:none;transition:border-color 0.3s;}
-.vent-area:focus{border-color:rgba(239,68,68,0.3);}
-.vent-area::placeholder{color:rgba(255,255,255,0.18);font-style:italic;}
-.char-count{position:absolute;bottom:10px;right:14px;font-size:0.68rem;color:rgba(255,255,255,0.15);font-family:'Nunito',sans-serif;}
-.btn-row{display:flex;gap:10px;justify-content:center;margin-bottom:8px;}
-.release-btn{flex:1;padding:14px;border:none;border-radius:14px;background:linear-gradient(135deg,#ef4444,#dc2626);color:white;font-family:'Nunito',sans-serif;font-weight:800;font-size:0.95rem;cursor:pointer;transition:0.2s;box-shadow:0 4px 18px rgba(239,68,68,0.25);}
-.release-btn:hover{transform:translateY(-1px);}
-.release-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
-.clear-btn{padding:14px 18px;border-radius:14px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.4);font-family:'Nunito',sans-serif;font-weight:700;font-size:0.85rem;cursor:pointer;transition:0.2s;}
-.clear-btn:hover{background:rgba(255,255,255,0.09);color:rgba(255,255,255,0.6);}
-.hint{font-size:0.72rem;color:rgba(255,255,255,0.18);margin-bottom:20px;font-style:italic;font-family:'Playfair Display',serif;}
-.vent-area-wrap.dissolving{animation:dissolve 1.2s ease forwards;}
-@keyframes dissolve{0%{opacity:1;filter:blur(0);}60%{opacity:0.3;filter:blur(4px);}100%{opacity:0;filter:blur(10px);}}
-.closing-wrap{display:none;margin-top:20px;animation:fadeUp 0.7s ease;}
+.subtitle{font-size:0.82rem;color:rgba(255,255,255,0.35);margin-bottom:44px;line-height:1.75;}
+
+/* Mic button */
+.mic-outer{width:140px;height:140px;border-radius:50%;margin:0 auto 32px;position:relative;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform 0.2s;}
+.mic-outer:hover{transform:scale(1.04);}
+.mic-ring{position:absolute;inset:0;border-radius:50%;border:2px solid rgba(239,68,68,0.2);transition:border-color 0.3s;}
+.mic-outer.recording .mic-ring{border-color:rgba(239,68,68,0.5);}
+.mic-pulse{position:absolute;inset:0;border-radius:50%;animation:none;}
+.mic-outer.recording .mic-pulse{animation:pulse 1.6s ease-in-out infinite;}
+@keyframes pulse{
+  0%{box-shadow:0 0 0 0 rgba(239,68,68,0.35);}
+  60%{box-shadow:0 0 0 28px rgba(239,68,68,0);}
+  100%{box-shadow:0 0 0 0 rgba(239,68,68,0);}
+}
+.mic-circle{width:140px;height:140px;border-radius:50%;background:rgba(239,68,68,0.1);border:2px solid rgba(239,68,68,0.18);display:flex;align-items:center;justify-content:center;transition:background 0.3s,border-color 0.3s;font-size:2.8rem;position:relative;z-index:1;}
+.mic-outer.recording .mic-circle{background:rgba(239,68,68,0.2);border-color:rgba(239,68,68,0.45);}
+
+/* Wave visualiser */
+.wave-wrap{height:48px;display:flex;align-items:center;justify-content:center;gap:4px;margin-bottom:28px;}
+.bar{width:4px;height:6px;background:rgba(239,68,68,0.25);border-radius:3px;transition:height 0.1s;}
+.bar.active{background:rgba(239,68,68,0.7);}
+
+/* Status text */
+.status{font-size:0.85rem;color:rgba(255,255,255,0.35);margin-bottom:32px;min-height:20px;transition:color 0.3s;font-style:italic;font-family:'Playfair Display',serif;}
+.status.live{color:rgba(239,68,68,0.7);}
+
+/* Stop button (shown when recording) */
+.stop-btn{display:none;padding:12px 32px;background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.3);border-radius:40px;color:rgba(239,68,68,0.8);font-family:'Nunito',sans-serif;font-weight:700;font-size:0.88rem;cursor:pointer;transition:0.2s;margin-bottom:14px;}
+.stop-btn:hover{background:rgba(239,68,68,0.2);}
+.stop-btn.show{display:inline-block;}
+
+/* Privacy note */
+.privacy{font-size:0.68rem;color:rgba(255,255,255,0.12);margin-top:18px;line-height:1.75;max-width:360px;margin-left:auto;margin-right:auto;}
+.privacy strong{color:rgba(255,255,255,0.2);font-weight:700;}
+
+/* Closing card */
+.closing-wrap{display:none;margin-top:8px;animation:fadeUp 0.7s ease;}
 .closing-wrap.show{display:block;}
 @keyframes fadeUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
-.closing-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:20px 24px;text-align:left;}
+.closing-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:20px 24px;text-align:left;margin-bottom:14px;}
 .closing-label{font-size:0.68rem;font-weight:700;color:rgba(196,181,253,0.5);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;}
 .closing-text{font-family:'Playfair Display',serif;font-style:italic;font-size:0.9rem;color:rgba(255,255,255,0.65);line-height:1.85;}
-.vent-again-btn{margin-top:14px;width:100%;padding:12px;background:transparent;border:1px solid rgba(255,255,255,0.1);border-radius:12px;color:rgba(255,255,255,0.35);font-family:'Nunito',sans-serif;font-size:0.82rem;cursor:pointer;transition:0.2s;}
+.vent-again-btn{width:100%;padding:12px;background:transparent;border:1px solid rgba(255,255,255,0.1);border-radius:12px;color:rgba(255,255,255,0.35);font-family:'Nunito',sans-serif;font-size:0.82rem;cursor:pointer;transition:0.2s;}
 .vent-again-btn:hover{border-color:rgba(255,255,255,0.2);color:rgba(255,255,255,0.55);}
-.note{font-size:0.68rem;color:rgba(255,255,255,0.12);margin-top:18px;line-height:1.7;}
+
+/* No-mic error */
+.no-mic{display:none;font-size:0.8rem;color:rgba(239,68,68,0.6);margin-top:12px;line-height:1.6;}
 </style>
 </head>
 <body>
 <div class="bg-glow"></div>
 <canvas id="c"></canvas>
 <a href="/dashboard" class="back">← back</a>
+
 <div class="wrap">
-  <div class="chamber-icon" id="chamberIcon">🌪️</div>
   <h1>The Venting Chamber</h1>
-  <p class="subtitle">Write everything you need to say. Your words become art — then they dissolve.<br>Nothing to fix here. Just release.</p>
-  <div class="word-cloud" id="wordCloud"></div>
-  <div id="writeSection">
-    <div class="vent-area-wrap" id="ventWrap">
-      <textarea class="vent-area" id="ventText" placeholder="Let it all out... nobody is judging you here. Say what you couldn't say anywhere else." oninput="onTyping(this)"></textarea>
-      <span class="char-count" id="charCount">0</span>
-    </div>
-    <p class="hint">Write until you feel lighter. Then release it.</p>
-    <div class="btn-row">
-      <button class="release-btn" id="releaseBtn" onclick="releaseVent()">🌪️ Release It</button>
-      <button class="clear-btn" onclick="clearVent()">Clear</button>
-    </div>
+  <p class="subtitle">Press the mic and speak freely. Your voice disappears the moment you stop.<br>Nothing is recorded. Nothing is saved. Just release.</p>
+
+  <!-- Mic button -->
+  <div class="mic-outer" id="micOuter" onclick="toggleVent()">
+    <div class="mic-pulse"></div>
+    <div class="mic-ring"></div>
+    <div class="mic-circle" id="micCircle">🎙️</div>
   </div>
+
+  <!-- Sound wave bars -->
+  <div class="wave-wrap" id="waveWrap">
+    <div class="bar" id="b0"></div><div class="bar" id="b1"></div>
+    <div class="bar" id="b2"></div><div class="bar" id="b3"></div>
+    <div class="bar" id="b4"></div><div class="bar" id="b5"></div>
+    <div class="bar" id="b6"></div><div class="bar" id="b7"></div>
+    <div class="bar" id="b8"></div><div class="bar" id="b9"></div>
+    <div class="bar" id="b10"></div><div class="bar" id="b11"></div>
+    <div class="bar" id="b12"></div><div class="bar" id="b13"></div>
+    <div class="bar" id="b14"></div>
+  </div>
+
+  <p class="status" id="statusText">Tap the mic when you're ready to let it out</p>
+
+  <button class="stop-btn" id="stopBtn" onclick="stopVent()">■ Done — release it</button>
+
+  <div class="no-mic" id="noMicMsg">
+    Microphone access was denied or unavailable.<br>Please allow mic access in your browser settings and try again.
+  </div>
+
+  <!-- Eva closing message (shown after vent) -->
   <div class="closing-wrap" id="closingWrap">
     <div class="closing-card">
       <div class="closing-label">✦ Eva</div>
@@ -73,80 +108,136 @@ h1{font-size:1.5rem;font-weight:800;color:rgba(255,255,255,0.88);margin-bottom:8
     </div>
     <button class="vent-again-btn" onclick="ventAgain()">Vent again →</button>
   </div>
-  <p class="note">Your words are not permanently stored. Only an anonymised summary is saved to help Eva understand you better.</p>
+
+  <p class="privacy"><strong>100% private.</strong> Your voice is processed locally in the browser only for the visualiser. No audio, transcript, or recording is ever sent to any server or stored anywhere.</p>
 </div>
+
 <script>
+/* ── Particle canvas ── */
 const canvas=document.getElementById('c'),ctx=canvas.getContext('2d');
 let particles=[];
 function resizeCanvas(){canvas.width=innerWidth;canvas.height=innerHeight;}
 resizeCanvas();window.addEventListener('resize',resizeCanvas);
+const COLORS=['#f87171','#fb923c','#fbbf24','#a78bfa','#60a5fa','#34d399','#f472b6'];
 function spawnP(x,y,color,n=5){for(let i=0;i<n;i++)particles.push({x,y,vx:(Math.random()-.5)*3,vy:-(0.5+Math.random()*2.5),life:1,color,size:1.5+Math.random()*3.5});}
 (function loop(){ctx.clearRect(0,0,canvas.width,canvas.height);particles=particles.filter(p=>p.life>0);particles.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=0.03;p.life-=0.01;ctx.globalAlpha=p.life*0.5;ctx.fillStyle=p.color;ctx.beginPath();ctx.arc(p.x,p.y,p.size,0,Math.PI*2);ctx.fill();});ctx.globalAlpha=1;requestAnimationFrame(loop);})();
-const COLORS=['#f87171','#fb923c','#fbbf24','#a78bfa','#60a5fa','#34d399','#f472b6'];
-const STOP=new Set(['that','this','with','have','from','they','were','been','when','your','will','what','just','like','very','more','also','some','than','into','then','them','here','there','would','could','should','about','after','before','being','their','other','which','where']);
-let lastWords=[],typingTimer=null;
-function onTyping(el){
-  document.getElementById('charCount').textContent=el.value.length;
-  document.getElementById('chamberIcon').classList.add('active');
-  clearTimeout(typingTimer);
-  typingTimer=setTimeout(()=>{
-    const words=el.value.toLowerCase().split(/[\s,\.!?;\n]+/).filter(w=>w.length>3&&!STOP.has(w)&&/^[a-z]+$/.test(w));
-    const unique=[...new Set(words)].filter(w=>!lastWords.includes(w));
-    if(unique.length){const word=unique[Math.floor(Math.random()*unique.length)];spawnWordTag(word);lastWords=[...lastWords.slice(-10),word];}
-  },700);
+
+/* ── State ── */
+let recording=false;
+let audioCtx=null,analyser=null,micStream=null,sourceNode=null;
+let waveTimer=null;
+const BARS=15;
+
+/* ── Wave visualiser using Web Audio analyser (no data ever leaves this function) ── */
+function startWave(){
+  if(!analyser)return;
+  const dataArr=new Uint8Array(analyser.frequencyBinCount);
+  function draw(){
+    if(!recording)return;
+    analyser.getByteFrequencyData(dataArr);
+    for(let i=0;i<BARS;i++){
+      const idx=Math.floor(i*(dataArr.length/BARS));
+      const h=Math.max(4,Math.round((dataArr[idx]/255)*44));
+      const bar=document.getElementById('b'+i);
+      if(bar){bar.style.height=h+'px';bar.classList.toggle('active',h>8);}
+    }
+    // Spawn particles from mic button based on loudness
+    const avg=dataArr.reduce((a,b)=>a+b,0)/dataArr.length;
+    if(avg>30){
+      const rect=document.getElementById('micOuter').getBoundingClientRect();
+      const c=COLORS[Math.floor(Math.random()*COLORS.length)];
+      spawnP(rect.left+rect.width/2,rect.top+rect.height/2,c,1);
+    }
+    waveTimer=requestAnimationFrame(draw);
+  }
+  draw();
 }
-function spawnWordTag(word){
-  const cloud=document.getElementById('wordCloud');
-  const el=document.createElement('div');
-  el.className='word-tag';el.textContent=word;
-  const color=COLORS[Math.floor(Math.random()*COLORS.length)];
-  el.style.cssText=`background:${color}18;color:${color};border:1px solid ${color}33;`;
-  cloud.appendChild(el);
-  const rect=el.getBoundingClientRect();
-  spawnP(rect.left+rect.width/2,rect.top+rect.height/2,color,3);
-  setTimeout(()=>el.remove&&el.remove(),7500);
-}
-async function releaseVent(){
-  const text=document.getElementById('ventText').value.trim();
-  if(!text){document.getElementById('ventText').focus();return;}
-  const btn=document.getElementById('releaseBtn');
-  btn.textContent='Releasing...';btn.disabled=true;
-  document.getElementById('ventWrap').classList.add('dissolving');
-  const words=text.toLowerCase().split(/[\s,\.!?;\n]+/).filter(w=>w.length>3&&!STOP.has(w));
-  const keywords=[...new Set(words)].slice(0,15).join(', ');
-  const cx=innerWidth/2,cy=innerHeight/2;
-  setTimeout(()=>{for(let i=0;i<40;i++){const c=COLORS[Math.floor(Math.random()*COLORS.length)];spawnP(cx+(Math.random()-.5)*200,cy+(Math.random()-.5)*100,c,2);}},400);
-  try{
-    const res=await fetch('/vent-complete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({transcript:text,keywords})});
-    const data=await res.json();
-    setTimeout(()=>{
-      document.getElementById('writeSection').style.display='none';
-      document.getElementById('chamberIcon').textContent='💨';
-      document.getElementById('chamberIcon').classList.remove('active');
-      document.getElementById('closingWrap').classList.add('show');
-      const reply=data.closing||'You said what needed to be said. It is out now. Take a breath.';
-      let i=0,el=document.getElementById('closingText');
-      const iv=setInterval(()=>{if(i<reply.length){el.textContent+=reply[i++];}else clearInterval(iv);},22);
-    },1400);
-  }catch(e){
-    setTimeout(()=>{
-      document.getElementById('writeSection').style.display='none';
-      document.getElementById('closingWrap').classList.add('show');
-      document.getElementById('closingText').textContent='You released it. That took courage. Breathe.';
-    },1400);
+function stopWave(){
+  if(waveTimer)cancelAnimationFrame(waveTimer);
+  waveTimer=null;
+  for(let i=0;i<BARS;i++){
+    const bar=document.getElementById('b'+i);
+    if(bar){bar.style.height='6px';bar.classList.remove('active');}
   }
 }
-function clearVent(){document.getElementById('ventText').value='';document.getElementById('charCount').textContent='0';document.getElementById('chamberIcon').classList.remove('active');lastWords=[];}
+
+/* ── Core vent logic ── */
+async function toggleVent(){
+  if(recording){stopVent();return;}
+  // Request mic — browser only; no recording API used
+  document.getElementById('noMicMsg').style.display='none';
+  try{
+    micStream=await navigator.mediaDevices.getUserMedia({audio:true,video:false});
+  }catch(e){
+    document.getElementById('noMicMsg').style.display='block';
+    document.getElementById('statusText').textContent='Mic access needed. Allow it in your browser.';
+    return;
+  }
+  // Build audio graph purely for visualisation — NO MediaRecorder, NO data capture
+  audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+  sourceNode=audioCtx.createMediaStreamSource(micStream);
+  analyser=audioCtx.createAnalyser();
+  analyser.fftSize=256;
+  analyser.smoothingTimeConstant=0.8;
+  sourceNode.connect(analyser);
+  // Deliberately NOT connecting analyser to audioCtx.destination — user cannot hear themselves
+  // Deliberately NOT creating any MediaRecorder — nothing is captured
+
+  recording=true;
+  document.getElementById('micOuter').classList.add('recording');
+  document.getElementById('micCircle').textContent='🔴';
+  document.getElementById('statusText').textContent='Listening… say everything you need to say.';
+  document.getElementById('statusText').classList.add('live');
+  document.getElementById('stopBtn').classList.add('show');
+  startWave();
+}
+
+async function stopVent(){
+  if(!recording)return;
+  recording=false;
+
+  // Immediately destroy all audio resources — mic stream stopped, context closed
+  stopWave();
+  if(micStream){micStream.getTracks().forEach(t=>t.stop());micStream=null;}
+  if(sourceNode){sourceNode.disconnect();sourceNode=null;}
+  if(audioCtx){audioCtx.close();audioCtx=null;}
+  analyser=null;
+
+  // UI transition
+  document.getElementById('micOuter').classList.remove('recording');
+  document.getElementById('micCircle').textContent='💨';
+  document.getElementById('statusText').textContent='';
+  document.getElementById('statusText').classList.remove('live');
+  document.getElementById('stopBtn').classList.remove('show');
+
+  // Burst particles
+  const cx=innerWidth/2,cy=innerHeight*.38;
+  for(let i=0;i<40;i++){const c=COLORS[Math.floor(Math.random()*COLORS.length)];spawnP(cx+(Math.random()-.5)*160,cy+(Math.random()-.5)*60,c,2);}
+
+  // Ask Eva for a closing message — POST carries NO audio, transcript, or keywords
+  let closing='You said what needed to be said. It\'s out now — and it stays between you and the air. Take a breath.';
+  try{
+    const res=await fetch('/vent-complete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({})});
+    const data=await res.json();
+    if(data.closing)closing=data.closing;
+  }catch(e){/* use default closing */}
+
+  // Show Eva card with typewriter effect
+  document.getElementById('closingWrap').classList.add('show');
+  let i=0,el=document.getElementById('closingText');el.textContent='';
+  const iv=setInterval(()=>{if(i<closing.length){el.textContent+=closing[i++];}else clearInterval(iv);},22);
+}
+
 function ventAgain(){
-  document.getElementById('ventText').value='';document.getElementById('charCount').textContent='0';
-  document.getElementById('closingText').textContent='';
+  recording=false;
   document.getElementById('closingWrap').classList.remove('show');
-  document.getElementById('writeSection').style.display='block';
-  document.getElementById('ventWrap').classList.remove('dissolving');
-  document.getElementById('chamberIcon').textContent='🌪️';
-  document.getElementById('releaseBtn').textContent='🌪️ Release It';
-  document.getElementById('releaseBtn').disabled=false;
-  lastWords=[];document.getElementById('ventText').focus();
+  document.getElementById('closingText').textContent='';
+  document.getElementById('micCircle').textContent='🎙️';
+  document.getElementById('statusText').textContent='Tap the mic when you\'re ready to let it out';
+  document.getElementById('statusText').classList.remove('live');
+  document.getElementById('stopBtn').classList.remove('show');
+  document.getElementById('noMicMsg').style.display='none';
+  stopWave();
 }
 </script>
 </body>

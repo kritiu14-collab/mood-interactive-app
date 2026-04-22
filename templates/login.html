@@ -18,7 +18,7 @@
             color: #2d2d2d;
         }
 
-        /* Left panel — decorative */
+        /* Left panel */
         .left-panel {
             flex: 1;
             background: linear-gradient(160deg, #667eea, #764ba2, #f093fb);
@@ -32,13 +32,11 @@
             position: relative;
             overflow: hidden;
         }
-
         @keyframes aurora {
             0%   { background-position: 0% 50%; }
             50%  { background-position: 100% 50%; }
             100% { background-position: 0% 50%; }
         }
-
         .left-panel::after {
             content: '';
             position: absolute;
@@ -47,14 +45,12 @@
             border-radius: 50%;
             bottom: -100px; right: -100px;
         }
-
         .left-panel .brand {
             font-family: 'Playfair Display', serif;
             font-size: 3.5rem;
             margin-bottom: 16px;
             position: relative; z-index: 1;
         }
-
         .left-panel p {
             font-size: 1.1rem;
             opacity: 0.85;
@@ -62,7 +58,6 @@
             line-height: 1.7;
             position: relative; z-index: 1;
         }
-
         .left-panel .tagline {
             margin-top: 40px;
             font-size: 0.85rem;
@@ -71,7 +66,7 @@
             text-transform: uppercase;
         }
 
-        /* Right panel — form */
+        /* Right panel */
         .right-panel {
             width: 460px;
             display: flex;
@@ -79,10 +74,11 @@
             justify-content: center;
             padding: 40px;
             background: #f7f3ee;
+            overflow-y: auto;
         }
-
         .form-box { width: 100%; max-width: 380px; }
 
+        /* Tabs */
         .tabs {
             display: flex;
             background: #ede9e2;
@@ -90,7 +86,6 @@
             padding: 4px;
             margin-bottom: 32px;
         }
-
         .tab-btn {
             flex: 1;
             padding: 10px;
@@ -104,7 +99,6 @@
             color: #888;
             transition: all 0.2s;
         }
-
         .tab-btn.active {
             background: white;
             color: #2d2d2d;
@@ -114,17 +108,8 @@
         .form-section { display: none; }
         .form-section.active { display: block; }
 
-        h2 {
-            font-size: 1.6rem;
-            font-weight: 600;
-            margin-bottom: 6px;
-        }
-
-        .subtitle {
-            color: #888;
-            font-size: 0.88rem;
-            margin-bottom: 28px;
-        }
+        h2 { font-size: 1.6rem; font-weight: 600; margin-bottom: 6px; }
+        .subtitle { color: #888; font-size: 0.88rem; margin-bottom: 28px; }
 
         label {
             display: block;
@@ -134,7 +119,11 @@
             margin-bottom: 6px;
         }
 
-        input[type=text], input[type=email], input[type=password] {
+        input[type=text],
+        input[type=email],
+        input[type=password],
+        input[type=date],
+        select {
             width: 100%;
             padding: 12px 14px;
             border: 1.5px solid #e0dbd2;
@@ -142,19 +131,23 @@
             font-family: 'DM Sans', sans-serif;
             font-size: 0.92rem;
             background: white;
-            margin-bottom: 16px;
+            margin-bottom: 4px;
             transition: border-color 0.2s;
         }
+        input:focus, select:focus { outline: none; border-color: #764ba2; }
 
-        input:focus { outline: none; border-color: #764ba2; }
+        /* Email hint under gmail inputs */
+        .email-hint {
+            font-size: 0.74rem;
+            color: #aaa;
+            margin-bottom: 12px;
+            margin-top: 2px;
+        }
+        .email-hint.error { color: #e74c3c; }
+        .email-hint.ok    { color: #27ae60; }
 
         /* Role radio */
-        .role-group {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 18px;
-        }
-
+        .role-group { display: flex; gap: 10px; margin-bottom: 18px; }
         .role-option {
             flex: 1;
             border: 1.5px solid #e0dbd2;
@@ -169,9 +162,7 @@
             transition: all 0.2s;
             background: white;
         }
-
         .role-option input[type=radio] { accent-color: #764ba2; }
-
         .role-option.selected {
             border-color: #764ba2;
             background: #f5f0ff;
@@ -192,48 +183,56 @@
             transition: opacity 0.2s, transform 0.2s;
             margin-top: 4px;
         }
-
         .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+        .btn-primary:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
 
         .msg-error   { color: #e74c3c; font-size: 0.83rem; margin-bottom: 12px; padding: 10px 14px; background: #fef5f5; border-radius: 8px; border-left: 3px solid #e74c3c; display: none; }
         .msg-success { color: #27ae60; font-size: 0.83rem; margin-bottom: 12px; padding: 10px 14px; background: #f0fdf4; border-radius: 8px; border-left: 3px solid #27ae60; display: none; }
 
         .link-btn {
-            background: none;
-            border: none;
-            color: #764ba2;
+            background: none; border: none;
+            color: #764ba2; font-size: 0.83rem;
+            cursor: pointer; font-family: 'DM Sans', sans-serif;
+            text-decoration: underline; padding: 0;
+        }
+        .forgot-row { text-align: right; margin-top: -10px; margin-bottom: 18px; }
+
+        /* Age alert banner */
+        .age-alert {
+            display: none;
+            background: #fff7ed;
+            border: 1.5px solid #f97316;
+            border-radius: 10px;
+            padding: 12px 16px;
+            margin-bottom: 14px;
             font-size: 0.83rem;
-            cursor: pointer;
-            font-family: 'DM Sans', sans-serif;
-            text-decoration: underline;
-            padding: 0;
+            color: #c2410c;
+            line-height: 1.6;
         }
+        .age-alert strong { display: block; font-weight: 700; margin-bottom: 2px; }
 
-        .forgot-row {
-            text-align: right;
-            margin-top: -10px;
-            margin-bottom: 18px;
-        }
-
-        .divider {
-            height: 1px;
-            background: #e0dbd2;
-            margin: 20px 0;
-        }
-
-        .otp-input-row {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 16px;
-        }
-
-        .otp-input-row input {
-            flex: 1;
-            margin-bottom: 0;
+        /* OTP display box */
+        .otp-display-box {
+            display: none;
+            background: #f0fdf4;
+            border: 2px solid #22c55e;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 14px;
             text-align: center;
-            letter-spacing: 4px;
-            font-size: 1.2rem;
-            font-weight: 600;
+        }
+        .otp-display-box .otp-label {
+            font-size: 0.75rem; color: #16a34a;
+            font-weight: 700; text-transform: uppercase;
+            letter-spacing: 1px; margin-bottom: 6px;
+        }
+        .otp-display-box .otp-code {
+            font-size: 2.2rem; font-weight: 800;
+            color: #15803d; letter-spacing: 8px;
+            font-family: monospace;
+        }
+        .otp-display-box .otp-expiry {
+            font-size: 0.72rem; color: #86efac; margin-top: 6px;
         }
 
         @media (max-width: 768px) {
@@ -260,13 +259,15 @@
             <button class="tab-btn"        onclick="switchTab('reset')">Reset</button>
         </div>
 
-        <!-- ── LOGIN ── -->
+        <!-- ══════════════════════════════
+             LOGIN
+        ══════════════════════════════ -->
         <div id="loginSection" class="form-section active">
             <h2>Welcome back</h2>
             <p class="subtitle">Sign in to your sanctuary.</p>
 
             <label>I am logging in as:</label>
-            <div class="role-group" id="roleGroup">
+            <div class="role-group">
                 <label class="role-option selected" id="roleUser">
                     <input type="radio" name="role" value="user" checked onchange="selectRole(this)">
                     <i class="fas fa-user"></i> User
@@ -293,7 +294,9 @@
             <button class="btn-primary" onclick="handleLogin()">Sign In</button>
         </div>
 
-        <!-- ── SIGN UP ── -->
+        <!-- ══════════════════════════════
+             SIGN UP
+        ══════════════════════════════ -->
         <div id="signupSection" class="form-section">
             <h2>Create account</h2>
             <p class="subtitle">Join Solace — it's free.</p>
@@ -301,8 +304,10 @@
             <label>Username</label>
             <input type="text" id="signupUsername" placeholder="Choose a username">
 
-            <label>Email</label>
-            <input type="email" id="signupEmail" placeholder="your@email.com">
+            <label>Email <span style="color:#aaa;font-weight:400">(@gmail.com only)</span></label>
+            <input type="email" id="signupEmail" placeholder="yourname@gmail.com"
+                   oninput="validateGmailLive(this, 'signupEmailHint')">
+            <div class="email-hint" id="signupEmailHint">Only @gmail.com addresses are accepted.</div>
 
             <label>Password <span style="color:#aaa;font-weight:400">(min. 8 characters)</span></label>
             <input type="password" id="signupPassword" placeholder="••••••••">
@@ -311,7 +316,13 @@
             <input type="password" id="signupConfirm" placeholder="••••••••">
 
             <label>Date of Birth</label>
-            <input type="date" id="signupDOB" max="">
+            <input type="date" id="signupDOB" max="" oninput="checkAge()">
+
+            <!-- Age alert — shown if under 15 -->
+            <div class="age-alert" id="ageAlert">
+                <strong>🔒 Age Restriction</strong>
+                You must be at least 15 years old to create a Solace account. Children under 15 are not permitted.
+            </div>
 
             <label>Gender</label>
             <select id="signupGender">
@@ -322,40 +333,47 @@
                 <option value="Prefer not to say">Prefer not to say</option>
             </select>
 
-            <div id="signupError"   class="msg-error"></div>
+            <div id="signupError"   class="msg-error" style="margin-top:12px;"></div>
             <div id="signupSuccess" class="msg-success"></div>
 
-            <button class="btn-primary" onclick="handleSignup()">Create Account</button>
+            <button class="btn-primary" onclick="handleSignup()" style="margin-top:8px;">Create Account</button>
         </div>
 
-        <!-- ── RESET PASSWORD ── -->
+        <!-- ══════════════════════════════
+             RESET PASSWORD
+        ══════════════════════════════ -->
         <div id="resetSection" class="form-section">
 
-            <!-- Step 1: Enter email -->
+            <!-- Step 1: Username + Email -->
             <div id="resetStep1">
                 <h2>Reset password</h2>
-                <p class="subtitle">Enter your registered email — we will show you a 6-digit OTP instantly.</p>
+                <p class="subtitle">Enter your username and registered Gmail — we'll send you a 6-digit OTP.</p>
 
-                <label>Email Address</label>
-                <input type="email" id="resetEmail" placeholder="your@email.com">
+                <label>Username</label>
+                <input type="text" id="resetUsername" placeholder="Your username">
+
+                <label>Email <span style="color:#aaa;font-weight:400">(@gmail.com only)</span></label>
+                <input type="email" id="resetEmail" placeholder="yourname@gmail.com"
+                       oninput="validateGmailLive(this, 'resetEmailHint')">
+                <div class="email-hint" id="resetEmailHint">Only @gmail.com addresses are accepted.</div>
 
                 <div id="resetError1"   class="msg-error"></div>
                 <div id="resetSuccess1" class="msg-success"></div>
 
-                <!-- OTP display box — shown after server responds -->
-                <div id="otpDisplayBox" style="display:none;background:#f0fdf4;border:2px solid #22c55e;border-radius:12px;padding:16px;margin-bottom:14px;text-align:center;">
-                    <div style="font-size:0.75rem;color:#16a34a;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Your OTP Code</div>
-                    <div id="otpDisplayCode" style="font-size:2.2rem;font-weight:800;color:#15803d;letter-spacing:8px;font-family:monospace;"></div>
-                    <div style="font-size:0.72rem;color:#86efac;margin-top:6px;">Valid for 10 minutes — copy it below</div>
+                <!-- OTP display box — shown if email delivery succeeds or during dev -->
+                <div class="otp-display-box" id="otpDisplayBox">
+                    <div class="otp-label">Your OTP Code</div>
+                    <div class="otp-code" id="otpDisplayCode"></div>
+                    <div class="otp-expiry">Valid for 10 minutes — copy it below</div>
                 </div>
 
                 <button class="btn-primary" id="sendOtpBtn" onclick="requestOTP()">Send OTP</button>
             </div>
 
-            <!-- Step 2: Enter OTP + new password -->
+            <!-- Step 2: OTP + new password -->
             <div id="resetStep2" style="display:none">
                 <h2>Enter OTP</h2>
-                <p class="subtitle" id="otpHint">Enter the 6-digit OTP shown above.</p>
+                <p class="subtitle">Enter the 6-digit OTP sent to your Gmail.</p>
 
                 <label>6-Digit OTP</label>
                 <input type="text" id="otpCode" placeholder="123456" maxlength="6"
@@ -372,51 +390,128 @@
 
                 <button class="btn-primary" onclick="verifyOTP()">Reset Password</button>
                 <div style="margin-top:12px;text-align:center">
-                    <button class="link-btn" onclick="backToStep1()">← Use different email</button>
+                    <button class="link-btn" onclick="backToStep1()">← Use different details</button>
                 </div>
             </div>
-        </div>
+        </div><!-- /resetSection -->
 
     </div>
 </div>
 
 <script>
-    // ── Tab switching ──
-    function switchTab(tab) {
-        ['login','signup','reset'].forEach(t => {
-            document.getElementById(t + 'Section').classList.remove('active');
-        });
-        document.getElementById(tab + 'Section').classList.add('active');
-        document.querySelectorAll('.tab-btn').forEach((b, i) => {
-            b.classList.toggle('active', ['login','signup','reset'][i] === tab);
-        });
+// ══════════════════════════════════════════════════
+// UTILITIES
+// ══════════════════════════════════════════════════
+
+function switchTab(tab) {
+    ['login','signup','reset'].forEach(t => {
+        document.getElementById(t + 'Section').classList.remove('active');
+    });
+    document.getElementById(tab + 'Section').classList.add('active');
+    document.querySelectorAll('.tab-btn').forEach((b, i) => {
+        b.classList.toggle('active', ['login','signup','reset'][i] === tab);
+    });
+}
+
+function selectRole(radio) {
+    document.querySelectorAll('.role-option').forEach(el => el.classList.remove('selected'));
+    radio.closest('.role-option').classList.add('selected');
+}
+
+function showMsg(id, text, type) {
+    const el = document.getElementById(id);
+    el.textContent = text;
+    el.style.display = 'block';
+    el.className = type === 'error' ? 'msg-error' : 'msg-success';
+}
+function hideMsg(...ids) {
+    ids.forEach(id => { document.getElementById(id).style.display = 'none'; });
+}
+
+// ══════════════════════════════════════════════════
+// GMAIL VALIDATION — live hint under email inputs
+// ══════════════════════════════════════════════════
+
+const GMAIL_RE = /^[a-zA-Z0-9._%+\-]+@gmail\.com$/;
+
+function validateGmailLive(inputEl, hintId) {
+    const val = inputEl.value.trim();
+    const hint = document.getElementById(hintId);
+    if (!val) {
+        hint.className = 'email-hint';
+        hint.textContent = 'Only @gmail.com addresses are accepted.';
+        inputEl.style.borderColor = '#e0dbd2';
+        return false;
+    }
+    if (GMAIL_RE.test(val)) {
+        hint.className = 'email-hint ok';
+        hint.textContent = '✓ Valid Gmail address.';
+        inputEl.style.borderColor = '#22c55e';
+        return true;
+    } else {
+        hint.className = 'email-hint error';
+        // Give specific feedback
+        if (val.includes('@') && !val.toLowerCase().endsWith('@gmail.com')) {
+            hint.textContent = '✗ Only @gmail.com is accepted — e.g. yourname@gmail.com';
+        } else {
+            hint.textContent = '✗ Enter a valid @gmail.com address.';
+        }
+        inputEl.style.borderColor = '#e74c3c';
+        return false;
+    }
+}
+
+// ══════════════════════════════════════════════════
+// AGE CHECK — shows inline alert if under 15
+// ══════════════════════════════════════════════════
+
+function calcAge(dob) {
+    if (!dob) return null;
+    const birth = new Date(dob);
+    const today = new Date();
+    let age = today.getFullYear() - birth.getFullYear();
+    const m = today.getMonth() - birth.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
+    return age;
+}
+
+function checkAge() {
+    const dob = document.getElementById('signupDOB').value;
+    const alert = document.getElementById('ageAlert');
+    const age = calcAge(dob);
+    if (age !== null && age < 15) {
+        alert.style.display = 'block';
+        document.getElementById('signupDOB').style.borderColor = '#f97316';
+    } else {
+        alert.style.display = 'none';
+        document.getElementById('signupDOB').style.borderColor = age !== null ? '#22c55e' : '#e0dbd2';
+    }
+}
+
+// Set max DOB to today on load
+document.addEventListener('DOMContentLoaded', () => {
+    const dobEl = document.getElementById('signupDOB');
+    if (dobEl) dobEl.max = new Date().toISOString().split('T')[0];
+});
+
+// ══════════════════════════════════════════════════
+// LOGIN
+// ══════════════════════════════════════════════════
+
+async function handleLogin() {
+    hideMsg('loginError', 'loginSuccess');
+    const username = document.getElementById('loginUsername').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    const role     = document.querySelector('input[name="role"]:checked').value;
+
+    if (!username || !password) {
+        showMsg('loginError', 'Please fill in all fields.', 'error'); return;
     }
 
-    // ── Role selector ──
-    function selectRole(radio) {
-        document.querySelectorAll('.role-option').forEach(el => el.classList.remove('selected'));
-        radio.closest('.role-option').classList.add('selected');
-    }
+    const btn = document.querySelector('#loginSection .btn-primary');
+    btn.textContent = 'Signing in...'; btn.disabled = true;
 
-    // ── Show/hide message ──
-    function showMsg(id, text, type) {
-        const el = document.getElementById(id);
-        el.textContent = text;
-        el.style.display = 'block';
-        el.className = type === 'error' ? 'msg-error' : 'msg-success';
-    }
-
-    function hideMsg(...ids) { ids.forEach(id => { document.getElementById(id).style.display = 'none'; }); }
-
-    // ── Login ──
-    async function handleLogin() {
-        hideMsg('loginError', 'loginSuccess');
-        const username = document.getElementById('loginUsername').value.trim();
-        const password = document.getElementById('loginPassword').value;
-        const role     = document.querySelector('input[name="role"]:checked').value;
-
-        if (!username || !password) { showMsg('loginError', 'Please fill in all fields.', 'error'); return; }
-
+    try {
         const res  = await fetch('/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -429,32 +524,71 @@
         } else {
             showMsg('loginError', data.error, 'error');
         }
+    } catch(e) {
+        showMsg('loginError', 'Connection error. Please try again.', 'error');
+    } finally {
+        btn.textContent = 'Sign In'; btn.disabled = false;
+    }
+}
+
+// ══════════════════════════════════════════════════
+// SIGN UP
+// ══════════════════════════════════════════════════
+
+async function handleSignup() {
+    hideMsg('signupError', 'signupSuccess');
+    document.getElementById('ageAlert').style.display = 'none';
+
+    const username = document.getElementById('signupUsername').value.trim();
+    const email    = document.getElementById('signupEmail').value.trim();
+    const password = document.getElementById('signupPassword').value;
+    const confirm  = document.getElementById('signupConfirm').value;
+    const dob      = document.getElementById('signupDOB').value;
+    const gender   = document.getElementById('signupGender').value;
+
+    // Basic presence checks
+    if (!username)          { showMsg('signupError', 'Please enter a username.', 'error'); return; }
+    if (!email)             { showMsg('signupError', 'Please enter your email address.', 'error'); return; }
+    if (!password)          { showMsg('signupError', 'Please enter a password.', 'error'); return; }
+
+    // Gmail-only check
+    if (!GMAIL_RE.test(email)) {
+        showMsg('signupError', 'Only @gmail.com addresses are accepted. Please use yourname@gmail.com.', 'error');
+        document.getElementById('signupEmail').style.borderColor = '#e74c3c';
+        document.getElementById('signupEmail').focus();
+        return;
     }
 
-    // ── Sign Up ──
-    async function handleSignup() {
-        hideMsg('signupError', 'signupSuccess');
-        const username = document.getElementById('signupUsername').value.trim();
-        const email    = document.getElementById('signupEmail').value.trim();
-        const password = document.getElementById('signupPassword').value;
-        const confirm  = document.getElementById('signupConfirm').value;
-        const dob      = document.getElementById('signupDOB').value;
-        const gender   = document.getElementById('signupGender').value;
+    if (password.length < 8) {
+        showMsg('signupError', 'Password must be at least 8 characters.', 'error'); return;
+    }
+    if (password !== confirm) {
+        showMsg('signupError', 'Passwords do not match.', 'error'); return;
+    }
+    if (!dob) {
+        showMsg('signupError', 'Please enter your date of birth.', 'error'); return;
+    }
 
-        if (!username || !email || !password) { showMsg('signupError', 'All fields are required.', 'error'); return; }
-        if (password.length < 8)              { showMsg('signupError', 'Password must be at least 8 characters.', 'error'); return; }
-        if (password !== confirm)             { showMsg('signupError', 'Passwords do not match.', 'error'); return; }
-        if (!dob)                             { showMsg('signupError', 'Please enter your date of birth.', 'error'); return; }
-        if (!gender)                          { showMsg('signupError', 'Please select your gender.', 'error'); return; }
+    // Age check — minimum 15
+    const age = calcAge(dob);
+    if (age < 15) {
+        document.getElementById('ageAlert').style.display = 'block';
+        document.getElementById('signupDOB').style.borderColor = '#f97316';
+        showMsg('signupError', 'You must be at least 15 years old to create an account.', 'error');
+        return;
+    }
+    if (age > 100) {
+        showMsg('signupError', 'Please enter a valid date of birth.', 'error'); return;
+    }
 
-        // Calculate age from DOB
-        const birthDate = new Date(dob);
-        const today     = new Date();
-        let age = today.getFullYear() - birthDate.getFullYear();
-        const m = today.getMonth() - birthDate.getMonth();
-        if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) age--;
-        if (age < 10 || age > 100) { showMsg('signupError', 'Please enter a valid date of birth.', 'error'); return; }
+    if (!gender) {
+        showMsg('signupError', 'Please select your gender.', 'error'); return;
+    }
 
+    const btn = document.querySelector('#signupSection .btn-primary');
+    btn.textContent = 'Creating...'; btn.disabled = true;
+
+    try {
         const res  = await fetch('/signup', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -467,109 +601,129 @@
         } else {
             showMsg('signupError', data.error, 'error');
         }
+    } catch(e) {
+        showMsg('signupError', 'Connection error. Please try again.', 'error');
+    } finally {
+        btn.textContent = 'Create Account'; btn.disabled = false;
+    }
+}
+
+// ══════════════════════════════════════════════════
+// RESET — Step 1: Request OTP with username + email
+// ══════════════════════════════════════════════════
+
+async function requestOTP() {
+    hideMsg('resetError1', 'resetSuccess1');
+    document.getElementById('otpDisplayBox').style.display = 'none';
+
+    const username = document.getElementById('resetUsername').value.trim();
+    const email    = document.getElementById('resetEmail').value.trim();
+
+    if (!username) {
+        showMsg('resetError1', 'Please enter your username.', 'error'); return;
+    }
+    if (!email) {
+        showMsg('resetError1', 'Please enter your email address.', 'error'); return;
+    }
+    if (!GMAIL_RE.test(email)) {
+        showMsg('resetError1', 'Only @gmail.com addresses are accepted.', 'error');
+        document.getElementById('resetEmail').style.borderColor = '#e74c3c';
+        return;
     }
 
-    // Set max DOB to today
-    document.addEventListener('DOMContentLoaded', () => {
-        const dobEl = document.getElementById('signupDOB');
-        if (dobEl) dobEl.max = new Date().toISOString().split('T')[0];
-    });
+    const btn = document.getElementById('sendOtpBtn');
+    btn.textContent = 'Sending...'; btn.disabled = true;
 
-    // ── OTP Step 1 — Request OTP via email ──
-    async function requestOTP() {
-        hideMsg('resetError1', 'resetSuccess1');
-        document.getElementById('otpDisplayBox').style.display = 'none';
-        const email = document.getElementById('resetEmail').value.trim();
-        if (!email) { showMsg('resetError1', 'Please enter your email address.', 'error'); return; }
-        if (!email.includes('@')) { showMsg('resetError1', 'Please enter a valid email address.', 'error'); return; }
+    try {
+        const res  = await fetch('/request-otp', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, email })
+        });
+        const data = await res.json();
 
-        const btn = document.getElementById('sendOtpBtn');
-        btn.textContent = 'Sending...';
-        btn.disabled = true;
-
-        try {
-            const res  = await fetch('/request-otp', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email })
-            });
-            const data = await res.json();
-            if (res.ok) {
-                // Show OTP directly on screen (works even without email)
-                if (data.otp) {
-                    document.getElementById('otpDisplayCode').textContent = data.otp;
-                    document.getElementById('otpDisplayBox').style.display = 'block';
-                    showMsg('resetSuccess1', 'OTP generated! Copy it from the green box above.', 'success');
-                } else {
-                    showMsg('resetSuccess1', data.message + ' — also check your email.', 'success');
-                }
-                setTimeout(() => {
-                    document.getElementById('resetStep1').style.display = 'none';
-                    document.getElementById('resetStep2').style.display = 'block';
-                    document.getElementById('otpCode').focus();
-                }, 1800);
+        if (res.ok) {
+            // Show OTP on-screen (dev mode — remove data.otp display in production)
+            if (data.otp) {
+                document.getElementById('otpDisplayCode').textContent = data.otp;
+                document.getElementById('otpDisplayBox').style.display = 'block';
+                showMsg('resetSuccess1', 'OTP generated! Copy it from the green box above.', 'success');
             } else {
-                showMsg('resetError1', data.error, 'error');
+                showMsg('resetSuccess1', 'OTP sent to your Gmail — check your inbox.', 'success');
             }
-        } catch(e) {
-            showMsg('resetError1', 'Connection error. Is the server running?', 'error');
-        } finally {
-            btn.textContent = 'Send OTP';
-            btn.disabled = false;
+            setTimeout(() => {
+                document.getElementById('resetStep1').style.display = 'none';
+                document.getElementById('resetStep2').style.display = 'block';
+                document.getElementById('otpCode').focus();
+            }, 1800);
+        } else {
+            showMsg('resetError1', data.error, 'error');
         }
+    } catch(e) {
+        showMsg('resetError1', 'Connection error. Is the server running?', 'error');
+    } finally {
+        btn.textContent = 'Send OTP'; btn.disabled = false;
+    }
+}
+
+// ══════════════════════════════════════════════════
+// RESET — Step 2: Verify OTP + set new password
+// ══════════════════════════════════════════════════
+
+async function verifyOTP() {
+    hideMsg('resetError2', 'resetSuccess2');
+    const email       = document.getElementById('resetEmail').value.trim();
+    const otp         = document.getElementById('otpCode').value.trim();
+    const newPassword = document.getElementById('newPassword').value;
+    const confirm     = document.getElementById('confirmNewPassword').value;
+
+    if (!otp || otp.length < 6)  {
+        showMsg('resetError2', 'Enter the 6-digit OTP.', 'error'); return;
+    }
+    if (newPassword.length < 8)  {
+        showMsg('resetError2', 'Password must be at least 8 characters.', 'error'); return;
+    }
+    if (newPassword !== confirm) {
+        showMsg('resetError2', 'Passwords do not match.', 'error'); return;
     }
 
-    // ── OTP Step 2 — Verify OTP and reset password ──
-    async function verifyOTP() {
-        hideMsg('resetError2', 'resetSuccess2');
-        const email       = document.getElementById('resetEmail').value.trim();
-        const otp         = document.getElementById('otpCode').value.trim();
-        const newPassword = document.getElementById('newPassword').value;
-        const confirm     = document.getElementById('confirmNewPassword').value;
+    const btn = document.querySelector('#resetStep2 .btn-primary');
+    btn.textContent = 'Resetting...'; btn.disabled = true;
 
-        if (!otp || otp.length < 6)  { showMsg('resetError2', 'Enter the 6-digit OTP.', 'error'); return; }
-        if (newPassword.length < 8)  { showMsg('resetError2', 'Password must be at least 8 characters.', 'error'); return; }
-        if (newPassword !== confirm) { showMsg('resetError2', 'Passwords do not match.', 'error'); return; }
-
-        const btn = document.querySelector('#resetStep2 .btn-primary');
-        btn.textContent = 'Resetting...';
-        btn.disabled = true;
-
-        try {
-            const res  = await fetch('/verify-otp', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, otp, new_password: newPassword })
-            });
-            const data = await res.json();
-            if (res.ok) {
-                showMsg('resetSuccess2', '✅ ' + data.message, 'success');
-                setTimeout(() => { backToStep1(); switchTab('login'); }, 2500);
-            } else {
-                showMsg('resetError2', data.error, 'error');
-            }
-        } catch(e) {
-            showMsg('resetError2', 'Connection error. Please try again.', 'error');
-        } finally {
-            btn.textContent = 'Reset Password';
-            btn.disabled = false;
+    try {
+        const res  = await fetch('/verify-otp', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, otp, new_password: newPassword })
+        });
+        const data = await res.json();
+        if (res.ok) {
+            showMsg('resetSuccess2', '✅ ' + data.message, 'success');
+            setTimeout(() => { backToStep1(); switchTab('login'); }, 2500);
+        } else {
+            showMsg('resetError2', data.error, 'error');
         }
+    } catch(e) {
+        showMsg('resetError2', 'Connection error. Please try again.', 'error');
+    } finally {
+        btn.textContent = 'Reset Password'; btn.disabled = false;
     }
+}
 
-    function backToStep1() {
-        document.getElementById('resetStep1').style.display = 'block';
-        document.getElementById('resetStep2').style.display = 'none';
-        document.getElementById('otpDisplayBox').style.display = 'none';
-        hideMsg('resetError1','resetSuccess1','resetError2','resetSuccess2');
-    }
+function backToStep1() {
+    document.getElementById('resetStep1').style.display = 'block';
+    document.getElementById('resetStep2').style.display = 'none';
+    document.getElementById('otpDisplayBox').style.display = 'none';
+    hideMsg('resetError1','resetSuccess1','resetError2','resetSuccess2');
+}
 
-    // Enter key support
-    document.addEventListener('keypress', e => {
-        if (e.key !== 'Enter') return;
-        const active = document.querySelector('.form-section.active').id;
-        if (active === 'loginSection')  handleLogin();
-        if (active === 'signupSection') handleSignup();
-    });
+// ── Enter key support ──
+document.addEventListener('keypress', e => {
+    if (e.key !== 'Enter') return;
+    const active = document.querySelector('.form-section.active').id;
+    if (active === 'loginSection')  handleLogin();
+    if (active === 'signupSection') handleSignup();
+});
 </script>
 </body>
 </html>

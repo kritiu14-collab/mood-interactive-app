@@ -351,6 +351,12 @@ def signup() -> Any:
 
     if not username or not email or not password:
         return jsonify({"error": "All fields are required."}), 400
+
+    # Strict Gmail-only validation
+    import re as _re
+    if not _re.match(r'^[a-zA-Z0-9._%+\-]+@gmail\.com$', email):
+        return jsonify({"error": "Only @gmail.com email addresses are accepted (e.g. yourname@gmail.com)."}), 400
+
     if len(password) < 8:
         return jsonify({"error": "Password must be at least 8 characters."}), 400
     if age < 10 or age > 100:
@@ -426,17 +432,28 @@ def logout() -> Any:
 
 @app.route("/request-otp", methods=["POST"])
 def request_otp() -> Any:
-    data  = request.json or {}
-    email = data.get("email", "").strip().lower()
+    data     = request.json or {}
+    username = data.get("username", "").strip()
+    email    = data.get("email", "").strip().lower()
 
+    if not username:
+        return jsonify({"error": "Please enter your username."}), 400
     if not email:
         return jsonify({"error": "Please enter your email address."}), 400
 
+    # Validate gmail format for reset too
+    import re as _re
+    if not _re.match(r'^[a-zA-Z0-9._%+\-]+@gmail\.com$', email):
+        return jsonify({"error": "Only @gmail.com email addresses are accepted."}), 400
+
     with get_db() as conn:
-        user = conn.execute("SELECT id, email FROM users WHERE LOWER(email)=?", (email,)).fetchone()
+        user = conn.execute(
+            "SELECT id, email FROM users WHERE LOWER(email)=? AND LOWER(username)=?",
+            (email, username.lower())
+        ).fetchone()
 
     if not user:
-        return jsonify({"error": "No account found with that email address."}), 404
+        return jsonify({"error": "No account found matching that username and email address."}), 404
 
     otp     = str(random.randint(100000, 999999))
     expires = (datetime.now() + timedelta(minutes=10)).strftime("%Y-%m-%d %H:%M:%S")
@@ -2227,6 +2244,16 @@ def account_data() -> Any:
 def three_am_page() -> Any:
     from datetime import datetime
     hour = datetime.now().hour
+    # Only accessible between 1AM and 4AM (hours 1, 2, 3)
+    if hour < 1 or hour >= 4:
+        return render_template(
+            "three_am.html",
+            username=session["username"],
+            hour=hour,
+            streak=0,
+            current_mood=session.get("current_mood", "neutral"),
+            locked=True
+        )
     uid  = session["user_id"]
     with get_db() as conn:
         streak = conn.execute(
@@ -2237,7 +2264,8 @@ def three_am_page() -> Any:
         username=session["username"],
         hour=hour,
         streak=streak["current_streak"] if streak else 0,
-        current_mood=session.get("current_mood", "neutral")
+        current_mood=session.get("current_mood", "neutral"),
+        locked=False
     )
 
 
@@ -2488,17 +2516,8 @@ def venting_chamber_page() -> Any:
 @app.route("/vent-complete", methods=["POST"])
 @login_required
 def vent_complete() -> Any:
-    data       = request.json or {}
-    transcript = data.get("transcript", "").strip()
-    keywords   = data.get("keywords", "")
-    uid        = session["user_id"]
-
-    if transcript:
-        with get_db() as conn:
-            conn.execute(
-                "INSERT INTO venting_sessions (user_id, transcript, keywords) VALUES (?,?,?)",
-                (uid, transcript, keywords)
-            )
+    # PRIVACY: Venting sessions are voice-only — NO transcript or keyword data is stored.
+    # The POST body is intentionally ignored to ensure zero data retention.
 
     # Eva gives a closing acknowledgment after the vent
     system_prompt = (
@@ -2507,12 +2526,10 @@ def vent_complete() -> Any:
         "Now they have finished. Your job is to give a closing acknowledgment — "
         "like a gentle exhale after a storm. "
         "Tell them what they just did took courage. "
-        "Tell them the words are released now. "
+        "Tell them the words are released now and will not be stored or remembered. "
         "Do not reference specific content of what they said. "
         "Speak in 2-3 sentences. Calm. Closing. Like the end of something heavy."
     )
-    if transcript:
-        system_prompt += f"\n\nWhat they vented about (for context only): {transcript[:200]}"
 
     closing = ""
     if GEMINI_API_KEY:
@@ -2534,9 +2551,9 @@ def vent_complete() -> Any:
     if not closing:
         import random
         closing = random.choice([
-            "You said what needed to be said. It's out now — you don't have to carry it alone anymore. Take a breath.",
-            "That took courage. Whatever was inside you, you gave it a voice. Now let it go.",
-            "The words are released. Something lighter is on the other side of this moment.",
+            "You said what needed to be said. It's out now — and it stays between you and the air. Take a breath.",
+            "That took courage. Whatever was inside you, you gave it a voice. Nothing was recorded — it's yours, and it's released.",
+            "The words are released and forgotten. Something lighter is on the other side of this moment.",
         ])
 
     return jsonify({"closing": closing})

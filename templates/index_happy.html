@@ -1034,5 +1034,179 @@ function buildCalendar(calData) {
 })();
 </script>
 
+<!-- ═══════════════════════════════════════════════════
+     3 AM FLOATING BUBBLE
+     Include this snippet at the BOTTOM of every index_{mood}.html
+     just before the closing </body> tag.
+     It checks the client clock and only shows between 1am–4am.
+═══════════════════════════════════════════════════ -->
+
+<style>
+/* ── 3AM Bubble ── */
+#three-am-bubble {
+  position: fixed;
+  z-index: 9999;
+  cursor: pointer;
+  user-select: none;
+  display: none;          /* JS shows it only between 1am–4am */
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  animation: bubbleFloat 5s ease-in-out infinite;
+  filter: drop-shadow(0 4px 24px rgba(139,92,246,0.25));
+  transition: transform 0.2s, filter 0.2s;
+}
+#three-am-bubble:hover {
+  transform: scale(1.06) !important;
+  filter: drop-shadow(0 6px 32px rgba(139,92,246,0.45));
+}
+
+/* The circle bubble */
+.am-bubble-circle {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 38% 38%, rgba(167,139,250,0.22), rgba(109,40,217,0.12));
+  border: 1.5px solid rgba(196,181,253,0.28);
+  backdrop-filter: blur(6px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  position: relative;
+}
+.am-bubble-circle::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  animation: bubblePulse 3s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes bubblePulse {
+  0%,100% { box-shadow: 0 0 0 0 rgba(167,139,250,0.18); }
+  50%      { box-shadow: 0 0 0 12px rgba(167,139,250,0); }
+}
+.am-bubble-moon { font-size: 1.1rem; line-height: 1; }
+.am-bubble-time {
+  font-size: 0.52rem;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  color: rgba(196,181,253,0.85);
+  font-family: 'DM Sans', 'Nunito', sans-serif;
+  text-transform: uppercase;
+}
+
+/* Speech bubble tail */
+.am-bubble-tail {
+  width: 0; height: 0;
+  border-left: 7px solid transparent;
+  border-right: 7px solid transparent;
+  border-top: 9px solid rgba(196,181,253,0.22);
+  margin-top: -1px;
+}
+
+/* Tooltip label */
+.am-bubble-label {
+  background: rgba(30, 20, 60, 0.82);
+  border: 1px solid rgba(196,181,253,0.2);
+  border-radius: 12px;
+  padding: 6px 12px;
+  font-size: 0.67rem;
+  color: rgba(196,181,253,0.75);
+  white-space: nowrap;
+  font-family: 'DM Sans','Nunito',sans-serif;
+  margin-top: 6px;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 0.25s, transform 0.25s;
+  pointer-events: none;
+}
+#three-am-bubble:hover .am-bubble-label {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@keyframes bubbleFloat {
+  0%,100% { transform: translateY(0px) rotate(-2deg); }
+  33%      { transform: translateY(-10px) rotate(2deg); }
+  66%      { transform: translateY(-5px) rotate(-1deg); }
+}
+</style>
+
+<!-- The bubble element -->
+<div id="three-am-bubble" onclick="window.location.href='/three-am'" title="3 AM — do you want to talk about it?">
+  <div class="am-bubble-circle">
+    <div class="am-bubble-moon">🌙</div>
+    <div class="am-bubble-time">3 AM</div>
+  </div>
+  <div class="am-bubble-tail"></div>
+  <div class="am-bubble-label">do you want to talk about it?</div>
+</div>
+
+<script>
+(function() {
+  var bubble = document.getElementById('three-am-bubble');
+  if (!bubble) return;
+
+  /* ── Random floating position confined to page edges ── */
+  function randomEdgePosition() {
+    var margin = 20;
+    var bw = 80, bh = 110; /* approximate bubble size */
+    var vw = window.innerWidth, vh = window.innerHeight;
+    var edge = Math.floor(Math.random() * 4); /* 0=top,1=right,2=bottom,3=left */
+    var x, y;
+    if (edge === 0) {        /* top edge */
+      x = margin + Math.random() * (vw - bw - margin*2);
+      y = margin + 20;
+    } else if (edge === 1) { /* right edge */
+      x = vw - bw - margin;
+      y = margin + 60 + Math.random() * (vh - bh - margin*2 - 60);
+    } else if (edge === 2) { /* bottom edge */
+      x = margin + Math.random() * (vw - bw - margin*2);
+      y = vh - bh - margin;
+    } else {                 /* left edge */
+      x = margin;
+      y = margin + 60 + Math.random() * (vh - bh - margin*2 - 60);
+    }
+    return { x: Math.round(x), y: Math.round(y) };
+  }
+
+  /* ── Drift to a new edge position every 8–14 seconds ── */
+  function driftBubble() {
+    var pos = randomEdgePosition();
+    bubble.style.transition = 'left 4s cubic-bezier(0.45,0,0.55,1), top 4s cubic-bezier(0.45,0,0.55,1)';
+    bubble.style.left = pos.x + 'px';
+    bubble.style.top  = pos.y + 'px';
+  }
+
+  /* ── Show/hide based on time ── */
+  function checkTime() {
+    var h = new Date().getHours();
+    var inWindow = (h >= 1 && h < 4);
+    bubble.style.display = inWindow ? 'flex' : 'none';
+    if (inWindow && bubble.style.left === '') {
+      /* First appearance — set initial position instantly, then start drifting */
+      var pos = randomEdgePosition();
+      bubble.style.transition = 'none';
+      bubble.style.left = pos.x + 'px';
+      bubble.style.top  = pos.y + 'px';
+      setTimeout(driftBubble, 100);
+    }
+  }
+
+  checkTime();
+  setInterval(checkTime, 60000); /* re-check every minute */
+
+  /* Drift on a random interval between 8–14s */
+  function scheduleDrift() {
+    var delay = 8000 + Math.random() * 6000;
+    setTimeout(function() { driftBubble(); scheduleDrift(); }, delay);
+  }
+  scheduleDrift();
+})();
+</script>
+
 </body>
 </html>
