@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Solace | Welcome</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:ital,wght@1,600&display=swap');
 
@@ -360,13 +361,6 @@
                 <div id="resetError1"   class="msg-error"></div>
                 <div id="resetSuccess1" class="msg-success"></div>
 
-                <!-- OTP display box — shown if email delivery succeeds or during dev -->
-                <div class="otp-display-box" id="otpDisplayBox">
-                    <div class="otp-label">Your OTP Code</div>
-                    <div class="otp-code" id="otpDisplayCode"></div>
-                    <div class="otp-expiry">Valid for 10 minutes — copy it below</div>
-                </div>
-
                 <button class="btn-primary" id="sendOtpBtn" onclick="requestOTP()">Send OTP</button>
             </div>
 
@@ -609,12 +603,20 @@ async function handleSignup() {
 }
 
 // ══════════════════════════════════════════════════
+// EmailJS config — replace with your actual values
+// ══════════════════════════════════════════════════
+const EMAILJS_PUBLIC_KEY  = 'VjvwNZ-OLHvyg71UG';      // from EmailJS Account page
+const EMAILJS_SERVICE_ID  = 'service_u5y88lp';      // from EmailJS Email Services
+const EMAILJS_TEMPLATE_ID = 'template_dfkmhxr';     // from EmailJS Email Templates
+
+emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
+
+// ══════════════════════════════════════════════════
 // RESET — Step 1: Request OTP with username + email
 // ══════════════════════════════════════════════════
 
 async function requestOTP() {
     hideMsg('resetError1', 'resetSuccess1');
-    document.getElementById('otpDisplayBox').style.display = 'none';
 
     const username = document.getElementById('resetUsername').value.trim();
     const email    = document.getElementById('resetEmail').value.trim();
@@ -635,6 +637,7 @@ async function requestOTP() {
     btn.textContent = 'Sending...'; btn.disabled = true;
 
     try {
+        // Step 1: Ask backend to generate & store the OTP
         const res  = await fetch('/request-otp', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -642,25 +645,29 @@ async function requestOTP() {
         });
         const data = await res.json();
 
-        if (res.ok) {
-            // Show OTP on-screen (dev mode — remove data.otp display in production)
-            if (data.otp) {
-                document.getElementById('otpDisplayCode').textContent = data.otp;
-                document.getElementById('otpDisplayBox').style.display = 'block';
-                showMsg('resetSuccess1', 'OTP generated! Copy it from the green box above.', 'success');
-            } else {
-                showMsg('resetSuccess1', 'OTP sent to your Gmail — check your inbox.', 'success');
-            }
-            setTimeout(() => {
-                document.getElementById('resetStep1').style.display = 'none';
-                document.getElementById('resetStep2').style.display = 'block';
-                document.getElementById('otpCode').focus();
-            }, 1800);
-        } else {
+        if (!res.ok) {
             showMsg('resetError1', data.error, 'error');
+            return;
         }
+
+        // Step 2: Send the OTP to user's email via EmailJS (frontend)
+        await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+            to_email: email,
+            to_name:  username,
+            otp:      data.otp,
+            expiry:   '10 minutes'
+        });
+
+        showMsg('resetSuccess1', '✉️ OTP sent! Check your Gmail inbox.', 'success');
+        setTimeout(() => {
+            document.getElementById('resetStep1').style.display = 'none';
+            document.getElementById('resetStep2').style.display = 'block';
+            document.getElementById('otpCode').focus();
+        }, 1800);
+
     } catch(e) {
-        showMsg('resetError1', 'Connection error. Is the server running?', 'error');
+        console.error('OTP send error:', e);
+        showMsg('resetError1', 'Failed to send OTP. Check EmailJS config or internet connection.', 'error');
     } finally {
         btn.textContent = 'Send OTP'; btn.disabled = false;
     }
@@ -713,7 +720,6 @@ async function verifyOTP() {
 function backToStep1() {
     document.getElementById('resetStep1').style.display = 'block';
     document.getElementById('resetStep2').style.display = 'none';
-    document.getElementById('otpDisplayBox').style.display = 'none';
     hideMsg('resetError1','resetSuccess1','resetError2','resetSuccess2');
 }
 

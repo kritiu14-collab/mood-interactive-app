@@ -634,12 +634,12 @@
         <div class="row g-4">
 
             
-            <div class="col-md-4 col-sm-6"><div class="feature-card"><span class="feature-icon">🤖</span><h5>Solace AI</h5><p>Let's talk. Share what's on your heart — I'm here to listen.</p><a href="/ai_chat" class="btn-mood w-100">Talk to AI</a></div></div>
+            <div class="col-md-4 col-sm-6"><div class="feature-card"><span class="feature-icon">🤖</span><h5>Eva</h5><p>Let's talk. Share what's on your heart — I'm here to listen.</p><a href="/ai_chat" class="btn-mood w-100">Talk to AI</a></div></div>
             <div class="col-md-4 col-sm-6"><div class="feature-card"><span class="feature-icon">🎵</span><h5>Warming Sounds</h5><p>Gentle cosy music to wrap around you like a blanket.</p><a href="/music" class="btn-mood w-100">Play Music</a></div></div>
             <div class="col-md-4 col-sm-6"><div class="feature-card"><span class="feature-icon">✅</span><h5>Gentle Tasks</h5><p>Small steps only. Drink water. Stretch. That's enough.</p><a href="/todo" class="btn-mood w-100">View Tasks</a></div></div>
             <div class="col-md-4 col-sm-6"><div class="feature-card"><span class="feature-icon">📖</span><h5>Write It Out</h5><p>Journaling helps process emotions. Let it all out here.</p><a href="/journal" class="btn-mood w-100">Open Journal</a></div></div>
             <div class="col-md-4 col-sm-6"><div class="feature-card"><span class="feature-icon">📊</span><h5>Your Journey</h5><p>Hard days are part of the story. See how far you have come.</p><a href="/history" class="btn-mood w-100">View History</a></div></div>
-            <div class="col-md-4 col-sm-6"><div class="feature-card"><span class="feature-icon">🔄</span><h5>Change Mood</h5><p>Feeling warmer now? Update your mood anytime.</p><a href="/tracker" class="btn-mood w-100">Update Mood</a></div></div>
+            <div class="col-md-4 col-sm-6"><div class="feature-card"><span class="feature-icon">🫂</span><h5>Community</h5><p>Feeling warmer now? Update your mood anytime.</p><a href="/communtiy" class="btn-mood w-100">Community</a></div></div>
 
         </div><!-- end row -->
 
@@ -716,17 +716,7 @@
         </div>
         {% endif %}
 
-        <!-- STORY OF THE DAY -->
-        {% if story %}
-        <div class="story-card mt-3">
-            <div class="story-label">📖 Story of the Day</div>
-            <div class="story-animal">{{ story.animal_emoji }} {{ story.animal_name }}</div>
-            <div class="story-title-text">{{ story.title }}</div>
-            <div class="story-preview">{{ story.story[:120] }}...</div>
-            <a href="/community" class="story-link">Read full story →</a>
-        </div>
-        {% endif %}
-
+       
         <!-- JOURNAL PROMPT -->
         {% if journal_prompt %}
         <div class="prompt-card mt-3">
@@ -736,66 +726,7 @@
         </div>
         {% endif %}
 
-        <!-- WEEKLY LETTER CTA -->
-        {% if show_letter %}
-        <div class="letter-card mt-3">
-            <span class="letter-emoji">💌</span>
-            <div>
-                <div class="letter-title">Your Weekly Letter from Eva is Ready</div>
-                <div class="letter-sub">A personal note about your week — written just for you.</div>
-            </div>
-            <a href="/weekly_letter" class="letter-btn">Read It →</a>
-        </div>
-        {% endif %}
-
-
-        <!-- ═══ 3 AM BUTTON ═══ -->
-        <div id="threeAmBtn" style="display:none;" class="mt-3">
-            <a href="/three-am" style="display:flex;align-items:center;gap:12px;background:linear-gradient(135deg,rgba(10,10,30,0.85),rgba(30,10,60,0.85));border:1px solid rgba(196,181,253,0.2);border-radius:16px;padding:14px 20px;text-decoration:none;transition:0.2s;" onmouseover="this.style.borderColor='rgba(196,181,253,0.4)'" onmouseout="this.style.borderColor='rgba(196,181,253,0.2)'">
-                <span style="font-size:1.6rem;">🌙</span>
-                <div>
-                    <div style="font-weight:800;color:rgba(196,181,253,0.9);font-size:0.88rem;">It's 3 AM and you're awake.</div>
-                    <div style="font-size:0.75rem;color:rgba(196,181,253,0.45);margin-top:2px;">Eva is awake too. Come in.</div>
-                </div>
-                <span style="margin-left:auto;color:rgba(196,181,253,0.3);font-size:1.1rem;">→</span>
-            </a>
-        </div>
-
-        <!-- ═══ NEW FEATURE BUTTONS ═══ -->
-        <div class="mt-3" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-            <a href="/unsent-letter" style="display:flex;align-items:center;gap:10px;background:var(--mood-light);border:1.5px solid var(--mood-border);border-radius:14px;padding:12px 14px;text-decoration:none;transition:0.2s;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
-                <span style="font-size:1.3rem;">💌</span>
-                <div>
-                    <div style="font-weight:800;color:var(--mood-dark);font-size:0.78rem;">Unsent Letter</div>
-                    <div style="font-size:0.68rem;color:#999;">Write what you can't say</div>
-                </div>
-            </a>
-            <a href="/venting-chamber" style="display:flex;align-items:center;gap:10px;background:var(--mood-light);border:1.5px solid var(--mood-border);border-radius:14px;padding:12px 14px;text-decoration:none;transition:0.2s;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
-                <span style="font-size:1.3rem;">🎙️</span>
-                <div>
-                    <div style="font-weight:800;color:var(--mood-dark);font-size:0.78rem;">Vent It Out</div>
-                    <div style="font-size:0.68rem;color:#999;">Speak. Release. Let go.</div>
-                </div>
-            </a>
-            <a href="/reverse-journal" style="display:flex;align-items:center;gap:10px;background:var(--mood-light);border:1.5px solid var(--mood-border);border-radius:14px;padding:12px 14px;text-decoration:none;transition:0.2s;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
-                <span style="font-size:1.3rem;">🔮</span>
-                <div>
-                    <div style="font-weight:800;color:var(--mood-dark);font-size:0.78rem;">Future Letter</div>
-                    <div style="font-size:0.68rem;color:#999;">Letter from future you</div>
-                </div>
-            </a>
-            <a href="/three-am" style="display:flex;align-items:center;gap:10px;background:var(--mood-light);border:1.5px solid var(--mood-border);border-radius:14px;padding:12px 14px;text-decoration:none;transition:0.2s;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
-                <span style="font-size:1.3rem;">🌙</span>
-                <div>
-                    <div style="font-weight:800;color:var(--mood-dark);font-size:0.78rem;">3 AM Mode</div>
-                    <div style="font-size:0.68rem;color:#999;">Eva is always awake</div>
-                </div>
-            </a>
-        </div>
-
-    </div>
-</section>
-
+      <br></br>
 <footer>
     <div class="container text-center">
         <p class="mb-0">solace. · Your Mood-Interactive Sanctuary &copy; 2026</p>

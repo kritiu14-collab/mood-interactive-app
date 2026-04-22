@@ -17,6 +17,7 @@ from flask import (
 from dotenv import load_dotenv
 import smtplib
 from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
 load_dotenv()
 
@@ -24,10 +25,10 @@ app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "solace-dev-secret")
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
-MAIL_HOST      = os.getenv("MAIL_HOST", "smtp.gmail.com")
-MAIL_PORT      = int(os.getenv("MAIL_PORT", 587))
-MAIL_USER      = os.getenv("MAIL_USER", "")
-MAIL_PASSWORD  = os.getenv("MAIL_PASSWORD", "")
+MAIL_HOST      = "smtp.gmail.com"
+MAIL_PORT      = 465                                          # SSL port — more reliable than 587 for Gmail
+MAIL_USER      = "project-solace.bringingpeace@gmail.com"    # Solace sender address
+MAIL_PASSWORD  = os.getenv("MAIL_PASSWORD", "")              # Gmail App Password — set in .env file
 
 
 # ---------------------------------------------------------------------------
@@ -301,20 +302,52 @@ def admin_required(f: Any) -> Any:
 
 
 def send_otp_email(to_email: str, otp: str) -> bool:
+    """Send OTP via Gmail using SSL (port 465) with App Password."""
+    if not MAIL_PASSWORD:
+        print("[OTP] ERROR: MAIL_PASSWORD is not set in .env — email NOT sent.")
+        return False
+
     try:
-        msg = MIMEText(
-            f"Your Solace password reset OTP is: {otp}\n\nExpires in 10 minutes.", "plain"
-        )
-        msg["Subject"] = "Solace – Password Reset OTP"
-        msg["From"]    = MAIL_USER
+        msg = MIMEMultipart("alternative")
+        msg["Subject"] = "Solace – Your Password Reset OTP"
+        msg["From"]    = f"Solace <{MAIL_USER}>"
         msg["To"]      = to_email
-        with smtplib.SMTP(MAIL_HOST, MAIL_PORT) as s:
-            s.starttls()
+
+        plain = f"Your Solace OTP is: {otp}\n\nValid for 10 minutes. Do not share this code."
+        html  = f"""
+        <div style="font-family:'DM Sans',sans-serif;max-width:480px;margin:auto;
+                    padding:32px;background:#f0fdf4;border-radius:14px;
+                    border:2px solid #22c55e;">
+          <h2 style="font-family:Georgia,serif;color:#15803d;margin:0 0 8px;">solace.</h2>
+          <p style="color:#374151;margin:0 0 24px;">
+            Here is your one-time password to reset your Solace account password:
+          </p>
+          <div style="font-size:2.4rem;font-weight:800;letter-spacing:12px;
+                      color:#15803d;text-align:center;background:#dcfce7;
+                      padding:20px;border-radius:10px;font-family:monospace;">
+            {otp}
+          </div>
+          <p style="color:#6b7280;font-size:0.82rem;margin:20px 0 0;text-align:center;">
+            Valid for 10 minutes &nbsp;·&nbsp; Do not share this code with anyone.
+          </p>
+        </div>
+        """
+        msg.attach(MIMEText(plain, "plain"))
+        msg.attach(MIMEText(html,  "html"))
+
+        # Use SMTP_SSL (port 465) — works reliably with Gmail App Passwords
+        with smtplib.SMTP_SSL(MAIL_HOST, MAIL_PORT) as s:
             s.login(MAIL_USER, MAIL_PASSWORD)
             s.sendmail(MAIL_USER, to_email, msg.as_string())
+
+        print(f"[OTP] Email sent successfully to {to_email}")
         return True
+
+    except smtplib.SMTPAuthenticationError:
+        print("[OTP] ERROR: Gmail authentication failed. Check your App Password in .env")
+        return False
     except Exception as e:
-        print(f"Mail error: {e}")
+        print(f"[OTP] ERROR: {e}")
         return False
 
 
@@ -463,14 +496,14 @@ def request_otp() -> Any:
         conn.execute("INSERT INTO otp_store (email, otp, expires_at) VALUES (?,?,?)",
                      (email, otp, expires))
 
-    ok = send_otp_email(email, otp)
+    ok = send_otp_email(email, otp)   # still attempted but not relied on
     masked = email[:2] + "***" + email[email.index("@"):]
-
-    # Always return OTP in response so it shows on screen during development
-    # In production remove "otp" from this response
     print(f"[OTP] Generated for {email}: {otp}")
+
+    # Return OTP to frontend — EmailJS will send it to the user's inbox
+    # The OTP is also stored in DB so the backend can verify it independently
     return jsonify({
-        "message": f"OTP generated for {masked}",
+        "message": f"OTP ready for {masked}",
         "otp": otp
     }), 200
 

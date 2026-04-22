@@ -728,12 +728,12 @@
         <div class="row g-4">
 
             
-            <div class="col-md-4 col-sm-6"><div class="feature-card"><span class="feature-icon">🤖</span><h5>Harmony AI</h5><p>In a balanced state? Explore a new habit or journal your week.</p><a href="/ai_chat" class="btn-mood w-100">Start Chat</a></div></div>
+            <div class="col-md-4 col-sm-6"><div class="feature-card"><span class="feature-icon">🤖</span><h5>Eva</h5><p>In a balanced state? Explore a new habit or journal your week with your virtual friend Eva.</p><a href="/ai_chat" class="btn-mood w-100">Start Chat</a></div></div>
             <div class="col-md-4 col-sm-6"><div class="feature-card"><span class="feature-icon">🎵</span><h5>Peaceful Piano</h5><p>Acoustic and classical pieces for your serene mood.</p><a href="/music" class="btn-mood w-100">Play Music</a></div></div>
             <div class="col-md-4 col-sm-6"><div class="feature-card"><span class="feature-icon">✅</span><h5>Balanced Tasks</h5><p>A gentle checklist for a productive mindful day.</p><a href="/todo" class="btn-mood w-100">View Tasks</a></div></div>
             <div class="col-md-4 col-sm-6"><div class="feature-card"><span class="feature-icon">📖</span><h5>Reflection Journal</h5><p>Capture this stillness — write your thoughts and intentions.</p><a href="/journal" class="btn-mood w-100">Open Journal</a></div></div>
             <div class="col-md-4 col-sm-6"><div class="feature-card"><span class="feature-icon">📊</span><h5>Your Balance</h5><p>Track how often you reach this calm state.</p><a href="/history" class="btn-mood w-100">View History</a></div></div>
-            <div class="col-md-4 col-sm-6"><div class="feature-card"><span class="feature-icon">🔄</span><h5>Change Mood</h5><p>Feeling differently? Update your mood anytime.</p><a href="/tracker" class="btn-mood w-100">Update Mood</a></div></div>
+            <div class="col-md-4 col-sm-6"><div class="feature-card"><span class="feature-icon">🔄</span><h5>Commnity</h5><p>Feeling differently? Share your thoughts.</p><a href="/community" class="btn-mood w-100">Communtiy</a></div></div>
 
 
         </div><!-- end row -->
@@ -819,17 +819,7 @@
         </div>
         {% endif %}
 
-        <!-- STORY OF THE DAY -->
-        {% if story %}
-        <div class="story-card mt-3">
-            <div class="story-label">📖 Story of the Day</div>
-            <div class="story-animal">{{ story.animal_emoji }} {{ story.animal_name }}</div>
-            <div class="story-title-text">{{ story.title }}</div>
-            <div class="story-preview">{{ story.story[:120] }}...</div>
-            <a href="/community" class="story-link">Read full story →</a>
-        </div>
-        {% endif %}
-
+       
         <!-- JOURNAL PROMPT -->
         {% if journal_prompt %}
         <div class="prompt-card mt-3">
