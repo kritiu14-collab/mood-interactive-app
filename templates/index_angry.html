@@ -6,35 +6,41 @@
     <title>Solace | Angry 😡</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        /* ── INSIDE OUT: HAPPY = GOLDEN YELLOW ── */
-        :root {
-            --mood-primary:   #74C69D;
-            --mood-secondary: #40916C;
-            --mood-light:     #F0FFF4;
-            --mood-dark:      #1b4332;
-            --mood-card-bg:   #FFFDF0;
-            --mood-border:    #B7E4C7;
-            --mood-btn:       #FFD700;
-            --mood-btn-text:  #1b4332;
-            --mood-hero-from: #74C69D;
-            --mood-hero-to:   #40916C;
-            --mood-nav-bg:    #0d2818;
-            --mood-footer-bg: #0d2818;
-        }
+  <style>
+    /* ── PSYCHOLOGICAL DE-ESCALATION: ANGRY = DEEP INDIGO & CLOUD GREY ── */
+    :root {
+        --mood-primary:   #5C6BC0; /* Indigo - Stability */
+        --mood-secondary: #3949AB; /* Deep Blue - Grounding */
+        --mood-light:     #F5F7FA; /* Cloud White - Neutrality */
+        --mood-dark:      #283593; /* Dark Navy - Authority/Control */
+        --mood-card-bg:   #ffffff;
+        --mood-border:    #C5CAE9;
+        --mood-btn:       #7986CB; /* Soft Indigo */
+        --mood-btn-text:  #ffffff;
+        --mood-hero-from: #3F51B5;
+        --mood-hero-to:   #9FA8DA;
+        --mood-nav-bg:    #1A237E; /* Very Dark Navy */
+        --mood-footer-bg: #1A237E;
+    }
 
-        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
+    /* Subtle "Cooling" Animation */
+    @keyframes coolingFlow {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-
-        body {
-            font-family: 'Nunito', 'Segoe UI', sans-serif;
-            background: var(--mood-light);
-            color: var(--mood-dark);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
+    body {
+        font-family: 'Nunito', 'Segoe UI', sans-serif;
+        background: linear-gradient(-45deg, #F5F7FA, #E8EAF6, #C5CAE9);
+        background-size: 400% 400% !important;
+        animation: coolingFlow 12s ease-in-out infinite;
+        color: var(--mood-dark);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        transition: all 0.5s ease;
+    }
 
         /* ── NAVBAR ── */
         .navbar {
