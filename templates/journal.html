@@ -372,35 +372,7 @@ input[type=date]:focus,input[type=text]:focus{border-color:var(--primary);}
 
   <div class="sidebar-section-label" style="margin-top:12px;">Weekly Letter</div>
 
-  <!-- FUTURE LETTER in sidebar — shows once a week -->
-  <div class="future-letter-side">
-    <div class="fl-side-label">🔮 From Future You</div>
-    <div class="fl-side-mood" id="flSideMood">
-      {% set MOOD_EMOJI = {'happy':'😊','sad':'😞','angry':'😡','anxious':'😰','calm':'😌','stressed':'😫','tired':'😴','imagination':'🎠','swings':'🎢','neutral':'🌀'} %}
-      {{ MOOD_EMOJI.get(dominant_mood, '🌀') }} This week: <strong>{{ dominant_mood|capitalize }}</strong>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:10px;">
-      <div style="background:rgba(59,130,246,0.1);border-radius:8px;padding:8px;text-align:center;">
-        <div style="font-size:1.1rem;font-weight:800;color:#3b82f6;">{{ tasks_done }}</div>
-        <div style="font-size:0.6rem;color:#93c5fd;text-transform:uppercase;letter-spacing:.5px;">Tasks</div>
-      </div>
-      <div style="background:rgba(59,130,246,0.1);border-radius:8px;padding:8px;text-align:center;">
-        <div style="font-size:1.1rem;font-weight:800;color:#3b82f6;">{{ journals_written }}</div>
-        <div style="font-size:0.6rem;color:#93c5fd;text-transform:uppercase;letter-spacing:.5px;">Journals</div>
-      </div>
-      <div style="background:rgba(59,130,246,0.1);border-radius:8px;padding:8px;text-align:center;">
-        <div style="font-size:1.1rem;font-weight:800;color:#3b82f6;">{{ streak }}</div>
-        <div style="font-size:0.6rem;color:#93c5fd;text-transform:uppercase;letter-spacing:.5px;">Streak</div>
-      </div>
-    </div>
-    <button class="fl-side-btn" id="genFutureBtn" onclick="generateFutureLetter()">
-      🔮 Generate My Letter
-    </button>
-    <div class="fl-output-side" id="flOutputSide">
-      <div class="fl-text-side" id="flTextSide"></div>
-      <div class="fl-sign-side" id="flSignSide"></div>
-    </div>
-  </div>
+    
 
   <div class="sidebar-section-label" style="margin-top:12px;">Navigate</div>
   <button class="tab-btn" onclick="window.location.href='/dashboard'">
